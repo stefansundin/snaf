@@ -1,0 +1,13 @@
+Installation instructions for SNAF.
+
+Required software:
+* Web server with PHP 4 or newer.
+* A MySQL server.
+
+SNAF is mainly developed on Linux, but should work on other platforms as well.
+You can install SNAF in some different ways, to state some:
+* Installing a stable release
+* Installing a nightly build
+* Checking out a recent revision using Subversion
+
+Remember, freedom is nice...
