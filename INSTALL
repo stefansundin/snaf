@@ -10,4 +10,14 @@ You can install SNAF in some different ways, to state some:
 * Installing a nightly build
 * Checking out a recent revision using Subversion
 
+To use nice URLs in SNAF you must use Apache with the module mod_rewrite and
+apply a <Directory> statement.
+Below is an example of such a statement, change paths to your need.
+<Directory /www/snaf>
+	RewriteEngine On
+	#The path below should point to the dirname of the url, e.g. /snaf for http://yourserver.com/snaf
+	RewriteBase /snaf
+	RewriteRule ^login$ hooks/login.php
+</Directory>
+
 Remember, freedom is nice...
