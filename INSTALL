@@ -18,6 +18,7 @@ Below is an example of such a statement, change paths to your need.
 	#The path below should point to the dirname of the url, e.g. /snaf for http://yourserver.com/snaf
 	RewriteBase /snaf
 	RewriteRule ^login$ hooks/login.php
+	RewriteRule ^logout$ hooks/logout.php
 </Directory>
 
 Remember, freedom is nice...

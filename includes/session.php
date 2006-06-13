@@ -47,10 +47,9 @@ if (extension_loaded('session')) {
 		#If the session
 		# have an id
 		# have an IP associated with the session
-		# and our user isn't logging out
 		#then we proceed
 		
-		if (isset($_SESSION['id']) && !isset($_GET['logout']) && isset($_SESSION['ip'])) {
+		if (isset($_SESSION['id']) && isset($_SESSION['ip'])) {
 			#We assume a session fixation if the IP associated with the session doesn't match our user's IP
 			
 			if ($_SESSION['ip'] == SNAF_IP) { #IP's match

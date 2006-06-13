@@ -39,9 +39,9 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-#Have our user already loggedin?
+#Have our user already logged in?
 if (in_array('login',$user['permission'])) { #Yes
-	echo 'already loggedin';
+	echo 'already logged in';
 	exit(5);
 }
 
@@ -77,13 +77,12 @@ else if (SNAF_HTTPAUTH && isset($_GET['httpauth'])) {
 		#exit('Cancel button pressed');
 	}
 }
-# If no username has been provided, presume id 1
+/*# If no username has been provided, presume id 1
 if (!isset($login['username']) && isset($login['password'])) {
 	$login['username']=1;
-}
+}*/
 
-#Try to login
-# If credentials are available
+#Try to login if credentials were supplied
 if (isset($login['username']) && isset($login['password'])) {
 	#Login using id if username is composed of numbers
 	if (is_numeric($login['username'])) {
@@ -112,11 +111,11 @@ if (isset($login['username']) && isset($login['password'])) {
 		$_SESSION['username']=mysql_result($result,0,'username');
 		#IP check against session takeovers
 		$_SESSION['ip']=SNAF_IP;
-		echo 'successful login';
+		echo 'success';
 		exit(9);
 	}
 	else { #No
-		echo 'incorrect credentials';
+		echo 'invalid credentials';
 		exit(8);
 	}
 }

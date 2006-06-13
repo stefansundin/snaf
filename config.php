@@ -44,7 +44,7 @@ define('SNAF_TABLEPREFIX','snaf_');
 # If you are not alone on a domain, it would be a good idea to set this to something unique to prevent unwanted session exchanges:
 define('SNAF_SESSIONPREFIX','snaf_');
 #You shouldn't need to edit the constants below
-define('SNAF_VERSION','0.000000000000001');
+define('SNAF_VERSION','0.000000000000004');
 define('SNAF_HTTPAUTH',((bool)ini_get('safe_mode'))?false:true);
 
 #Error handling

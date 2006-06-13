@@ -45,15 +45,10 @@ echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 <head>
 	<title>SNAF - Loading...</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<script type="text/javascript" src="themes/<?php echo SNAF_THEME; ?>/basejs.php"></script>
+	<script type="application/javascript" src="themes/<?php echo SNAF_THEME; ?>/basejs.php"></script>
 	<link rel="stylesheet" href="themes/<?php echo SNAF_THEME; ?>/style.css" title="Default" type="text/css" charset="utf-8" media="all" />
 </head>
 <body>
-	Loading...
-	<form method="post" onsubmit="login();return false;">
-		Username: <input type="text" name="username" id="username" /><br />
-		Password: <input type="password" name="password" id="password" /><br />
-		<input type="submit" value="Login" /><br />
-	</form>
+	<div id="login"></div>
 </body>
 </html>
