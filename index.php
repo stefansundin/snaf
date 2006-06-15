@@ -49,6 +49,6 @@ echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 	<link rel="stylesheet" href="themes/<?php echo SNAF_THEME; ?>/style.css" title="Default" type="text/css" charset="utf-8" media="all" />
 </head>
 <body>
-	<div id="login"></div>
+	Your browser doesn't support JavaScript.
 </body>
 </html>

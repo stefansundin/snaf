@@ -19,6 +19,7 @@ Below is an example of such a statement, change paths to your need.
 	RewriteBase /snaf
 	RewriteRule ^login$ hooks/login.php
 	RewriteRule ^logout$ hooks/logout.php
+	RewriteRule ^thread: hooks/thread.php
 </Directory>
 
 Remember, freedom is nice...

@@ -18,22 +18,37 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file controlls the JavaScript which the entire site depends on.
+This file have the JavaScript which the entire site depends on.
 
 http_request.readyState:
-0 Uninitialized
-    The initial value.
-1 Open
-    The open() method has been successfully called.
-2 Sent
-    The UA successfully completed the request, but no data has yet been received.
-3 Receiving
-    Immediately before receiving the message body (if any). All HTTP headers have been received.
-4 Loaded
-    The data transfer has been completed.
+ * 0 — Uninitialized — The initial value.
+ * 1 — Open — The open() method has been successfully called.
+ * 2 — Sent — The UA successfully completed the request,
+              but no data has yet been received.
+ * 3 — Receiving — Immediately before receiving the message body (if any).
+                   All HTTP headers have been received.
+ * 4 — Loaded — The data transfer has been completed.
+
 http_request.status:
-If the status attribute is not available it MUST raise an exception. It MUST be available when readyState is 3 (Receiving) or 4 (Loaded). When available, it MUST represent the HTTP status code (typically 200 for a successful connection).
-while(parent.hasChildNodes) { parent.removeChild(parent.firstChild)); }
+ 200 = successful connection.
+
+noteType:
+ * Node.ELEMENT_NODE == 1
+ * Node.ATTRIBUTE_NODE == 2
+ * Node.TEXT_NODE == 3
+ * Node.CDATA_SECTION_NODE == 4
+ * Node.ENTITY_REFERENCE_NODE == 5
+ * Node.ENTITY_NODE == 6
+ * Node.PROCESSING_INSTRUCTION_NODE == 7
+ * Node.COMMENT_NODE == 8
+ * Node.DOCUMENT_NODE == 9
+ * Node.DOCUMENT_TYPE_NODE == 10
+ * Node.DOCUMENT_FRAGMENT_NODE == 11
+ * Node.NOTATION_NODE == 12 
+ So we'll better ignore noteType 3 (tabs, spaces and newlines) and 8 (comments).
+
+Clear all childs inside an element:
+ while(parent.hasChildNodes()) { parent.removeChild(parent.firstChild)); }
 */
 
 #Be sure this file is the one who start execution
@@ -52,28 +67,78 @@ require_once('../../includes/session.php');
 ?>
 
 window.onload=function() {
+	b=document.body;
+	b.removeChild(b.firstChild);
+	
+	d=document.createElement('div');
+	d.id='login';
+	b.appendChild(d);
+	
 <?php
 if (in_array('login',$user['permission'])) {
-	echo "dologin('success');\n";
+	echo "\tdologin('success');\n";
 } else {
-	echo "dologout('success');\n";
+	echo "\tdologout('success');\n";
 }
 ?>
+}
+
+function thread() {
+	var http_request=false;
+	http_request=new XMLHttpRequest();
+	if (!http_request) {
+		alert('Unable to create an XMLHttpRequest instance.\n'+
+		      'You are most likely using an old browser.');
+		return false;
+	}
+	
+	http_request.overrideMimeType('text/xml');
+	http_request.open('GET','thread%3a1',false);
+	http_request.send(null);
+	
+	if (http_request.status == 200) {
+		xml=http_request.responseXML;
+		post=xml.firstChild;
+		alert('thread: '+post.getAttribute('thread')+'\n'+
+		      'id: '+post.getAttribute('id'));
+		if (post.hasChildNodes()) {
+			var children = post.childNodes;
+			for (i=0; i < children.length; i++) {
+				if (children[i].nodeType != 3 && children[i].nodeType != 8){ 
+					alert('children[i]: '+children[i]+'\n'+
+					      'tagName: '+children[i].tagName+'\n'+
+					      'textContent: '+children[i].textContent);
+				}
+			}
+		}
+	} else { //Error
+		alert('There was a problem with the request:\n'+
+		       http_request.statusText);
+	}
 }
 
 function login() {
 	var http_request=false;
 	http_request=new XMLHttpRequest();
 	if (!http_request) {
-		alert('Unable to create an XMLHttpRequest instance.\n\
-		       You are most likely using an old browser.');
+		alert('Unable to create an XMLHttpRequest instance.\n'+
+		      'You are most likely using an old browser.');
 		return false;
 	}
 	
-	http_request.onreadystatechange=function() { readylistener(http_request,dologin); };
-	http_request.open('POST','login',true);
-	http_request.setRequestHeader('Content-Type','application/x-www-form-urlencoded; charset=utf-8');
-	http_request.send('username='+encodeURI(document.getElementById('username').value)+'&password='+encodeURI(document.getElementById('password').value));
+	http_request.open('POST','login',false);
+	http_request.setRequestHeader('Content-Type'
+	           ,'application/x-www-form-urlencoded; charset=utf-8');
+	http_request.send(
+		'username='+encodeURI(document.getElementById('username').value)+
+		'&password='+encodeURI(document.getElementById('password').value));
+	
+	if (http_request.status == 200) {
+		dologin(http_request.responseText);
+	} else { //Error
+		alert('There was a problem with the request:\n'+
+		       http_request.statusText);
+	}
 }
 
 function dologin(state) {
@@ -83,6 +148,12 @@ function dologin(state) {
 		a=document.createElement('a');
 		a.onclick=function(){ logout(); }
 		a.appendChild(document.createTextNode('Logout'));
+		d.appendChild(a);
+		d.appendChild(document.createElement('br'));
+		
+		a=document.createElement('a');
+		a.onclick=function(){ thread(); }
+		a.appendChild(document.createTextNode('Thread'));
 		d.appendChild(a);
 	}
 	else if (state == 'no credentials' || state == 'one credential') {
@@ -111,14 +182,20 @@ function logout() {
 	var http_request=false;
 	http_request=new XMLHttpRequest();
 	if (!http_request) {
-		alert('Unable to create an XMLHttpRequest instance.\n\
-		       You are most likely using an old browser.');
+		alert('Unable to create an XMLHttpRequest instance.\n'+
+		      'You are most likely using an old browser.');
 		return false;
 	}
 	
-	http_request.onreadystatechange=function() { readylistener(http_request,dologout); };
-	http_request.open('GET','logout',true);
+	http_request.open('GET','logout',false);
 	http_request.send(null);
+	
+	if (http_request.status == 200) {
+		dologout(http_request.responseText);
+	} else { //Error
+		alert('There was a problem with the request:\n'+
+		       http_request.statusText);
+	}
 }
 
 function dologout(state) {
@@ -147,21 +224,27 @@ function dologout(state) {
 		
 		d.appendChild(f);
 	}
+	else if (state == 'not logged in') { //Session timeout?
+		if (!(e=document.getElementById('loginerror'))) {
+			e=document.createElement('span');
+			e.id='loginerror';
+			d.appendChild(e);
+		} else {
+			e.removeChild(e.firstChild);
+		}
+		d.appendChild(document.createElement('br'));
+		d.appendChild(document.createTextNode('You are not logged in'));
+	}
 }
 
+/*Not used anymore*/
 function readylistener(http_request,callbackfunction) {
 	if (http_request.readyState == 4) {
 		if (http_request.status == 200) {
 			callbackfunction(http_request.responseText);
-			//if (http_request.responseText == 'success') {
-				//document.getElementById('login').innerHTML='logged in';
-			//} else if (http_request.responseText == 'invalid credentials') {
-				//document.getElementById('loginerror').innerHTML='invalid credentials';
-			//}
-			//alert(http_request.responseText);
 		} else { //Error
-			alert('There was a problem with the request:\n\
-			     '+http_request.statusText);
+			alert('There was a problem with the request:\n'+
+			       http_request.statusText);
 		}
 	}
 }
