@@ -48,7 +48,7 @@ noteType:
  So we'll better ignore noteType 3 (tabs, spaces and newlines) and 8 (comments).
 
 Clear all childs inside an element:
- while(parent.hasChildNodes()) { parent.removeChild(parent.firstChild)); }
+while (parent.hasChildNodes()) { parent.removeChild(parent.firstChild); }
 */
 
 #Be sure this file is the one who start execution
@@ -73,7 +73,6 @@ window.onload=function() {
 	d=document.createElement('div');
 	d.id='login';
 	b.appendChild(d);
-	
 <?php
 if (in_array('login',$user['permission'])) {
 	echo "\tdologin('success');\n";
@@ -81,6 +80,12 @@ if (in_array('login',$user['permission'])) {
 	echo "\tdologout('success');\n";
 }
 ?>
+	
+	d=document.createElement('div');
+	d.id='threads';
+	b.appendChild(d);
+	thread();
+	//setInterval('thread()',1000);
 }
 
 function thread() {
@@ -92,26 +97,70 @@ function thread() {
 		return false;
 	}
 	
-	http_request.overrideMimeType('text/xml');
+	//We can't use : here, the http_request will believe we are trying to access
+	//another site (thread://), we must use the hex format instead (%3a)
 	http_request.open('GET','thread%3a1',false);
 	http_request.send(null);
 	
 	if (http_request.status == 200) {
 		xml=http_request.responseXML;
-		post=xml.firstChild;
-		alert('thread: '+post.getAttribute('thread')+'\n'+
-		      'id: '+post.getAttribute('id'));
-		if (post.hasChildNodes()) {
-			var children = post.childNodes;
-			for (i=0; i < children.length; i++) {
-				if (children[i].nodeType != 3 && children[i].nodeType != 8){ 
-					alert('children[i]: '+children[i]+'\n'+
-					      'tagName: '+children[i].tagName+'\n'+
-					      'textContent: '+children[i].textContent);
+		everything=xml.childNodes[1];
+		if (everything.hasChildNodes()) {
+			c=document.getElementById('threads');
+			while (c.hasChildNodes()) { c.removeChild(c.firstChild); }
+			threads=everything.childNodes;
+			for (i=0; i < threads.length; i++) {
+				if (threads[i].nodeType != 3 && threads[i].nodeType != 8) { 
+					t=document.createElement('div');
+					t.id='thread'+threads[i].getAttribute('id');
+					t.className='thread';
+					
+					posts=threads[i].childNodes;
+					for (i2=0; i2 < posts.length; i2++) {
+						if (posts[i2].nodeType != 3 && posts[i2].nodeType != 8) { 
+							p=document.createElement('div');
+							p.id='thread'+threads[i].getAttribute('id')+
+							     'post'+posts[i2].getAttribute('id');
+							p.className='post';
+							
+							id=posts[i2].getAttribute('id');
+							author=posts[i2].getElementsByTagName('author')[0].textContent;
+							date=posts[i2].getElementsByTagName('date')[0].textContent;
+							subject=posts[i2].getElementsByTagName('subject')[0].textContent;
+							body=posts[i2].getElementsByTagName('body')[0].textContent;
+							
+							d=document.createElement('div');
+							d.className='author';
+							a=document.createElement('a');
+							a.onclick=function(){ user(author); }
+							a.appendChild(document.createTextNode(author));
+							d.appendChild(a);
+							p.appendChild(d);
+							
+							d=document.createElement('div');
+							d.className='body';
+							o=document.createElement('div');
+							o.className='topinfo';
+							o2=document.createElement('div');
+							o2.className='reply';
+							o2.appendChild(document.createTextNode('Reply #'+id+' on '+date));
+							o.appendChild(o2);
+							o2=document.createElement('div');
+							o2.className='subject';
+							o2.appendChild(document.createTextNode(subject));
+							o.appendChild(o2);
+							d.appendChild(o);
+							d.appendChild(document.createTextNode(body)); //.replace(/\n/g,document.createElement('br'))
+							p.appendChild(d);
+							
+							t.appendChild(p);
+						}
+					}
+					c.appendChild(t);
 				}
 			}
 		}
-	} else { //Error
+	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
 	}
@@ -135,7 +184,7 @@ function login() {
 	
 	if (http_request.status == 200) {
 		dologin(http_request.responseText);
-	} else { //Error
+	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
 	}
@@ -150,11 +199,6 @@ function dologin(state) {
 		a.appendChild(document.createTextNode('Logout'));
 		d.appendChild(a);
 		d.appendChild(document.createElement('br'));
-		
-		a=document.createElement('a');
-		a.onclick=function(){ thread(); }
-		a.appendChild(document.createTextNode('Thread'));
-		d.appendChild(a);
 	}
 	else if (state == 'no credentials' || state == 'one credential') {
 		if (!(e=document.getElementById('loginerror'))) {
@@ -192,7 +236,7 @@ function logout() {
 	
 	if (http_request.status == 200) {
 		dologout(http_request.responseText);
-	} else { //Error
+	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
 	}
@@ -242,7 +286,7 @@ function readylistener(http_request,callbackfunction) {
 	if (http_request.readyState == 4) {
 		if (http_request.status == 200) {
 			callbackfunction(http_request.responseText);
-		} else { //Error
+		} else {
 			alert('There was a problem with the request:\n'+
 			       http_request.statusText);
 		}

@@ -2,3 +2,21 @@ a {
 	color:rgb(0,0,255);
 	cursor:pointer;
 }
+#threads .thread .post {
+	border:1px solid rgb(0,0,0);
+}
+#threads .thread .post .author {
+	float:left;
+	width:100px;
+	font-size:9pt;
+}
+#threads .thread .post .body {
+	margin-left:105px;
+	border-left:1px solid rgb(0,0,0);
+}
+#threads .thread .post .body .topinfo {
+	border-bottom:1px solid rgb(100,100,100);
+}
+#threads .thread .post .body .reply {
+	float:right;
+}

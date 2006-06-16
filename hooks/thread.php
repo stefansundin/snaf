@@ -34,7 +34,7 @@ require_once('../includes/functions.php');
 require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
-header('Content-Type','text/xml');
+header('Content-Type: text/xml');
 echo file_get_contents('example.xml');
 
 ?>

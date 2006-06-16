@@ -1,11 +1,46 @@
-<?xml version="1.0" standalone="yes"?>
-<post thread="2" id="4">
-	<author>Spider-Waffle</author>
-	<date>1150377616</date>
-	<subject>HL-run</subject>
-	<content>
-		Whoa! 35 min?!
-		A very hidden contrib to SW's HL speedrun which soon is done...
-		But by the time anyone looks over these archives it will probably be old history.
-	</content>
-</post>
+<?xml version="1.0"?>
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<thread id="1">
+		<post id="0">
+			<author>recover</author>
+			<date>2004-06-12 12:56</date>
+			<subject>SNAF</subject>
+			<body>
+				You just gotta check this out!!!
+				I'm making an AJAX forum.
+				It is abbreviated SNAF, you might imagine what it stands for...
+				Expect to hear more soon!
+			</body>
+		</post>
+		<post id="1">
+			<author>randomuser666</author>
+			<date>2004-06-12 14:33</date>
+			<subject>Re: SNAF</subject>
+			<body>
+				Whoa! Why didn't I think of that?
+				I hope it'll be free?
+			</body>
+		</post>
+		<post id="2">
+			<author>randomuser999</author>
+			<date>2004-06-12 17:01</date>
+			<subject>Re: SNAF</subject>
+			<body>
+				Awesome idea!
+				I'll await your reply.
+			</body>
+		</post>
+		<post id="3">
+			<author>randomuser333</author>
+			<date>2004-06-12 20:01</date>
+			<subject>Re: SNAF</subject>
+			<body>
+				Yea, pretty cool idea.
+				But will this mean browsers without JavaScript won't be able to enter?
+			</body>
+		</post>
+	</thread>
+</everything>
