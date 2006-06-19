@@ -41,26 +41,31 @@ if (file_exists('install.lock')) {
 	exit('Lock present, install aborted');
 }
 
-#Queries to be issued
-$sqlqueries=array(
- 'CREATE TABLE '.SNAF_TABLEPREFIX.'accounts (id int NOT NULL auto_increment, username varchar(30) NOT NULL, password char(16) BINARY NOT NULL, permission text NOT NULL, details mediumtext, PRIMARY KEY (id), UNIQUE id (id), UNIQUE username (username))');
+#Parse mysql.sql
+$sql=file_get_contents('mysql.sql');
+$sql=str_replace('snaf_',SNAF_TABLEPREFIX,$sql);
+#$sql=str_replace("\t",'',$sql);
+$sql=preg_replace('/#[^\\n]*/','',$sql);
+$sql=str_replace("\n",'',$sql);
+$sql=explode(';',$sql);
 
 #Issue SQL Queries
-$keys=array_keys($sqlqueries);
-for ($i=0; $i < count($sqlqueries); $i++) {
-	mysql_query($sqlqueries[$i])
-	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+$keys=array_keys($sql);
+for ($i=0; $i < count($sql); $i++) {
+	if (!empty($sql[$i])) {
+		mysql_query($sql[$i])
+		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+	}
 }
-unset($i);
 
 #Try to lock install
 #Can I create an install.lock file, i.e. do I have permission?
 if (is_writable('.')) { #Yes
 	file_put_contents('install.lock','');
-	exit("Install complete");
+	exit("Install complete.");
 }
 else { #No — output notice
-	exit("Install complete\n".
+	exit("Install complete.\n".
 	     "However, I did not have access to lock the installer.\n".
 	     "To lock the installer manually, create the file \"install.lock\".\n".
 	     "Alternatively you can delete \"".SNAF_ENTRYPOINT."\".");
