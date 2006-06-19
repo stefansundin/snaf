@@ -49,9 +49,9 @@ define('SNAF_HTTPAUTH',((bool)ini_get('safe_mode'))?false:true);
 
 #Error handling
 # SNAF should be able to handle E_ALL
-#error_reporting(E_ALL);
+error_reporting(E_ALL);
 # This makes PHP report things that might have compability issues if you move the code to another server with possible different configuration
-error_reporting(E_ALL|E_STRICT);
+#error_reporting(E_ALL|E_STRICT);
 # For production web sites, you're encouraged to turn this off, see php.ini for more information
 ini_set('display_errors','on');
 

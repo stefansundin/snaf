@@ -35,8 +35,11 @@ require_once('includes/variables.php');
 require_once('includes/session.php');
 #Done
 
-#To try the login mechanism, use this to create a user
-#mysql_query('INSERT INTO snaf_accounts VALUES ("","recover","'.mysql_real_escape_string(md5raw('apa')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'recover89@gmail.com'))).'")');
+# Create an account
+#mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES ("","recover","'.mysql_real_escape_string(md5raw('apa')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'recover89@gmail.com'))).'")');
+# Create a thread w/ a reply
+#mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'threads VALUES ("",0,1,"recover",1150736367,"KAKA!","Lets go haxx some cookies")');
+#mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'threads VALUES ("",0,1,"kakmannen",1150736667,"Re: KAKA!","Ja, vi kan haxxa kakor :)")');
 
 echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 ?>

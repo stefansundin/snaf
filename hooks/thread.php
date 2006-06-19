@@ -34,7 +34,52 @@ require_once('../includes/functions.php');
 require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
+
+if (isset($_GET['id'])) {
+	$id=$_GET['id']; }
+else if (isset($_SERVER['PATH_INFO'])) {
+	$id=urldecode($_SERVER['PATH_INFO']); }
+else if (isset($_SERVER['REQUEST_URI'])) {
+	$id=substr(urldecode($_SERVER['REQUEST_URI']),
+	 -(strlen(urldecode($_SERVER['REQUEST_URI']))
+	 -(strrpos(urldecode($_SERVER['REQUEST_URI']),':'))
+	 -1
+	)); }
+
+if (!isset($id)) {
+	echo 'Supply a thread id.';
+	exit();
+}
+
+$result=mysql_query('SELECT id,thread_id,author,date,subject,body '.
+ 'FROM '.SNAF_TABLEPREFIX.'threads '.
+ 'WHERE thread_id="'.mysql_real_escape_string($id).'"')
+ or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+
 header('Content-Type: text/xml');
-echo file_get_contents('example.xml');
+echo '<?xml version="1.0"?'.">\n";
+echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<thread id="$id">\n
+END;
+
+if (mysql_numrows($result) !== 0) {
+	for ($i=0; $i < mysql_numrows($result); $i++) {
+		echo "\t\t<post id=\"".mysql_result($result,$i,'id')."\">\n";
+		echo "\t\t\t<author>".mysql_result($result,$i,'author')."</author>\n";
+		echo "\t\t\t<date>".date('Y-m-d H:i:s',mysql_result($result,$i,'date'))."</date>\n";
+		echo "\t\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
+		echo "\t\t\t<body>".mysql_result($result,$i,'body')."</body>\n";
+		echo "\t\t</post>\n";
+	}
+}
+
+echo <<<END
+	</thread>
+</everything>
+END;
 
 ?>

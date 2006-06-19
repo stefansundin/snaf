@@ -17,11 +17,13 @@ CREATE TABLE snaf_accounts (
 
 #threads
 CREATE TABLE snaf_threads (
+	id int NOT NULL auto_increment,
 	forum_id int NOT NULL,
 	thread_id int NOT NULL,
 	author varchar(30) NOT NULL,
 	date int NOT NULL,
 	subject varchar(50) NOT NULL,
 	body text NOT NULL,
-	PRIMARY KEY (forum_id)
+	PRIMARY KEY (id),
+	UNIQUE id (id)
 );

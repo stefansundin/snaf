@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file installs an SQL database.
+This file installs SQL stuff.
 */
 
 #Be sure this file is the one who start execution
@@ -29,9 +29,9 @@ if (defined('SNAF')) {
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
 #Initialize
-require_once('config.php');
-require_once('includes/functions.php');
-require_once('includes/variables.php');
+require_once('../config.php');
+require_once('../includes/functions.php');
+require_once('../includes/variables.php');
 #Done
 
 #Output is in plain text
@@ -67,8 +67,8 @@ if (is_writable('.')) { #Yes
 else { #No — output notice
 	exit("Install complete.\n".
 	     "However, I did not have access to lock the installer.\n".
-	     "To lock the installer manually, create the file \"install.lock\".\n".
-	     "Alternatively you can delete \"".SNAF_ENTRYPOINT."\".");
+	     "To lock the installer manually create the file \"".dirname(__FILE__)."/install.lock\".\n".
+	     "Alternatively you can delete the install directory, \"".dirname(__FILE__)."\".");
 }
 
 ?>
