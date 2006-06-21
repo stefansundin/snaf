@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<forum forum_id="4" num_threads="1" num_posts="2">
+		<subject>Sub-forum</subject>
+		<body>Haxx forum</body>
+	</forum>
+	<thread thread_id="1">
+		<subject>SNAF</subject>
+		<author>recover</author>
+	</forum>
+</everything>

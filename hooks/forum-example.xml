@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<forum forum_id="1" num_threads="1" num_posts="2">
+		<subject>General Discussion</subject>
+		<body>Talk about general stuff here</body>
+	</forum>
+	<forum forum_id="2" num_threads="4" num_posts="8">
+		<subject>Half-Life</subject>
+		<body>Talk about Half-Life stuff here</body>
+	</forum>
+	<forum forum_id="3" num_threads="12" num_posts="55">
+		<subject>Quake</subject>
+		<body>Talk about Quake stuff here</body>
+	</forum>
+</everything>

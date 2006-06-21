@@ -43,8 +43,7 @@ if (file_exists('install.lock')) {
 
 #Parse mysql.sql
 $sql=file_get_contents('mysql.sql');
-$sql=str_replace('snaf_',SNAF_TABLEPREFIX,$sql);
-#$sql=str_replace("\t",'',$sql);
+$sql=str_replace(array('snaf_',"\t"),array(SNAF_TABLEPREFIX,''),$sql);
 $sql=preg_replace('/#[^\\n]*/','',$sql);
 $sql=str_replace("\n",'',$sql);
 $sql=explode(';',$sql);
@@ -57,6 +56,12 @@ for ($i=0; $i < count($sql); $i++) {
 		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 	}
 }
+
+# Create an account
+mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES ("","recover","'.mysql_real_escape_string(md5raw('apa')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'recover89@gmail.com'))).'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+# Create a thread w/ a reply (now in mysql.sql)
+#mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'threads VALUES (0,1,0,"recover",1150736367,"KAKA!","Lets go haxx some cookies")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+#mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'threads VALUES (0,1,1,"kakmannen",1150736667,"Re: KAKA!","Ja, vi kan haxxa kakor :)")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 #Try to lock install
 #Can I create an install.lock file, i.e. do I have permission?

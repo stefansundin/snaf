@@ -1,6 +1,6 @@
 <?php
 /*
-SNAF — Hooks — Thread
+SNAF — Hooks — Forum
 Copyright (C) 2006  Stefan Sundin (recover89@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,8 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file query the SQL database for threads and return it in XML format.
+This file query the SQL database for things in a forum and return it in XML
+format.
 */
 
 #Be sure this file is the one who start execution
@@ -35,22 +36,27 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-if (isset($_GET['id'])) { #thread.php?id=2
+if (isset($_GET['id'])) { #forum.php?id=2
 	$id=$_GET['id']; }
-else if (isset($_SERVER['PATH_INFO'])) { #thread.php?id=2
+else if (isset($_SERVER['PATH_INFO'])) { #forum.php/2
 	$id=basename($_SERVER['PATH_INFO']); }
 
 if (!isset($id)) {
-	echo 'Supply a thread id.';
-	exit();
+	#Request for top-level forum
+	$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
+	 'FROM '.SNAF_TABLEPREFIX.'fat '.
+	 'WHERE forum_id=0 AND post_id=0')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+} else {
+	#Request for a specific forum
+	$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
+	 'FROM '.SNAF_TABLEPREFIX.'fat '.
+	 'WHERE forum_id="'.mysql_real_escape_string($id).'" AND post_id>=0 AND post_id<=1')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 }
 
-$result=mysql_query('SELECT forum_id,post_id,author,date,subject,body '.
- 'FROM '.SNAF_TABLEPREFIX.'fat '.
- 'WHERE thread_id="'.mysql_real_escape_string($id).'" and post_id>0')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
 header('Content-Type: text/xml');
+
 echo '<?xml version="1.0"?'.">\n";
 echo <<<END
 <!DOCTYPE spec PUBLIC
@@ -61,17 +67,27 @@ END;
 
 if (mysql_numrows($result) !== 0) {
 	for ($i=0; $i < mysql_numrows($result); $i++) {
-		echo "\t<post post_id=\"".mysql_result($result,$i,'post_id')."\">\n";
-		echo "\t\t<author>".mysql_result($result,$i,'author')."</author>\n";
-		echo "\t\t<date>".date('Y-m-d H:i:s',mysql_result($result,$i,'date'))."</date>\n";
-		echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
-		echo "\t\t<body>".mysql_result($result,$i,'body')."</body>\n";
-		echo "\t</post>\n";
+		if (mysql_result($result,$i,'post_id') == 0) {
+			echo "\t<forum forum_id=\"".mysql_result($result,$i,'thread_id')."\" num_threads=\"todo\" num_posts=\"todo\">\n";
+			echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
+			echo "\t\t<body>".mysql_result($result,$i,'body')."</body>\n";
+			echo "\t</forum>\n";
+		} else {
+			echo "\t<thread thread_id=\"".mysql_result($result,$i,'thread_id')."\">\n";
+			echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
+			echo "\t\t<author>".mysql_result($result,$i,'author')."</author>\n";
+			echo "\t</thread>\n";
+		}
 	}
 }
 
-echo <<<END
-</everything>
-END;
+/*
+	<thread thread_id="1">
+		<subject>SNAF</subject>
+		<author>recover</author>
+	</forum>
+*/
+
+echo '</everything>';
 
 ?>

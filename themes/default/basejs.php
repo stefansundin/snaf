@@ -80,15 +80,27 @@ if (in_array('login',$user['permission'])) {
 	echo "\tdologout('success');\n";
 }
 ?>
+	b.appendChild(document.createElement('br'));
 	
 	d=document.createElement('div');
-	d.id='threads';
+	d.id='fat';
 	b.appendChild(d);
-	thread();
+	forum(null);
+	//setInterval('forum(null)',1000);
+	
+	b.appendChild(document.createElement('br'));
+	
+	d=document.createElement('div');
+	d.id='thread';
+	b.appendChild(d);
+	//thread(1);
 	//setInterval('thread()',1000);
+	
+	//Done loading
+	document.title='SNAF';
 }
 
-function thread() {
+function forum(forum_id) {
 	var http_request=false;
 	http_request=new XMLHttpRequest();
 	if (!http_request) {
@@ -97,66 +109,170 @@ function thread() {
 		return false;
 	}
 	
-	//We can't use : here, the http_request will believe we are trying to access
-	//another site (thread://), we must use the hex format instead (%3a)
-	http_request.open('GET','thread%3a1',false);
+	if (forum_id != null) {
+		http_request.open('GET','hooks/forum.php?id='+forum_id,false);
+	} else {
+		http_request.open('GET','hooks/forum.php',false);
+	}
+	http_request.send(null);
+	
+	if (http_request.status == 200) {
+		//alert(http_request.responseText);
+		xml=http_request.responseXML;
+		everything=xml.childNodes[1];
+		if (everything.hasChildNodes()) {
+			//Grab fat
+			c=document.getElementById('fat');
+			//Clear fat
+			while (c.hasChildNodes()) { c.removeChild(c.firstChild); }
+			
+			//List forums
+			xml_forums=everything.getElementsByTagName('forum');
+			for (i=0; i < xml_forums.length; i++) {
+				//Assign variables
+				forum_id=xml_forums[i].getAttribute('forum_id');
+				num_threads=xml_forums[i].getAttribute('num_threads');
+				num_posts=xml_forums[i].getAttribute('num_posts');
+				subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
+				body=xml_forums[i].getElementsByTagName('body')[0].textContent;
+				
+				//Create forum
+				f=document.createElement('div');
+				f.id='forum'+forum_id;
+				f.className='forum';
+				c.appendChild(f);
+				
+				//Num
+				d=document.createElement('div');
+				d.className='num';
+				f.appendChild(d);
+				// Num_threads
+				n=document.createElement('div');
+				n.className='num_threads';
+				n.appendChild(document.createTextNode(num_threads));
+				d.appendChild(n);
+				// Num_posts
+				n=document.createElement('div');
+				n.className='num_posts';
+				n.appendChild(document.createTextNode(num_posts));
+				d.appendChild(n);
+				
+				//Body
+				d=document.createElement('div');
+				d.className='body';
+				// Subject
+				s=document.createElement('a');
+				s.onclick=function() { forum(forum_id); }
+				s.appendChild(document.createTextNode(subject));
+				d.appendChild(s);
+				d.appendChild(document.createElement('br'));
+				d.appendChild(document.createTextNode(body));
+				f.appendChild(d);
+			}
+			
+			//List threads
+			xml_threads=everything.getElementsByTagName('thread');
+			for (i=0; i < xml_threads.length; i++) {
+				//Assign variables
+				thread_id=xml_threads[i].getAttribute('thread_id');
+				subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
+				author=xml_threads[i].getElementsByTagName('author')[0].textContent;
+				
+				//Create thread
+				f=document.createElement('div');
+				f.id='thread'+thread_id;
+				f.className='thread';
+				c.appendChild(f);
+				
+				//Author
+				d=document.createElement('div');
+				d.className='author';
+				s=document.createElement('a');
+				//s.onclick=function() { user(thread_id); }
+				s.appendChild(document.createTextNode(author));
+				d.appendChild(s);
+				f.appendChild(d);
+				
+				//Subject
+				d=document.createElement('div');
+				d.className='subject';
+				s=document.createElement('a');
+				s.onclick=function() { thread(thread_id); }
+				s.appendChild(document.createTextNode(subject));
+				d.appendChild(s);
+				f.appendChild(d);
+			}
+		}
+	} else {
+		alert('There was a problem with the request:\n'+
+		       http_request.statusText);
+	}
+}
+
+function thread(thread_id) {
+	var http_request=false;
+	http_request=new XMLHttpRequest();
+	if (!http_request) {
+		alert('Unable to create an XMLHttpRequest instance.\n'+
+		      'You are most likely using an old browser.');
+		return false;
+	}
+	
+	http_request.open('GET','hooks/thread.php?id='+thread_id,false);
 	http_request.send(null);
 	
 	if (http_request.status == 200) {
 		xml=http_request.responseXML;
 		everything=xml.childNodes[1];
 		if (everything.hasChildNodes()) {
-			c=document.getElementById('threads');
+			//Grab thread
+			c=document.getElementById('thread');
+			//Clear thread
 			while (c.hasChildNodes()) { c.removeChild(c.firstChild); }
-			threads=everything.childNodes;
-			for (i=0; i < threads.length; i++) {
-				if (threads[i].nodeType != 3 && threads[i].nodeType != 8) { 
-					t=document.createElement('div');
-					t.id='thread'+threads[i].getAttribute('id');
-					t.className='thread';
+			
+			posts=everything.childNodes;
+			for (i=0; i < posts.length; i++) {
+				if (posts[i].nodeType != 3 && posts[i].nodeType != 8) { 
+					//Assign variables
+					post_id=posts[i].getAttribute('post_id');
+					author=posts[i].getElementsByTagName('author')[0].textContent;
+					date=posts[i].getElementsByTagName('date')[0].textContent;
+					subject=posts[i].getElementsByTagName('subject')[0].textContent;
+					body=posts[i].getElementsByTagName('body')[0].textContent;
 					
-					posts=threads[i].childNodes;
-					for (i2=0; i2 < posts.length; i2++) {
-						if (posts[i2].nodeType != 3 && posts[i2].nodeType != 8) { 
-							p=document.createElement('div');
-							p.id='thread'+threads[i].getAttribute('id')+
-							     'post'+posts[i2].getAttribute('id');
-							p.className='post';
-							
-							id=posts[i2].getAttribute('id');
-							author=posts[i2].getElementsByTagName('author')[0].textContent;
-							date=posts[i2].getElementsByTagName('date')[0].textContent;
-							subject=posts[i2].getElementsByTagName('subject')[0].textContent;
-							body=posts[i2].getElementsByTagName('body')[0].textContent;
-							
-							d=document.createElement('div');
-							d.className='author';
-							a=document.createElement('a');
-							a.onclick=function(){ user(author); }
-							a.appendChild(document.createTextNode(author));
-							d.appendChild(a);
-							p.appendChild(d);
-							
-							d=document.createElement('div');
-							d.className='body';
-							o=document.createElement('div');
-							o.className='topinfo';
-							o2=document.createElement('div');
-							o2.className='reply';
-							o2.appendChild(document.createTextNode('Reply #'+id+' on '+date));
-							o.appendChild(o2);
-							o2=document.createElement('div');
-							o2.className='subject';
-							o2.appendChild(document.createTextNode(subject));
-							o.appendChild(o2);
-							d.appendChild(o);
-							d.appendChild(document.createTextNode(body)); //.replace(/\n/g,document.createElement('br'))
-							p.appendChild(d);
-							
-							t.appendChild(p);
-						}
-					}
-					c.appendChild(t);
+					//Create post
+					p=document.createElement('div');
+					p.id='thread'+thread_id+'post'+post_id;
+					p.className='post';
+					c.appendChild(p);
+					
+					//Author
+					d=document.createElement('div');
+					d.className='author';
+					a=document.createElement('a');
+					a.onclick=function(){ user(author); }
+					a.appendChild(document.createTextNode(author));
+					d.appendChild(a);
+					p.appendChild(d);
+					
+					//Body
+					d=document.createElement('div');
+					d.className='body';
+					// Topinfo
+					o=document.createElement('div');
+					o.className='topinfo';
+					o2=document.createElement('div');
+					o2.className='reply';
+					o2.appendChild(document.createTextNode('Reply #'+post_id+' on '+date));
+					o.appendChild(o2);
+					o2=document.createElement('div');
+					o2.className='subject';
+					o2.appendChild(document.createTextNode(subject));
+					o.appendChild(o2);
+					// Body continued
+					d.appendChild(o);
+					d.appendChild(document.createTextNode(body)); //.replace(/\n/g,document.createElement('br'))
+					p.appendChild(d);
 				}
 			}
 		}
@@ -175,7 +291,7 @@ function login() {
 		return false;
 	}
 	
-	http_request.open('POST','login',false);
+	http_request.open('POST','hooks/login.php',false);
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
@@ -231,7 +347,7 @@ function logout() {
 		return false;
 	}
 	
-	http_request.open('GET','logout',false);
+	http_request.open('GET','hooks/logout.php',false);
 	http_request.send(null);
 	
 	if (http_request.status == 200) {

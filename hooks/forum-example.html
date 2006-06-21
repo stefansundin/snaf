@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>SNAF — Forum example</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<style type="text/css">
+a {
+	color:rgb(0,0,255);
+	cursor:pointer;
+}
+#forum .forum {
+	border:1px solid rgb(0,0,0);
+}
+#forum .forum .num {
+	float:right;
+}
+#forum .forum .num_threads {
+	width:100px;
+	display:inline;
+}
+#forum .forum .num_posts {
+	width:100px;
+	display:inline;
+}
+	</style>
+</head>
+<body>
+	<div id="forum">
+		<div id="forum1" class="forum">
+			<div class="num">
+				<div class="num_threads">1</div>
+				<div class="num_posts">2</div>
+			</div>
+			<div class="body">
+				<a onclick="forum(1)">General Discussion</a><br />
+				Talk about general stuff here
+			</div>
+		</div>
+		<div id="forum2" class="forum">
+			<div class="num">
+				<div class="num_threads">4</div>
+				<div class="num_posts">8</div>
+			</div>
+			<div class="body">
+				<a onclick="forum(1)">Half-Life</a><br />
+				Talk about Half-Life here
+			</div>
+		</div>
+		<div id="forum3" class="forum">
+			<div class="num">
+				<div class="num_threads">12</div>
+				<div class="num_posts">55</div>
+			</div>
+			<div class="body">
+				<a onclick="forum(1)">Quake</a><br />
+				Talk about Quake here
+			</div>
+		</div>
+	</div>
+</body>
+</html>
