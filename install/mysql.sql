@@ -28,7 +28,7 @@ CREATE TABLE snaf_fat (
 	body text NOT NULL
 );
 
-#Forum
+#Forums
 INSERT INTO snaf_fat VALUES (
 	0,
 	1,
@@ -39,15 +39,35 @@ INSERT INTO snaf_fat VALUES (
 	"Talk about general stuff here"
 );
 
-#Thread w/ reply
+#INSERT INTO snaf_fat VALUES (
+#	0,
+#	2,
+#	0,
+#	"author",
+#	1337,
+#	"Quake",
+#	"Talk about Quake here"
+#);
+
+#INSERT INTO snaf_fat VALUES (
+#	0,
+#	3,
+#	0,
+#	"author",
+#	1337,
+#	"Half-Life",
+#	"Talk about Half-Life here"
+#);
+
+#Thread 1
 INSERT INTO snaf_fat VALUES (
 	1,
 	1,
 	1,
 	"recover",
 	1150736367,
-	"KAKA!",
-	"Lets go haxx some cookies"
+	"SNAF forum",
+	"Woohooo! SNAF är på väg! :P"
 );
 
 INSERT INTO snaf_fat VALUES (
@@ -56,6 +76,50 @@ INSERT INTO snaf_fat VALUES (
 	2,
 	"kakmannen",
 	1150736667,
-	"Re: KAKA!",
-	"Ja, vi kan haxxa kakor :)"
+	"Re: SNAF forum",
+	"Ja, det får vi hoppas"
 );
+
+INSERT INTO snaf_fat VALUES (
+	1,
+	1,
+	3,
+	"recover",
+	1150736687,
+	"Re: SNAF forum",
+	"Mmm... Men när man programmerar något själv så går det inte så snabbt"
+);
+
+#Thread 2
+INSERT INTO snaf_fat VALUES (
+	1,
+	2,
+	1,
+	"recover",
+	1150737367,
+	"SNAF problems",
+	"Jävla problem :/ Men jag hoppas att jag har löst dom snart (jag hade ändå tänkt att använda en global JavaScript variabel som minne till ställena man besökt)."
+);
+
+INSERT INTO snaf_fat VALUES (
+	1,
+	2,
+	2,
+	"kakmannen",
+	1150737667,
+	"Re: SNAF forum",
+	"Ja, det får vi hoppas :((((("
+);
+
+INSERT INTO snaf_fat VALUES (
+	1,
+	2,
+	3,
+	"recover",
+	1150737687,
+	"Re: SNAF forum",
+	"Mmm... Men när man programmerar något själv så går det inte så snabbt!!!! :((("
+);
+
+
+#FYI: kakmannen is an imaginary friend helping me with SNAF ;)

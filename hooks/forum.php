@@ -51,7 +51,7 @@ if (!isset($id)) {
 	#Request for a specific forum
 	$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
 	 'FROM '.SNAF_TABLEPREFIX.'fat '.
-	 'WHERE forum_id="'.mysql_real_escape_string($id).'" AND post_id>=0 AND post_id<=1')
+	 'WHERE forum_id="'.mysql_real_escape_string($id).'" AND (post_id=0 OR post_id=1)')
 	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 }
 
@@ -80,13 +80,6 @@ if (mysql_numrows($result) !== 0) {
 		}
 	}
 }
-
-/*
-	<thread thread_id="1">
-		<subject>SNAF</subject>
-		<author>recover</author>
-	</forum>
-*/
 
 echo '</everything>';
 

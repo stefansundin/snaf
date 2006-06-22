@@ -32,7 +32,7 @@ http_request.readyState:
 http_request.status:
  200 = successful connection.
 
-noteType:
+nodeType:
  * Node.ELEMENT_NODE == 1
  * Node.ATTRIBUTE_NODE == 2
  * Node.TEXT_NODE == 3
@@ -45,7 +45,7 @@ noteType:
  * Node.DOCUMENT_TYPE_NODE == 10
  * Node.DOCUMENT_FRAGMENT_NODE == 11
  * Node.NOTATION_NODE == 12 
- So we'll better ignore noteType 3 (tabs, spaces and newlines) and 8 (comments).
+ So we'll better ignore nodeType 3 (tabs, spaces and newlines) and 8 (comments).
 
 Clear all childs inside an element:
 while (parent.hasChildNodes()) { parent.removeChild(parent.firstChild); }
@@ -67,12 +67,14 @@ require_once('../../includes/session.php');
 ?>
 
 window.onload=function() {
-	b=document.body;
-	b.removeChild(b.firstChild);
+	var obj_body=document.body;
+	//Remove "Your browser does not support JavaScript."
+	obj_body.removeChild(obj_body.firstChild);
 	
-	d=document.createElement('div');
-	d.id='login';
-	b.appendChild(d);
+	//Create login
+	var obj_login=document.createElement('div');
+	obj_login.id='login';
+	obj_body.appendChild(obj_login);
 <?php
 if (in_array('login',$user['permission'])) {
 	echo "\tdologin('success');\n";
@@ -80,19 +82,22 @@ if (in_array('login',$user['permission'])) {
 	echo "\tdologout('success');\n";
 }
 ?>
-	b.appendChild(document.createElement('br'));
 	
-	d=document.createElement('div');
-	d.id='fat';
-	b.appendChild(d);
+	obj_body.appendChild(document.createElement('br'));
+	
+	//Create fat
+	var obj_fat=document.createElement('div');
+	obj_fat.id='fat';
+	obj_body.appendChild(obj_fat);
 	forum(null);
 	//setInterval('forum(null)',1000);
 	
-	b.appendChild(document.createElement('br'));
+	obj_body.appendChild(document.createElement('br'));
 	
-	d=document.createElement('div');
-	d.id='thread';
-	b.appendChild(d);
+	//Create thread
+	var obj_thread=document.createElement('div');
+	obj_thread.id='thread';
+	obj_body.appendChild(obj_thread);
 	//thread(1);
 	//setInterval('thread()',1000);
 	
@@ -118,89 +123,91 @@ function forum(forum_id) {
 	
 	if (http_request.status == 200) {
 		//alert(http_request.responseText);
-		xml=http_request.responseXML;
-		everything=xml.childNodes[1];
+		var xml=http_request.responseXML;
+		var everything=xml.childNodes[1];
 		if (everything.hasChildNodes()) {
 			//Grab fat
-			c=document.getElementById('fat');
+			var obj_fat=document.getElementById('fat');
 			//Clear fat
-			while (c.hasChildNodes()) { c.removeChild(c.firstChild); }
+			while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
 			
 			//List forums
-			xml_forums=everything.getElementsByTagName('forum');
-			for (i=0; i < xml_forums.length; i++) {
+			var xml_forums=everything.getElementsByTagName('forum');
+			for (var i=0; i < xml_forums.length; i++) {
 				//Assign variables
-				forum_id=xml_forums[i].getAttribute('forum_id');
-				num_threads=xml_forums[i].getAttribute('num_threads');
-				num_posts=xml_forums[i].getAttribute('num_posts');
-				subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
-				body=xml_forums[i].getElementsByTagName('body')[0].textContent;
+				var xml_forum_id=xml_forums[i].getAttribute('forum_id');
+				var xml_num_threads=xml_forums[i].getAttribute('num_threads');
+				var xml_num_posts=xml_forums[i].getAttribute('num_posts');
+				var xml_subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
+				var xml_body=xml_forums[i].getElementsByTagName('body')[0].textContent;
 				
 				//Create forum
-				f=document.createElement('div');
-				f.id='forum'+forum_id;
-				f.className='forum';
-				c.appendChild(f);
+				var obj_forum=document.createElement('div');
+				obj_forum.id='forum'+xml_forum_id;
+				obj_forum.className='forum';
+				obj_fat.appendChild(obj_forum);
 				
 				//Num
-				d=document.createElement('div');
-				d.className='num';
-				f.appendChild(d);
+				var obj_num=document.createElement('div');
+				obj_num.className='num';
+				obj_forum.appendChild(obj_num);
 				// Num_threads
-				n=document.createElement('div');
-				n.className='num_threads';
-				n.appendChild(document.createTextNode(num_threads));
-				d.appendChild(n);
+				var obj_num_threads=document.createElement('div');
+				obj_num_threads.className='num_threads';
+				obj_num_threads.appendChild(document.createTextNode(xml_num_threads));
+				obj_num.appendChild(obj_num_threads);
 				// Num_posts
-				n=document.createElement('div');
-				n.className='num_posts';
-				n.appendChild(document.createTextNode(num_posts));
-				d.appendChild(n);
+				var obj_num_posts=document.createElement('div');
+				obj_num_posts.className='num_posts';
+				obj_num_posts.appendChild(document.createTextNode(xml_num_posts));
+				obj_num.appendChild(obj_num_posts);
 				
 				//Body
-				d=document.createElement('div');
-				d.className='body';
+				var obj_body=document.createElement('div');
+				obj_body.className='body';
 				// Subject
-				s=document.createElement('a');
-				s.onclick=function() { forum(forum_id); }
-				s.appendChild(document.createTextNode(subject));
-				d.appendChild(s);
-				d.appendChild(document.createElement('br'));
-				d.appendChild(document.createTextNode(body));
-				f.appendChild(d);
+				var obj_subject=document.createElement('a');
+				obj_subject.onclick=function() { forum(xml_forum_id); }
+				obj_subject.appendChild(document.createTextNode(xml_subject));
+				obj_body.appendChild(obj_subject);
+				obj_body.appendChild(document.createElement('br'));
+				obj_body.appendChild(document.createTextNode(xml_body));
+				obj_forum.appendChild(obj_body);
 			}
 			
 			//List threads
-			xml_threads=everything.getElementsByTagName('thread');
-			for (i=0; i < xml_threads.length; i++) {
+			var xml_threads=everything.getElementsByTagName('thread');
+			for (var i=0; i < xml_threads.length; i++) {
 				//Assign variables
-				thread_id=xml_threads[i].getAttribute('thread_id');
-				subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
-				author=xml_threads[i].getElementsByTagName('author')[0].textContent;
+				var xml_thread_id=xml_threads[i].getAttribute('thread_id');
+				var xml_subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
+				var xml_author=xml_threads[i].getElementsByTagName('author')[0].textContent;
 				
 				//Create thread
-				f=document.createElement('div');
-				f.id='thread'+thread_id;
-				f.className='thread';
-				c.appendChild(f);
+				var obj_thread=document.createElement('div');
+				obj_thread.id='thread'+xml_thread_id;
+				obj_thread.className='thread';
+				obj_fat.appendChild(obj_thread);
 				
 				//Author
-				d=document.createElement('div');
-				d.className='author';
-				s=document.createElement('a');
-				//s.onclick=function() { user(thread_id); }
-				s.appendChild(document.createTextNode(author));
-				d.appendChild(s);
-				f.appendChild(d);
+				var obj_author=document.createElement('div');
+				obj_author.className='author';
+				// Author link
+				var obj_author_link=document.createElement('a');
+				obj_author_link.onclick=function() { user(xml_author); }
+				obj_author_link.appendChild(document.createTextNode(xml_author));
+				obj_author.appendChild(obj_author_link);
+				obj_thread.appendChild(obj_author);
 				
 				//Subject
-				d=document.createElement('div');
-				d.className='subject';
-				s=document.createElement('a');
-				s.onclick=function() { thread(thread_id); }
-				s.appendChild(document.createTextNode(subject));
-				d.appendChild(s);
-				f.appendChild(d);
+				var obj_subject=document.createElement('div');
+				obj_subject.className='subject';
+				// Subject link
+				var obj_subject_link=document.createElement('a');
+				obj_subject_link.onclick=function() { thread(xml_thread_id); }
+				obj_subject_link.appendChild(document.createTextNode(xml_subject));
+				obj_subject.appendChild(obj_subject_link);
+				obj_thread.appendChild(obj_subject);
 			}
 		}
 	} else {
@@ -222,58 +229,58 @@ function thread(thread_id) {
 	http_request.send(null);
 	
 	if (http_request.status == 200) {
-		xml=http_request.responseXML;
-		everything=xml.childNodes[1];
+		var xml=http_request.responseXML;
+		var everything=xml.childNodes[1];
 		if (everything.hasChildNodes()) {
 			//Grab thread
-			c=document.getElementById('thread');
+			var obj_thread=document.getElementById('thread');
 			//Clear thread
-			while (c.hasChildNodes()) { c.removeChild(c.firstChild); }
+			while (obj_thread.hasChildNodes()) { obj_thread.removeChild(obj_thread.firstChild); }
 			
-			posts=everything.childNodes;
-			for (i=0; i < posts.length; i++) {
-				if (posts[i].nodeType != 3 && posts[i].nodeType != 8) { 
-					//Assign variables
-					post_id=posts[i].getAttribute('post_id');
-					author=posts[i].getElementsByTagName('author')[0].textContent;
-					date=posts[i].getElementsByTagName('date')[0].textContent;
-					subject=posts[i].getElementsByTagName('subject')[0].textContent;
-					body=posts[i].getElementsByTagName('body')[0].textContent;
-					
-					//Create post
-					p=document.createElement('div');
-					p.id='thread'+thread_id+'post'+post_id;
-					p.className='post';
-					c.appendChild(p);
-					
-					//Author
-					d=document.createElement('div');
-					d.className='author';
-					a=document.createElement('a');
-					a.onclick=function(){ user(author); }
-					a.appendChild(document.createTextNode(author));
-					d.appendChild(a);
-					p.appendChild(d);
-					
-					//Body
-					d=document.createElement('div');
-					d.className='body';
-					// Topinfo
-					o=document.createElement('div');
-					o.className='topinfo';
-					o2=document.createElement('div');
-					o2.className='reply';
-					o2.appendChild(document.createTextNode('Reply #'+post_id+' on '+date));
-					o.appendChild(o2);
-					o2=document.createElement('div');
-					o2.className='subject';
-					o2.appendChild(document.createTextNode(subject));
-					o.appendChild(o2);
-					// Body continued
-					d.appendChild(o);
-					d.appendChild(document.createTextNode(body)); //.replace(/\n/g,document.createElement('br'))
-					p.appendChild(d);
-				}
+			var xml_posts=everything.getElementsByTagName('post');
+			for (var i=0; i < xml_posts.length; i++) {
+				//Assign variables
+				var xml_post_id=xml_posts[i].getAttribute('post_id');
+				var xml_author=xml_posts[i].getElementsByTagName('author')[0].textContent;
+				var xml_date=xml_posts[i].getElementsByTagName('date')[0].textContent;
+				var xml_subject=xml_posts[i].getElementsByTagName('subject')[0].textContent;
+				var xml_body=xml_posts[i].getElementsByTagName('body')[0].textContent;
+				
+				//Create post
+				var obj_post=document.createElement('div');
+				obj_post.id='thread'+thread_id+'post'+xml_post_id;
+				obj_post.className='post';
+				obj_thread.appendChild(obj_post);
+				
+				//Author
+				var obj_author=document.createElement('div');
+				obj_author.className='author';
+				obj_author_link=document.createElement('a');
+				obj_author_link.onclick=function(){ user(xml_author); }
+				obj_author_link.appendChild(document.createTextNode(xml_author));
+				obj_author.appendChild(obj_author_link);
+				obj_post.appendChild(obj_author);
+				
+				//Body
+				var obj_body=document.createElement('div');
+				obj_body.className='body';
+				obj_post.appendChild(obj_body);
+				// Topinfo
+				var obj_topinfo=document.createElement('div');
+				obj_topinfo.className='topinfo';
+				//  Reply
+				var obj_topinfo_reply=document.createElement('div');
+				obj_topinfo_reply.className='reply';
+				obj_topinfo_reply.appendChild(document.createTextNode('Reply #'+xml_post_id+' on '+xml_date));
+				obj_topinfo.appendChild(obj_topinfo_reply);
+				//  Subject
+				var obj_topinfo_subject=document.createElement('div');
+				obj_topinfo_subject.className='subject';
+				obj_topinfo_subject.appendChild(document.createTextNode(xml_subject));
+				obj_topinfo.appendChild(obj_topinfo_subject);
+				// Body continued
+				obj_body.appendChild(obj_topinfo);
+				obj_body.appendChild(document.createTextNode(xml_body)); //.replace(/\n/g,document.createElement('br'))
 			}
 		}
 	} else {
@@ -291,50 +298,76 @@ function login() {
 		return false;
 	}
 	
+	//Grab objects
+	var obj_username=document.getElementById('username');
+	var obj_password=document.getElementById('password');
+	var obj_loginsubmit=document.getElementById('loginsubmit');
+	
+	//Disable input boxes
+	obj_username.disabled=true;
+	obj_password.disabled=true;
+	obj_loginsubmit.disabled=true;
+	
+	//Make the request
 	http_request.open('POST','hooks/login.php',false);
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'username='+encodeURI(document.getElementById('username').value)+
-		'&password='+encodeURI(document.getElementById('password').value));
+		'username='+encodeURI(obj_username.value)+
+		'&password='+encodeURI(obj_password.value));
 	
+	//What happened?
 	if (http_request.status == 200) {
 		dologin(http_request.responseText);
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
+		//Enable input boxes
+		obj_username.disabled=false;
+		obj_password.disabled=false;
+		obj_loginsubmit.disabled=false;
 	}
 }
 
 function dologin(state) {
-	d=document.getElementById('login');
+	var obj_login=document.getElementById('login');
 	if (state == 'success') {
-		while (d.hasChildNodes()) { d.removeChild(d.firstChild); }
-		a=document.createElement('a');
-		a.onclick=function(){ logout(); }
-		a.appendChild(document.createTextNode('Logout'));
-		d.appendChild(a);
-		d.appendChild(document.createElement('br'));
+		//Clear obj_login
+		while (obj_login.hasChildNodes()) { obj_login.removeChild(obj_login.firstChild); }
+		//Apply a logout link
+		var obj_logout=document.createElement('a');
+		obj_logout.id='logout';
+		obj_logout.onclick=function(){ logout(); }
+		obj_logout.appendChild(document.createTextNode('Logout'));
+		obj_login.appendChild(obj_logout);
+		obj_login.appendChild(document.createElement('br'));
 	}
-	else if (state == 'no credentials' || state == 'one credential') {
-		if (!(e=document.getElementById('loginerror'))) {
-			e=document.createElement('span');
-			e.id='loginerror';
-			d.appendChild(e);
+	else if (state == 'no credentials'
+	      || state == 'one credential'
+	      || state == 'invalid credentials') {
+		//Enable input boxes
+		// Grab objects
+		var obj_username=document.getElementById('username');
+		var obj_password=document.getElementById('password');
+		var obj_loginsubmit=document.getElementById('loginsubmit');
+		// Enable
+		obj_username.disabled=false;
+		obj_password.disabled=false;
+		obj_loginsubmit.disabled=false;
+		//Print error message
+		var obj_loginerror=document.getElementById('loginerror');
+		if (!obj_loginerror) {
+			var obj_loginerror=document.createElement('span');
+			obj_loginerror.id='loginerror';
+			obj_login.appendChild(obj_loginerror);
 		} else {
-			e.removeChild(e.firstChild);
+			obj_loginerror.removeChild(obj_loginerror.firstChild);
 		}
-		e.appendChild(document.createTextNode('Supply all credentials'));
-	}
-	else if (state == 'invalid credentials') {
-		if (!(e=document.getElementById('loginerror'))) {
-			e=document.createElement('span');
-			e.id='loginerror';
-			d.appendChild(e);
+		if (state == 'invalid credentials') {
+			obj_loginerror.appendChild(document.createTextNode('Invalid credentials'));
 		} else {
-			e.removeChild(e.firstChild);
+			obj_loginerror.appendChild(document.createTextNode('Supply all credentials'));
 		}
-		d.appendChild(document.createTextNode('Invalid credentials'));
 	}
 }
 
@@ -359,52 +392,52 @@ function logout() {
 }
 
 function dologout(state) {
-	d=document.getElementById('login');
+	var obj_login=document.getElementById('login');
 	if (state == 'success') {
-		while (d.hasChildNodes()) { d.removeChild(d.firstChild); }
+		//Clear obj_login
+		while (obj_login.hasChildNodes()) { obj_login.removeChild(obj_login.firstChild); }
+		//Create form
+		var obj_loginform=document.createElement('form');
+		obj_loginform.method='post';
+		obj_loginform.onsubmit=function(){ login(); return false; }
 		
-		f=document.createElement('form');
-		f.method='post'; f.onsubmit=function(){ login(); return false; }
+		// Username
+		obj_loginform.appendChild(document.createTextNode('Username: '));
+		var obj_username=document.createElement('input');
+		obj_username.type='text';
+		obj_username.name='username';
+		obj_username.id='username';
+		obj_loginform.appendChild(obj_username);
+		obj_loginform.appendChild(document.createElement('br'));
 		
-		f.appendChild(document.createTextNode('Username: '));
-		i=document.createElement('input');
-		i.type='text'; i.name='username'; i.id='username';
-		f.appendChild(i);
-		f.appendChild(document.createElement('br'));
+		// Password
+		obj_loginform.appendChild(document.createTextNode('Password: '));
+		var obj_password=document.createElement('input');
+		obj_password.type='password';
+		obj_password.name='password';
+		obj_password.id='password';
+		obj_loginform.appendChild(obj_password);
+		obj_loginform.appendChild(document.createElement('br'));
 		
-		f.appendChild(document.createTextNode('Password: '));
-		i=document.createElement('input');
-		i.type='password'; i.name='password'; i.id='password';
-		f.appendChild(i);
-		f.appendChild(document.createElement('br'));
+		// Submit
+		var obj_loginsubmit=document.createElement('input');
+		obj_loginsubmit.type='submit';
+		obj_loginsubmit.id='loginsubmit';
+		obj_loginsubmit.value='Login';
+		obj_loginform.appendChild(obj_loginsubmit);
 		
-		i=document.createElement('input');
-		i.type='submit'; i.value='Login';
-		f.appendChild(i);
-		
-		d.appendChild(f);
+		obj_login.appendChild(obj_loginform);
 	}
 	else if (state == 'not logged in') { //Session timeout?
-		if (!(e=document.getElementById('loginerror'))) {
-			e=document.createElement('span');
-			e.id='loginerror';
-			d.appendChild(e);
+		//Print error message
+		var obj_loginerror=document.getElementById('loginerror');
+		if (!obj_loginerror) {
+			var obj_loginerror=document.createElement('span');
+			obj_loginerror.id='loginerror';
+			obj_login.appendChild(obj_loginerror);
 		} else {
-			e.removeChild(e.firstChild);
+			obj_loginerror.removeChild(obj_loginerror.firstChild);
 		}
-		d.appendChild(document.createElement('br'));
-		d.appendChild(document.createTextNode('You are not logged in'));
-	}
-}
-
-/*Not used anymore*/
-function readylistener(http_request,callbackfunction) {
-	if (http_request.readyState == 4) {
-		if (http_request.status == 200) {
-			callbackfunction(http_request.responseText);
-		} else {
-			alert('There was a problem with the request:\n'+
-			       http_request.statusText);
-		}
+		obj_loginerror.appendChild(document.createTextNode('You are not logged in'));
 	}
 }
