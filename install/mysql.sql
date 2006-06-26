@@ -16,7 +16,7 @@ CREATE TABLE snaf_accounts (
 );
 
 #fat — "forums and threads"
-#For forums, forum_id refer to the forums parent forum (0 if top-level forum),
+#For forums; forum_id refer to the forums parent forum (0 if top-level forum),
 #and thread_id refer to its own forum_id
 CREATE TABLE snaf_fat (
 	forum_id int UNSIGNED NOT NULL,
@@ -39,25 +39,25 @@ INSERT INTO snaf_fat VALUES (
 	"Talk about general stuff here"
 );
 
-#INSERT INTO snaf_fat VALUES (
-#	0,
-#	2,
-#	0,
-#	"author",
-#	1337,
-#	"Quake",
-#	"Talk about Quake here"
-#);
+INSERT INTO snaf_fat VALUES (
+	0,
+	2,
+	0,
+	"author",
+	1337,
+	"Quake",
+	"Talk about Quake here"
+);
 
-#INSERT INTO snaf_fat VALUES (
-#	0,
-#	3,
-#	0,
-#	"author",
-#	1337,
-#	"Half-Life",
-#	"Talk about Half-Life here"
-#);
+INSERT INTO snaf_fat VALUES (
+	0,
+	3,
+	0,
+	"author",
+	1337,
+	"Half-Life",
+	"Talk about Half-Life here"
+);
 
 #Thread 1
 INSERT INTO snaf_fat VALUES (
@@ -98,7 +98,7 @@ INSERT INTO snaf_fat VALUES (
 	"recover",
 	1150737367,
 	"SNAF problems",
-	"Jävla problem :/ Men jag hoppas att jag har löst dom snart (jag hade ändå tänkt att använda en global JavaScript variabel som minne till ställena man besökt)."
+	"Solved! :)"
 );
 
 INSERT INTO snaf_fat VALUES (
@@ -108,7 +108,7 @@ INSERT INTO snaf_fat VALUES (
 	"kakmannen",
 	1150737667,
 	"Re: SNAF forum",
-	"Ja, det får vi hoppas :((((("
+	"Ja, det får vi hoppas :)"
 );
 
 INSERT INTO snaf_fat VALUES (
@@ -118,8 +118,5 @@ INSERT INTO snaf_fat VALUES (
 	"recover",
 	1150737687,
 	"Re: SNAF forum",
-	"Mmm... Men när man programmerar något själv så går det inte så snabbt!!!! :((("
+	"Mmm... Men när man programmerar något själv så går det inte så snabbt!!!! :/"
 );
-
-
-#FYI: kakmannen is an imaginary friend helping me with SNAF ;)

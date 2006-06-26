@@ -71,10 +71,23 @@ window.onload=function() {
 	//Remove "Your browser does not support JavaScript."
 	obj_body.removeChild(obj_body.firstChild);
 	
-	//Create login
+	//Create stuff
+	// login
 	var obj_login=document.createElement('div');
 	obj_login.id='login';
 	obj_body.appendChild(obj_login);
+	obj_body.appendChild(document.createElement('br'));
+	// fat
+	var obj_fat=document.createElement('div');
+	obj_fat.id='fat';
+	obj_body.appendChild(obj_fat);
+	// thread
+	var obj_thread=document.createElement('div');
+	obj_thread.id='thread';
+	obj_body.appendChild(obj_thread);
+	
+	//Do stuff
+	// login
 <?php
 if (in_array('login',$user['permission'])) {
 	echo "\tdologin('success');\n";
@@ -82,26 +95,9 @@ if (in_array('login',$user['permission'])) {
 	echo "\tdologout('success');\n";
 }
 ?>
-	
-	obj_body.appendChild(document.createElement('br'));
-	
-	//Create fat
-	var obj_fat=document.createElement('div');
-	obj_fat.id='fat';
-	obj_body.appendChild(obj_fat);
+	// forum
 	forum(null);
-	//setInterval('forum(null)',1000);
-	
-	obj_body.appendChild(document.createElement('br'));
-	
-	//Create thread
-	var obj_thread=document.createElement('div');
-	obj_thread.id='thread';
-	obj_body.appendChild(obj_thread);
-	//thread(1);
-	//setInterval('thread(1)',1000);
-	
-	//Done loading
+	// done
 	document.title='SNAF';
 }
 
@@ -133,10 +129,22 @@ function forum(forum_id) {
 		//alert(http_request.responseText);
 		var xml=http_request.responseXML;
 		
+		//Grab and clear thread
+		var obj_thread=document.getElementById('thread');
+		while (obj_thread.hasChildNodes()) { obj_thread.removeChild(obj_thread.firstChild); }
+		
 		//Grab fat
 		var obj_fat=document.getElementById('fat');
 		//Clear fat
 		while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
+		
+		//Back link
+		if (forum_id != null) {
+			obj_back=document.createElement('a');
+			obj_back.onclick=function() { forum(null); }
+			obj_back.appendChild(document.createTextNode('« back'));
+			obj_fat.appendChild(obj_back);
+		}
 		
 		//List forums
 		var xml_forums=xml.getElementsByTagName('forum');
@@ -209,6 +217,12 @@ function forum(forum_id) {
 			obj_subject.appendChild(document.createTextNode(xml_subject));
 			obj_thread.appendChild(obj_subject);
 		}
+		
+		//If no forums or threads was reported, print message
+		if (xml_forums.length == 0 && xml_threads.length == 0) {
+			obj_fat.appendChild(document.createElement('br'));
+			obj_fat.appendChild(document.createTextNode('No forums or threads found (and yes, I checked the closet).'));
+		}
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
@@ -230,10 +244,20 @@ function thread(thread_id) {
 	if (http_request.status == 200) {
 		var xml=http_request.responseXML;
 		
+		//Grab and clear fat
+		var obj_fat=document.getElementById('fat');
+		while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
+		
 		//Grab thread
 		var obj_thread=document.getElementById('thread');
 		//Clear thread
 		while (obj_thread.hasChildNodes()) { obj_thread.removeChild(obj_thread.firstChild); }
+		
+		//Back link
+		obj_back=document.createElement('a');
+		obj_back.onclick=function() { forum(1); }
+		obj_back.appendChild(document.createTextNode('« back'));
+		obj_thread.appendChild(obj_back);
 		
 		var xml_posts=xml.getElementsByTagName('post');
 		for (var i=0; i < xml_posts.length; i++) {
@@ -280,9 +304,91 @@ function thread(thread_id) {
 			obj_body.appendChild(obj_topinfo);
 			obj_body.appendChild(document.createTextNode(xml_body)); //.replace(/\n/g,document.createElement('br'))
 		}
+		
+		//Create reply form
+		var obj_reply=document.createElement('form');
+		obj_reply.onsubmit=function() { submitthread(); return false; }
+		obj_reply.id='reply';
+		obj_thread.appendChild(obj_reply);
+		// thread_id
+		var obj_thread_id=document.createElement('input');
+		obj_thread_id.type='hidden';
+		obj_thread_id.name='thread_id';
+		obj_thread_id.id='thread_id';
+		obj_thread_id.value=thread_id;
+		obj_reply.appendChild(obj_thread_id);
+		// Subject
+		obj_reply.appendChild(document.createTextNode('Subject:'));
+		obj_reply.appendChild(document.createElement('br'));
+		var obj_subject=document.createElement('input');
+		obj_subject.type='text';
+		obj_subject.name='subject';
+		obj_subject.id='subject';
+		obj_subject.value='Re: '+xml_posts[0].getElementsByTagName('subject')[0].textContent;
+		obj_reply.appendChild(obj_subject);
+		obj_reply.appendChild(document.createElement('br'));
+		// Body
+		obj_reply.appendChild(document.createTextNode('Body:'));
+		obj_reply.appendChild(document.createElement('br'));
+		var obj_body=document.createElement('textarea');
+		obj_body.name='body';
+		obj_body.id='body';
+		obj_reply.appendChild(obj_body);
+		obj_reply.appendChild(document.createElement('br'));
+		// Submit
+		var obj_submit=document.createElement('input');
+		obj_submit.type='submit';
+		obj_submit.id='replysubmit';
+		obj_submit.value='Reply';
+		obj_reply.appendChild(obj_submit);
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
+	}
+}
+
+function submitthread() {
+	var http_request=false;
+	http_request=new XMLHttpRequest();
+	if (!http_request) {
+		alert('Unable to create an XMLHttpRequest instance.\n'+
+		      'You are most likely using an old browser.');
+		return false;
+	}
+	
+	//Grab objects
+	var obj_thread_id=document.getElementById('thread_id');
+	var obj_subject=document.getElementById('subject');
+	var obj_body=document.getElementById('body');
+	var obj_replysubmit=document.getElementById('replysubmit');
+	
+	//Disable input boxes
+	obj_subject.disabled=true;
+	obj_body.disabled=true;
+	obj_replysubmit.disabled=true;
+	
+	//Make the request
+	http_request.open('POST','hooks/submitthread.php?thread_id='+obj_thread_id.value,false);
+	http_request.setRequestHeader('Content-Type'
+	           ,'application/x-www-form-urlencoded; charset=utf-8');
+	http_request.send(
+		'subject='+encodeURI(obj_subject.value)+
+		'&body='+encodeURI(obj_body.value));
+	
+	//What happened?
+	if (http_request.status == 200) {
+		var state=http_request.responseText;
+		if (state == 'success') {
+			//Refresh thread
+			thread(obj_thread_id.value);
+		}
+	} else {
+		alert('There was a problem with the request:\n'+
+		       http_request.statusText);
+		//Enable input boxes
+		obj_subject.disabled=false;
+		obj_body.disabled=false;
+		obj_replysubmit.disabled=false;
 	}
 }
 

@@ -27,6 +27,9 @@ a {
 #thread .post .body .reply {
 	float:right;
 }
+#thread #reply {
+	text-align:center;
+}
 	</style>
 </head>
 <body>
@@ -41,6 +44,12 @@ a {
 				KAKAKAKAKAKA
 			</div>
 		</div>
+		<form method="post" onsubmit="submitthread(); return false;" id="reply">
+			<input type="hidden" name="thread_id" value="3" />
+			Subject:<br /><input type="text" name="subject" id="subject" value="Re: SNAF" /><br />
+			Body:<br /><textarea name="body" id="body"></textarea><br />
+			<input type="submit" id="replysubmit" value="Reply" />
+		</form>
 	</div>
 </body>
 </html>
