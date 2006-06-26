@@ -41,7 +41,7 @@ if (extension_loaded('session')) {
 	#Set session_name
 	session_name(SNAF_SESSIONPREFIX.'PHPSESSID');
 	
-	#Has our user loggedin?
+	#Has our user logged in?
 	if (isset($_COOKIE[session_name()])) { #He might have
 		session_start(); #Start session
 		#If the session
