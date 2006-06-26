@@ -99,11 +99,19 @@ if (in_array('login',$user['permission'])) {
 	obj_thread.id='thread';
 	obj_body.appendChild(obj_thread);
 	//thread(1);
-	//setInterval('thread()',1000);
+	//setInterval('thread(1)',1000);
 	
 	//Done loading
 	document.title='SNAF';
 }
+
+function closurecallback(callbackFunc,callbackParam) {
+	return function() {
+		callbackFunc(callbackParam);
+	}
+}
+
+function user(username) { }
 
 function forum(forum_id) {
 	var http_request=false;
@@ -124,91 +132,82 @@ function forum(forum_id) {
 	if (http_request.status == 200) {
 		//alert(http_request.responseText);
 		var xml=http_request.responseXML;
-		var everything=xml.childNodes[1];
-		if (everything.hasChildNodes()) {
-			//Grab fat
-			var obj_fat=document.getElementById('fat');
-			//Clear fat
-			while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
+		
+		//Grab fat
+		var obj_fat=document.getElementById('fat');
+		//Clear fat
+		while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
+		
+		//List forums
+		var xml_forums=xml.getElementsByTagName('forum');
+		for (var i=0; i < xml_forums.length; i++) {
+			//Assign variables
+			var xml_forum_id=xml_forums[i].getAttribute('forum_id');
+			var xml_num_threads=xml_forums[i].getAttribute('num_threads');
+			var xml_num_posts=xml_forums[i].getAttribute('num_posts');
+			var xml_subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
+			var xml_body=xml_forums[i].getElementsByTagName('body')[0].textContent;
 			
-			//List forums
-			var xml_forums=everything.getElementsByTagName('forum');
-			for (var i=0; i < xml_forums.length; i++) {
-				//Assign variables
-				var xml_forum_id=xml_forums[i].getAttribute('forum_id');
-				var xml_num_threads=xml_forums[i].getAttribute('num_threads');
-				var xml_num_posts=xml_forums[i].getAttribute('num_posts');
-				var xml_subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
-				var xml_body=xml_forums[i].getElementsByTagName('body')[0].textContent;
-				
-				//Create forum
-				var obj_forum=document.createElement('div');
-				obj_forum.id='forum'+xml_forum_id;
-				obj_forum.className='forum';
-				obj_fat.appendChild(obj_forum);
-				
-				//Num
-				var obj_num=document.createElement('div');
-				obj_num.className='num';
-				obj_forum.appendChild(obj_num);
-				// Num_threads
-				var obj_num_threads=document.createElement('div');
-				obj_num_threads.className='num_threads';
-				obj_num_threads.appendChild(document.createTextNode(xml_num_threads));
-				obj_num.appendChild(obj_num_threads);
-				// Num_posts
-				var obj_num_posts=document.createElement('div');
-				obj_num_posts.className='num_posts';
-				obj_num_posts.appendChild(document.createTextNode(xml_num_posts));
-				obj_num.appendChild(obj_num_posts);
-				
-				//Body
-				var obj_body=document.createElement('div');
-				obj_body.className='body';
-				// Subject
-				var obj_subject=document.createElement('a');
-				obj_subject.onclick=function() { forum(xml_forum_id); }
-				obj_subject.appendChild(document.createTextNode(xml_subject));
-				obj_body.appendChild(obj_subject);
-				obj_body.appendChild(document.createElement('br'));
-				obj_body.appendChild(document.createTextNode(xml_body));
-				obj_forum.appendChild(obj_body);
-			}
+			//Create forum
+			var obj_forum=document.createElement('div');
+			obj_forum.id='forum'+xml_forum_id;
+			obj_forum.className='forum';
+			obj_fat.appendChild(obj_forum);
 			
-			//List threads
-			var xml_threads=everything.getElementsByTagName('thread');
-			for (var i=0; i < xml_threads.length; i++) {
-				//Assign variables
-				var xml_thread_id=xml_threads[i].getAttribute('thread_id');
-				var xml_subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
-				var xml_author=xml_threads[i].getElementsByTagName('author')[0].textContent;
-				
-				//Create thread
-				var obj_thread=document.createElement('div');
-				obj_thread.id='thread'+xml_thread_id;
-				obj_thread.className='thread';
-				obj_fat.appendChild(obj_thread);
-				
-				//Author
-				var obj_author=document.createElement('div');
-				obj_author.className='author';
-				// Author link
-				var obj_author_link=document.createElement('a');
-				obj_author_link.onclick=function() { user(xml_author); }
-				obj_author_link.appendChild(document.createTextNode(xml_author));
-				obj_author.appendChild(obj_author_link);
-				obj_thread.appendChild(obj_author);
-				
-				//Subject
-				var obj_subject=document.createElement('div');
-				obj_subject.className='subject';
-				// Subject link
-				var obj_subject_link=document.createElement('a');
-				obj_subject_link.onclick=function() { thread(xml_thread_id); }
-				obj_subject_link.appendChild(document.createTextNode(xml_subject));
-				obj_subject.appendChild(obj_subject_link);
-				obj_thread.appendChild(obj_subject);
-			}
+			//Num
+			var obj_num=document.createElement('div');
+			obj_num.className='num';
+			obj_forum.appendChild(obj_num);
+			// Num_threads
+			var obj_num_threads=document.createElement('div');
+			obj_num_threads.className='num_threads';
+			obj_num_threads.appendChild(document.createTextNode(xml_num_threads));
+			obj_num.appendChild(obj_num_threads);
+			// Num_posts
+			var obj_num_posts=document.createElement('div');
+			obj_num_posts.className='num_posts';
+			obj_num_posts.appendChild(document.createTextNode(xml_num_posts));
+			obj_num.appendChild(obj_num_posts);
+			
+			//Body
+			var obj_body=document.createElement('div');
+			obj_body.className='body';
+			// Subject
+			var obj_subject=document.createElement('a');
+			obj_subject.onclick=closurecallback(forum,xml_forum_id);
+			obj_subject.appendChild(document.createTextNode(xml_subject));
+			obj_body.appendChild(obj_subject);
+			obj_body.appendChild(document.createElement('br'));
+			obj_body.appendChild(document.createTextNode(xml_body));
+			obj_forum.appendChild(obj_body);
+		}
+		
+		//List threads
+		var xml_threads=xml.getElementsByTagName('thread');
+		for (var i=0; i < xml_threads.length; i++) {
+			//Assign variables
+			var xml_thread_id=xml_threads[i].getAttribute('thread_id');
+			var xml_subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
+			var xml_author=xml_threads[i].getElementsByTagName('author')[0].textContent;
+			
+			//Create thread
+			var obj_thread=document.createElement('div');
+			obj_thread.id='thread'+xml_thread_id;
+			obj_thread.className='thread';
+			obj_fat.appendChild(obj_thread);
+			
+			//Author
+			var obj_author=document.createElement('a');
+			obj_author.className='author';
+			obj_author.appendChild(document.createTextNode(xml_author));
+			obj_thread.appendChild(obj_author);
+			
+			//Subject
+			var obj_subject=document.createElement('a');
+			obj_subject.className='subject';
+			obj_subject.onclick=closurecallback(thread,xml_thread_id);
+			obj_subject.appendChild(document.createTextNode(xml_subject));
+			obj_thread.appendChild(obj_subject);
 		}
 	} else {
 		alert('There was a problem with the request:\n'+
@@ -230,58 +229,56 @@ function thread(thread_id) {
 	
 	if (http_request.status == 200) {
 		var xml=http_request.responseXML;
-		var everything=xml.childNodes[1];
-		if (everything.hasChildNodes()) {
-			//Grab thread
-			var obj_thread=document.getElementById('thread');
-			//Clear thread
-			while (obj_thread.hasChildNodes()) { obj_thread.removeChild(obj_thread.firstChild); }
+		
+		//Grab thread
+		var obj_thread=document.getElementById('thread');
+		//Clear thread
+		while (obj_thread.hasChildNodes()) { obj_thread.removeChild(obj_thread.firstChild); }
+		
+		var xml_posts=xml.getElementsByTagName('post');
+		for (var i=0; i < xml_posts.length; i++) {
+			//Assign variables
+			var xml_post_id=xml_posts[i].getAttribute('post_id');
+			var xml_author=xml_posts[i].getElementsByTagName('author')[0].textContent;
+			var xml_date=xml_posts[i].getElementsByTagName('date')[0].textContent;
+			var xml_subject=xml_posts[i].getElementsByTagName('subject')[0].textContent;
+			var xml_body=xml_posts[i].getElementsByTagName('body')[0].textContent;
 			
-			var xml_posts=everything.getElementsByTagName('post');
-			for (var i=0; i < xml_posts.length; i++) {
-				//Assign variables
-				var xml_post_id=xml_posts[i].getAttribute('post_id');
-				var xml_author=xml_posts[i].getElementsByTagName('author')[0].textContent;
-				var xml_date=xml_posts[i].getElementsByTagName('date')[0].textContent;
-				var xml_subject=xml_posts[i].getElementsByTagName('subject')[0].textContent;
-				var xml_body=xml_posts[i].getElementsByTagName('body')[0].textContent;
-				
-				//Create post
-				var obj_post=document.createElement('div');
-				obj_post.id='thread'+thread_id+'post'+xml_post_id;
-				obj_post.className='post';
-				obj_thread.appendChild(obj_post);
-				
-				//Author
-				var obj_author=document.createElement('div');
-				obj_author.className='author';
-				obj_author_link=document.createElement('a');
-				obj_author_link.onclick=function(){ user(xml_author); }
-				obj_author_link.appendChild(document.createTextNode(xml_author));
-				obj_author.appendChild(obj_author_link);
-				obj_post.appendChild(obj_author);
-				
-				//Body
-				var obj_body=document.createElement('div');
-				obj_body.className='body';
-				obj_post.appendChild(obj_body);
-				// Topinfo
-				var obj_topinfo=document.createElement('div');
-				obj_topinfo.className='topinfo';
-				//  Reply
-				var obj_topinfo_reply=document.createElement('div');
-				obj_topinfo_reply.className='reply';
-				obj_topinfo_reply.appendChild(document.createTextNode('Reply #'+xml_post_id+' on '+xml_date));
-				obj_topinfo.appendChild(obj_topinfo_reply);
-				//  Subject
-				var obj_topinfo_subject=document.createElement('div');
-				obj_topinfo_subject.className='subject';
-				obj_topinfo_subject.appendChild(document.createTextNode(xml_subject));
-				obj_topinfo.appendChild(obj_topinfo_subject);
-				// Body continued
-				obj_body.appendChild(obj_topinfo);
-				obj_body.appendChild(document.createTextNode(xml_body)); //.replace(/\n/g,document.createElement('br'))
-			}
+			//Create post
+			var obj_post=document.createElement('div');
+			obj_post.id='thread'+thread_id+'post'+xml_post_id;
+			obj_post.className='post';
+			obj_thread.appendChild(obj_post);
+			
+			//Author
+			var obj_author=document.createElement('div');
+			obj_author.className='author';
+			obj_author_link=document.createElement('a');
+			obj_author_link.onclick=closurecallback(user,xml_author);
+			obj_author_link.appendChild(document.createTextNode(xml_author));
+			obj_author.appendChild(obj_author_link);
+			obj_post.appendChild(obj_author);
+			
+			//Body
+			var obj_body=document.createElement('div');
+			obj_body.className='body';
+			obj_post.appendChild(obj_body);
+			// Topinfo
+			var obj_topinfo=document.createElement('div');
+			obj_topinfo.className='topinfo';
+			//  Reply
+			var obj_topinfo_reply=document.createElement('div');
+			obj_topinfo_reply.className='reply';
+			obj_topinfo_reply.appendChild(document.createTextNode('Reply #'+xml_post_id+' on '+xml_date));
+			obj_topinfo.appendChild(obj_topinfo_reply);
+			//  Subject
+			var obj_topinfo_subject=document.createElement('div');
+			obj_topinfo_subject.className='subject';
+			obj_topinfo_subject.appendChild(document.createTextNode(xml_subject));
+			obj_topinfo.appendChild(obj_topinfo_subject);
+			// Body continued
+			obj_body.appendChild(obj_topinfo);
+			obj_body.appendChild(document.createTextNode(xml_body)); //.replace(/\n/g,document.createElement('br'))
 		}
 	} else {
 		alert('There was a problem with the request:\n'+
