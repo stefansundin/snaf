@@ -64,7 +64,7 @@ if (mysql_numrows($result_forum_id) == 0) {
 mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
  mysql_result($result_forum_id,0,'forum_id').',
  "'.mysql_real_escape_string($_GET['thread_id']).'",
- 4,
+ NULL,
  "'.$_SESSION['username'].'",
  '.time().',
  "'.$_POST['subject'].'",

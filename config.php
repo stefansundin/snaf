@@ -59,6 +59,9 @@ ini_set('display_errors','on');
 #Use mysql_connect() for a non-persistent connection
 mysql_pconnect(SNAF_DBSERVER,SNAF_DBUSER) or exit('SQL connect error');
 mysql_select_db(SNAF_DBNAME) or exit('SQL database select error');
+#0 should not AUTO_INCREMENT, now only NULL does the trick
+mysql_query('SET sql_mode="NO_AUTO_VALUE_ON_ZERO"')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 #Magic quotes
 set_magic_quotes_runtime(0);

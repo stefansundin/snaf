@@ -21,11 +21,12 @@ CREATE TABLE snaf_accounts (
 CREATE TABLE snaf_fat (
 	forum_id int UNSIGNED NOT NULL,
 	thread_id int UNSIGNED NOT NULL,
-	post_id int UNSIGNED NOT NULL,
+	post_id int UNSIGNED NOT NULL AUTO_INCREMENT,
 	author varchar(30) NOT NULL,
 	date int UNSIGNED NOT NULL,
 	subject varchar(50) NOT NULL,
-	body text NOT NULL
+	body text NOT NULL,
+	PRIMARY KEY (thread_id,post_id)
 );
 
 #Forums
@@ -62,8 +63,8 @@ INSERT INTO snaf_fat VALUES (
 #Thread 1
 INSERT INTO snaf_fat VALUES (
 	1,
-	1,
-	1,
+	4,
+	NULL,
 	"recover",
 	1150736367,
 	"SNAF forum",
@@ -72,8 +73,8 @@ INSERT INTO snaf_fat VALUES (
 
 INSERT INTO snaf_fat VALUES (
 	1,
-	1,
-	2,
+	4,
+	NULL,
 	"kakmannen",
 	1150736667,
 	"Re: SNAF forum",
@@ -82,8 +83,8 @@ INSERT INTO snaf_fat VALUES (
 
 INSERT INTO snaf_fat VALUES (
 	1,
-	1,
-	3,
+	4,
+	NULL,
 	"recover",
 	1150736687,
 	"Re: SNAF forum",
@@ -93,30 +94,20 @@ INSERT INTO snaf_fat VALUES (
 #Thread 2
 INSERT INTO snaf_fat VALUES (
 	1,
-	2,
-	1,
+	5,
+	NULL,
 	"recover",
 	1150737367,
 	"SNAF problems",
-	"Solved! :)"
+	"JavaScript closure problem solved! :)"
 );
 
 INSERT INTO snaf_fat VALUES (
 	1,
-	2,
-	2,
+	5,
+	NULL,
 	"kakmannen",
-	1150737667,
-	"Re: SNAF forum",
-	"Ja, det får vi hoppas :)"
-);
-
-INSERT INTO snaf_fat VALUES (
-	1,
-	2,
-	3,
-	"recover",
-	1150737687,
-	"Re: SNAF forum",
-	"Mmm... Men när man programmerar något själv så går det inte så snabbt!!!! :/"
+	1151430517,
+	"Re: SNAF problems",
+	"post_id auto_increment problem solved! :P"
 );

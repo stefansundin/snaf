@@ -57,8 +57,13 @@ for ($i=0; $i < count($sql); $i++) {
 	}
 }
 
-# Create an account
-mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES ("","recover","'.mysql_real_escape_string(md5raw('apa')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'recover89@gmail.com'))).'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+#Create some test accounts
+# recover/apa
+mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES (NULL,"recover","'.mysql_real_escape_string(md5raw('apa')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'nobody@nowhere.se'))).'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+# sklp/rav
+mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES (NULL,"sklp","'.mysql_real_escape_string(md5raw('rav')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'nobody@nowhere.se'))).'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+# baskus/kakburk
+mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES (NULL,"baskus","'.mysql_real_escape_string(md5raw('kakburk')).'","'.mysql_real_escape_string(serialize(array('root'))).'","'.mysql_real_escape_string(serialize(array('email'=>'nobody@nowhere.se'))).'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 #Try to lock install
 #Can I create an install.lock file, i.e. do I have permission?

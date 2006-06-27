@@ -52,13 +52,13 @@ if (!function_exists('md5raw')) {
 if (!function_exists('formatsize')) {
 	function formatsize($size,$precision = 2) {
 		if ($size > 1024*1024) {
-			return round(($size / 1024*1024),$precision).' MB';
+			return round(($size / 1024*1024),$precision).' MiB';
 		}
 		else if ($size > 1024) {
-			return round(($size / 1024),$precision).' KB';
+			return round(($size / 1024),$precision).' KiB';
 		}
 		else {
-			return $size.' Byte';
+			return $size.' Byte'.($size!=1?'s':'');
 		}
 	}
 }

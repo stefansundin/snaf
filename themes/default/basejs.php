@@ -254,11 +254,16 @@ function thread(thread_id) {
 		while (obj_thread.hasChildNodes()) { obj_thread.removeChild(obj_thread.firstChild); }
 		
 		//Back link
-		obj_back=document.createElement('a');
+		var obj_back=document.createElement('a');
 		obj_back.onclick=function() { forum(1); }
 		obj_back.appendChild(document.createTextNode('« back'));
 		obj_thread.appendChild(obj_back);
-		
+		obj_thread.appendChild(document.createTextNode(' | '));
+		//Refresh link
+		var obj_refresh=document.createElement('a');
+		obj_refresh.onclick=function() { thread(thread_id); }
+		obj_refresh.appendChild(document.createTextNode('Refresh'));
+		obj_thread.appendChild(obj_refresh);
 		var xml_posts=xml.getElementsByTagName('post');
 		for (var i=0; i < xml_posts.length; i++) {
 			//Assign variables
