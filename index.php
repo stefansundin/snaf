@@ -43,9 +43,28 @@ echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<title>SNAF — Loading...</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<script type="application/javascript" src="themes/<?php echo SNAF_THEME; ?>/basejs.php"></script>
 	<link rel="stylesheet" href="themes/<?php echo SNAF_THEME; ?>/style.css" title="Default" type="text/css" charset="utf-8" media="all" />
+	<script type="application/javascript" src="themes/<?php echo SNAF_THEME; ?>/base.js" charset="utf-8"></script>
+	<script type="application/javascript">
+window.onload=function() {
+	//Create global variable
+	window.snaf={
+	 'login':<?php echo isset($user['login'])?'true':'false'; ?>,
+<?php
+if (isset($_SERVER['REQUEST_URI'])) {
+	if (urldecode(substr($_SERVER['REQUEST_URI'],strlen(SNAF_REMOTEPATH.'/')))) {
+		$location=explode(':',urldecode(substr($_SERVER['REQUEST_URI'],strlen(SNAF_REMOTEPATH.'/'))));
+	}
+}
+if (!isset($location)) {
+	$location=array('forum','null');
+}
+?>
+	 'location':<?php echo $location[0]; ?>,
+	 'locationid':<?php echo isset($location[1])?$location[1]:'null'; ?> };
+	load();
+}
+	</script>
 </head>
 <body>
 	Your browser does not support JavaScript.

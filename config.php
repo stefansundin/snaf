@@ -44,7 +44,7 @@ define('SNAF_TABLEPREFIX','snaf_');
 # If you are not alone on a domain, it would be a good idea to set this to something unique to prevent unwanted session exchanges:
 define('SNAF_SESSIONPREFIX','snaf_');
 #You shouldn't need to edit the constants below
-define('SNAF_VERSION','0.000000000000004');
+define('SNAF_VERSION','0.000000000000008');
 define('SNAF_HTTPAUTH',((bool)ini_get('safe_mode'))?false:true);
 
 #Error handling
@@ -103,7 +103,8 @@ else if (isset($_SERVER['REMOTE_ADDR'])) {
 else { define('SNAF_IP',NULL); } #This really shouldn't happen
 
 #Enable Microsoft Internet Explorer compatibility?
-if (eregi("MSIE",$_SERVER['HTTP_USER_AGENT']) || eregi("Internet Explorer",$_SERVER['HTTP_USER_AGENT'])) {
+if (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')
+ || strpos($_SERVER['HTTP_USER_AGENT'],'Internet Explorer')) {
 	define('SNAF_IECOMPAT',true);
 }
 
@@ -116,5 +117,8 @@ if (isset($_SESSION['theme'])) {
 if (!defined('SNAF_THEME')) {
 	define('SNAF_THEME','default');
 }
+
+#Headers
+header('Content-Type: text/html; charset=utf-8');
 
 ?>

@@ -1,6 +1,6 @@
 <?php
 /*
-SNAF — Hooks — Submit thread
+SNAF — Hooks — Submit reply
 Copyright (C) 2006  Stefan Sundin (recover89@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file submits a thread.
+This file submits a reply to a thread.
 */
 
 #Be sure this file is the one who start execution
@@ -36,7 +36,7 @@ require_once('../includes/session.php');
 #Done
 
 #Must be logged in
-if (!in_array('login',$user['permission'])) {
+if (!isset($user['login'])) {
 	echo 'user not logged in';
 	exit();
 }
@@ -65,21 +65,11 @@ mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
  mysql_result($result_forum_id,0,'forum_id').',
  "'.mysql_real_escape_string($_GET['thread_id']).'",
  NULL,
- "'.$_SESSION['username'].'",
+ "'.mysql_real_escape_string($_SESSION['username']).'",
  '.time().',
- "'.$_POST['subject'].'",
- "'.$_POST['body'].'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+ "'.mysql_real_escape_string($_POST['subject']).'",
+ "'.mysql_real_escape_string($_POST['body']).'")') or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 echo 'success';
-
-/*INSERT INTO snaf_fat VALUES (
-	1,
-	1,
-	1,
-	"recover",
-	1150736367,
-	"SNAF forum",
-	"Woohooo! SNAF är på väg! :P"
-);*/
 
 ?>

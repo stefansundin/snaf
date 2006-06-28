@@ -40,7 +40,7 @@ require_once('../includes/session.php');
 #Done
 
 #Have our user already logged in?
-if (in_array('login',$user['permission'])) { #Yes
+if (isset($user['login'])) { #Yes
 	echo 'already logged in';
 	exit(5);
 }

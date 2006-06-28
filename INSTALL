@@ -20,6 +20,7 @@ Below is an example of such a statement, change paths to your need.
 	RewriteBase /snaf
 	RewriteRule ^login$ index.php
 	RewriteRule ^logout$ index.php
+	RewriteRule ^forum: index.php
 	RewriteRule ^thread: index.php
 </Directory>
 

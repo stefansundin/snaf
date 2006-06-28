@@ -72,9 +72,7 @@ if (extension_loaded('session')) {
 						echo "Permission isn't an array, exiting";
 						exit(2);
 					}
-					if (!in_array('login',$user['permission'])) {
-						$user['permission'][]='login';
-					}
+					$user['login']=true;
 				}
 				mysql_free_result($result);
 			}

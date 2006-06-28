@@ -36,7 +36,7 @@ require_once('../includes/session.php');
 #Done
 
 #Is our user logged in?
-if (in_array('login',$user['permission'])) { #Yes
+if (isset($user['login'])) { #Yes
 	#Delete the cookie
 	$cookie=session_get_cookie_params();
 	if (!isset($cookie['domain']) && !isset($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path']); }
