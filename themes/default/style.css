@@ -3,6 +3,7 @@ a {
 	cursor:pointer;
 }
 
+/*forum()*/
 #fat .forum {
 	border:1px solid rgb(0,0,0);
 }
@@ -26,24 +27,36 @@ a {
 	float:right;
 }
 
-#thread .post {
+#fat #newforum {
+	width:50%;
+	float:left;
+	text-align:center;
+}
+#fat #newthread {
+	width:50%;
+	float:right;
+	text-align:center;
+}
+
+/*thread()*/
+#fat .post {
 	border:1px solid rgb(0,0,0);
 }
-#thread .post .author {
+#fat .post .author {
 	float:left;
 	width:100px;
 	font-size:9pt;
 }
-#thread .post .body {
+#fat .post .body {
 	margin-left:105px;
 	border-left:1px solid rgb(0,0,0);
 }
-#thread .post .body .topinfo {
+#fat .post .body .topinfo {
 	border-bottom:1px solid rgb(100,100,100);
 }
-#thread .post .body .reply {
+#fat .post .body .reply {
 	float:right;
 }
-#thread #reply {
+#fat #reply {
 	text-align:center;
 }

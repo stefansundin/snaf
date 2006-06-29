@@ -57,11 +57,13 @@ if (isset($_SERVER['REQUEST_URI'])) {
 	}
 }
 if (!isset($location)) {
-	$location=array('forum','null');
+	$location=array('forum','0');
 }
 ?>
-	 'location':<?php echo $location[0]; ?>,
-	 'locationid':<?php echo isset($location[1])?$location[1]:'null'; ?> };
+	 'current':{
+	  'location':<?php echo $location[0]; ?>,
+	  'locationid':<?php echo isset($location[1])?$location[1]:'0'; ?> },
+	 'back':[] };
 	load();
 }
 	</script>

@@ -36,24 +36,20 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-if (isset($_GET['id'])) { #forum.php?id=2
-	$id=$_GET['id']; }
+if (isset($_GET['forum_id'])) { #forum.php?id=2
+	$forum_id=$_GET['forum_id']; }
 else if (isset($_SERVER['PATH_INFO'])) { #forum.php/2
-	$id=basename($_SERVER['PATH_INFO']); }
+	$forum_id=basename($_SERVER['PATH_INFO']); }
 
-if (!isset($id)) {
-	#Request for top-level forum
-	$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
-	 'FROM '.SNAF_TABLEPREFIX.'fat '.
-	 'WHERE forum_id=0 AND post_id=0')
-	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-} else {
-	#Request for a specific forum
-	$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
-	 'FROM '.SNAF_TABLEPREFIX.'fat '.
-	 'WHERE forum_id="'.mysql_real_escape_string($id).'" AND (post_id=0 OR post_id=1)')
-	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+if (!isset($forum_id)) {
+	$forum_id=0;
 }
+
+#Query for forum
+$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
+ 'FROM '.SNAF_TABLEPREFIX.'fat '.
+ 'WHERE forum_id="'.mysql_real_escape_string($forum_id).'" AND (post_id=0 OR post_id=1)')
+ or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 header('Content-Type: text/xml');
 
