@@ -51,22 +51,13 @@ window.onload=function() {
 	window.snaf={
 	 'loading':true,
 	 'login':<?php echo isset($user['login'])?'true':'false'; ?>,
-<?php
-if (isset($_SERVER['REQUEST_URI'])) {
-	if (urldecode(substr($_SERVER['REQUEST_URI'],strlen(SNAF_REMOTEPATH.'/')))) {
-		$location=explode(':',urldecode(substr($_SERVER['REQUEST_URI'],strlen(SNAF_REMOTEPATH.'/'))));
-	}
-}
-if (!isset($location)) {
-	$location=array('forum','0');
-}
-?>
 	 'current':{
-	  'location':<?php echo $location[0]; ?>,
-	  'locationid':<?php echo isset($location[1])?$location[1]:'0'; ?> },
+	  'location':<?php echo isset($_GET['location'])?$_GET['location']:'forum'; ?>,
+	  'locationid':<?php echo isset($_GET['locationid'])?$_GET['locationid']:'0'; ?> },
 	 'back':[{
 	  'location':forum,
-	  'locationid':0 }] };
+	  'locationid':0 }],
+	 'dontindex':true };
 	load();
 }
 	</script>

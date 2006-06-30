@@ -90,7 +90,7 @@ function closurecallback(callbackFunc,callbackParam) {
 function back() {
 	if (snaf.back.length > 0) {
 		var nextback=snaf.back.pop();
-		snaf.current=null;
+		snaf.dontindex=true; //Disable indexing
 		nextback.location(nextback.locationid);
 	} else {
 		forum(0);
@@ -101,55 +101,67 @@ function refreshuser() {
 	if (snaf.current.location == forum) {
 		if (snaf.login) {
 			//Enable submit forum form
-			var obj_subject=document.getElementById('submitforum_subject');
-			var obj_body=document.getElementById('submitforum_body');
-			var obj_submit=document.getElementById('submitforum_submit');
-			obj_subject.disabled=false;
-			obj_body.disabled=false;
-			obj_submit.disabled=false;
+			var obj_submitforum_subject=document.getElementById('submitforum_subject');
+			var obj_submitforum_body=document.getElementById('submitforum_body');
+			var obj_submitforum_submit=document.getElementById('submitforum_submit');
+			obj_submitforum_subject.disabled=false;
+			obj_submitforum_body.disabled=false;
+			if (obj_submitforum_subject.value && obj_submitforum_body.value) {
+				obj_submitforum_submit.disabled=false;
+			} else {
+				obj_submitforum_submit.disabled=true;
+			}
 			
 			//Enable submit thread form
-			var obj_subject=document.getElementById('submitthread_subject');
-			var obj_body=document.getElementById('submitthread_body');
-			var obj_submit=document.getElementById('submitthread_submit');
-			obj_subject.disabled=false;
-			obj_body.disabled=false;
-			obj_submit.disabled=false;
+			var obj_submitthread_subject=document.getElementById('submitthread_subject');
+			var obj_submitthread_body=document.getElementById('submitthread_body');
+			var obj_submitthread_submit=document.getElementById('submitthread_submit');
+			obj_submitthread_subject.disabled=false;
+			obj_submitthread_body.disabled=false;
+			if (obj_submitthread_subject.value && obj_submitthread_body.value) {
+				obj_submitthread_submit.disabled=false;
+			} else {
+				obj_submitthread_submit.disabled=true;
+			}
 		} else {
 			//Disable submit forum form
-			var obj_subject=document.getElementById('submitforum_subject');
-			var obj_body=document.getElementById('submitforum_body');
-			var obj_submit=document.getElementById('submitforum_submit');
-			obj_subject.disabled=true;
-			obj_body.disabled=true;
-			obj_submit.disabled=true;
+			var obj_submitforum_subject=document.getElementById('submitforum_subject');
+			var obj_submitforum_body=document.getElementById('submitforum_body');
+			var obj_submitforum_submit=document.getElementById('submitforum_submit');
+			obj_submitforum_subject.disabled=true;
+			obj_submitforum_body.disabled=true;
+			obj_submitforum_submit.disabled=true;
 			
 			//Disable submit thread form
-			var obj_subject=document.getElementById('submitthread_subject');
-			var obj_body=document.getElementById('submitthread_body');
-			var obj_submit=document.getElementById('submitthread_submit');
-			obj_subject.disabled=true;
-			obj_body.disabled=true;
-			obj_submit.disabled=true;
+			var obj_submitthread_subject=document.getElementById('submitthread_subject');
+			var obj_submitthread_body=document.getElementById('submitthread_body');
+			var obj_submitthread_submit=document.getElementById('submitthread_submit');
+			obj_submitthread_subject.disabled=true;
+			obj_submitthread_body.disabled=true;
+			obj_submitthread_submit.disabled=true;
 		}
 	}
 	else if (snaf.current.location == thread) {
 		if (snaf.login) {
 			//Enable submit reply form
-			var obj_subject=document.getElementById('submitreply_subject');
-			var obj_body=document.getElementById('submitreply_body');
-			var obj_submit=document.getElementById('submitreply_submit');
-			obj_subject.disabled=false;
-			obj_body.disabled=false;
-			obj_submit.disabled=false;
+			var obj_submitreply_subject=document.getElementById('submitreply_subject');
+			var obj_submitreply_body=document.getElementById('submitreply_body');
+			var obj_submitreply_submit=document.getElementById('submitreply_submit');
+			obj_submitreply_subject.disabled=false;
+			obj_submitreply_body.disabled=false;
+			if (obj_submitreply_subject.value && obj_submitreply_body.value) {
+				obj_submitreply_submit.disabled=false;
+			} else {
+				obj_submitreply_submit.disabled=true;
+			}
 		} else {
 			//Disable submit reply form
-			var obj_subject=document.getElementById('submitreply_subject');
-			var obj_body=document.getElementById('submitreply_body');
-			var obj_submit=document.getElementById('submitreply_submit');
-			obj_subject.disabled=true;
-			obj_body.disabled=true;
-			obj_submit.disabled=true;
+			var obj_submitreply_subject=document.getElementById('submitreply_subject');
+			var obj_submitreply_body=document.getElementById('submitreply_body');
+			var obj_submitreply_submit=document.getElementById('submitreply_submit');
+			obj_submitreply_subject.disabled=true;
+			obj_submitreply_body.disabled=true;
+			obj_submitreply_submit.disabled=true;
 		}
 	}
 }
@@ -170,16 +182,12 @@ function forum(forum_id) {
 	
 	if (http_request.status == 200) {
 		//Update global variables
-		if (snaf.current != null //invoked through back()
-		 && !snaf.loading) { //or loading
-			snaf.back.push(snaf.current);
-		}
+		//Do not add to back history if dontindex is set
+		if (!snaf.dontindex) { snaf.back.push(snaf.current); }
+		snaf.dontindex=false;
 		snaf.current={
 		 'location':forum,
 		 'locationid':forum_id };
-		
-		//alert(http_request.responseText);
-		var xml=http_request.responseXML;
 		
 		//Grab fat
 		var obj_fat=document.getElementById('fat');
@@ -199,13 +207,13 @@ function forum(forum_id) {
 		//Refresh link
 		var obj_refresh=document.createElement('a');
 		obj_refresh.onclick=function() {
-			snaf.current=null; //Do not index in back history
-			forum(forum_id); //Refresh thread
+			snaf.dontindex=true; //Disable indexing
+			forum(forum_id); //Refresh forum
 		}
 		obj_refresh.appendChild(document.createTextNode('Refresh'));
 		obj_fat.appendChild(obj_refresh);
 		
-		
+		var xml=http_request.responseXML;
 		//List forums
 		var xml_forums=xml.getElementsByTagName('forum');
 		for (var i=0; i < xml_forums.length; i++) {
@@ -285,84 +293,98 @@ function forum(forum_id) {
 		}
 		
 		//Create submit forum form
-		var obj_reply=document.createElement('form');
-		obj_reply.onsubmit=function() { submitforum(); return false; }
-		obj_reply.id='submitforum_form';
-		obj_reply.acceptCharset='utf-8';
-		obj_fat.appendChild(obj_reply);
-		// thread_id
-		var obj_forum_id=document.createElement('input');
-		obj_forum_id.type='hidden';
-		obj_forum_id.id='submitforum_forum_id';
-		obj_forum_id.value=forum_id;
-		obj_fat.appendChild(obj_forum_id);
+		var obj_submitforum_form=document.createElement('form');
+		obj_submitforum_form.onsubmit=function() { submitforum(); return false; }
+		obj_submitforum_form.id='submitforum_form';
+		obj_submitforum_form.acceptCharset='utf-8';
+		obj_fat.appendChild(obj_submitforum_form);
 		// Subject
-		obj_reply.appendChild(document.createTextNode('Subject:'));
-		obj_reply.appendChild(document.createElement('br'));
-		var obj_subject=document.createElement('input');
-		obj_subject.type='text';
-		obj_subject.id='submitforum_subject';
+		obj_submitforum_form.appendChild(document.createTextNode('Subject:'));
+		obj_submitforum_form.appendChild(document.createElement('br'));
+		var obj_submitforum_subject=document.createElement('input');
+		obj_submitforum_subject.type='text';
+		obj_submitforum_subject.id='submitforum_subject';
 		if (!snaf.login) {
-			obj_subject.disabled=true; }
-		obj_reply.appendChild(obj_subject);
-		obj_reply.appendChild(document.createElement('br'));
+			obj_submitforum_subject.disabled=true; }
+		obj_submitforum_subject.onkeyup=function() {
+			if (obj_submitforum_subject.value && obj_submitforum_body.value) {
+				obj_submitforum_submit.disabled=false;
+			} else {
+				obj_submitforum_submit.disabled=true;
+			}
+		}
+		obj_submitforum_form.appendChild(obj_submitforum_subject);
+		obj_submitforum_form.appendChild(document.createElement('br'));
 		// Body
-		obj_reply.appendChild(document.createTextNode('Body:'));
-		obj_reply.appendChild(document.createElement('br'));
-		var obj_body=document.createElement('textarea');
-		obj_body.id='submitforum_body';
+		obj_submitforum_form.appendChild(document.createTextNode('Body:'));
+		obj_submitforum_form.appendChild(document.createElement('br'));
+		var obj_submitforum_body=document.createElement('textarea');
+		obj_submitforum_body.id='submitforum_body';
 		if (!snaf.login) {
-			obj_body.disabled=true; }
-		obj_reply.appendChild(obj_body);
-		obj_reply.appendChild(document.createElement('br'));
+			obj_submitforum_body.disabled=true; }
+		obj_submitforum_body.onkeyup=function() {
+			if (obj_submitforum_subject.value && obj_submitforum_body.value) {
+				obj_submitforum_submit.disabled=false;
+			} else {
+				obj_submitforum_submit.disabled=true;
+			}
+		}
+		obj_submitforum_form.appendChild(obj_submitforum_body);
+		obj_submitforum_form.appendChild(document.createElement('br'));
 		// Submit
-		var obj_submit=document.createElement('input');
-		obj_submit.type='submit';
-		obj_submit.id='submitforum_submit';
-		obj_submit.value='New forum';
-		if (!snaf.login) {
-			obj_submit.disabled=true; }
-		obj_reply.appendChild(obj_submit);
+		var obj_submitforum_submit=document.createElement('input');
+		obj_submitforum_submit.type='submit';
+		obj_submitforum_submit.id='submitforum_submit';
+		obj_submitforum_submit.value='New forum';
+		obj_submitforum_submit.disabled=true;
+		obj_submitforum_form.appendChild(obj_submitforum_submit);
 		
 		//Create submit thread form
-		var obj_reply=document.createElement('form');
-		obj_reply.onsubmit=function() { submitthread(); return false; }
-		obj_reply.id='submitthread_form';
-		obj_reply.acceptCharset='utf-8';
-		obj_fat.appendChild(obj_reply);
-		// thread_id
-		var obj_forum_id=document.createElement('input');
-		obj_forum_id.type='hidden';
-		obj_forum_id.id='submitthread_forum_id';
-		obj_forum_id.value=forum_id;
-		obj_fat.appendChild(obj_forum_id);
+		var obj_submitthread_form=document.createElement('form');
+		obj_submitthread_form.onsubmit=function() { submitthread(); return false; }
+		obj_submitthread_form.id='submitthread_form';
+		obj_submitthread_form.acceptCharset='utf-8';
+		obj_fat.appendChild(obj_submitthread_form);
 		// Subject
-		obj_reply.appendChild(document.createTextNode('Subject:'));
-		obj_reply.appendChild(document.createElement('br'));
-		var obj_subject=document.createElement('input');
-		obj_subject.type='text';
-		obj_subject.id='submitthread_subject';
+		obj_submitthread_form.appendChild(document.createTextNode('Subject:'));
+		obj_submitthread_form.appendChild(document.createElement('br'));
+		var obj_submitthread_subject=document.createElement('input');
+		obj_submitthread_subject.type='text';
+		obj_submitthread_subject.id='submitthread_subject';
 		if (!snaf.login) {
-			obj_subject.disabled=true; }
-		obj_reply.appendChild(obj_subject);
-		obj_reply.appendChild(document.createElement('br'));
+			obj_submitthread_subject.disabled=true; }
+		obj_submitthread_subject.onkeyup=function() {
+			if (obj_submitthread_subject.value && obj_submitthread_body.value) {
+				obj_submitthread_submit.disabled=false;
+			} else {
+				obj_submitthread_submit.disabled=true;
+			}
+		}
+		obj_submitthread_form.appendChild(obj_submitthread_subject);
+		obj_submitthread_form.appendChild(document.createElement('br'));
 		// Body
-		obj_reply.appendChild(document.createTextNode('Body:'));
-		obj_reply.appendChild(document.createElement('br'));
-		var obj_body=document.createElement('textarea');
-		obj_body.id='submitthread_body';
+		obj_submitthread_form.appendChild(document.createTextNode('Body:'));
+		obj_submitthread_form.appendChild(document.createElement('br'));
+		var obj_submitthread_body=document.createElement('textarea');
+		obj_submitthread_body.id='submitthread_body';
 		if (!snaf.login) {
-			obj_body.disabled=true; }
-		obj_reply.appendChild(obj_body);
-		obj_reply.appendChild(document.createElement('br'));
+			obj_submitthread_body.disabled=true; }
+		obj_submitthread_body.onkeyup=function() {
+			if (obj_submitthread_subject.value && obj_submitthread_body.value) {
+				obj_submitthread_submit.disabled=false;
+			} else {
+				obj_submitthread_submit.disabled=true;
+			}
+		}
+		obj_submitthread_form.appendChild(obj_submitthread_body);
+		obj_submitthread_form.appendChild(document.createElement('br'));
 		// Submit
-		var obj_submit=document.createElement('input');
-		obj_submit.type='submit';
-		obj_submit.id='submitthread_submit';
-		obj_submit.value='New thread';
-		if (!snaf.login) {
-			obj_submit.disabled=true; }
-		obj_reply.appendChild(obj_submit);
+		var obj_submitthread_submit=document.createElement('input');
+		obj_submitthread_submit.type='submit';
+		obj_submitthread_submit.id='submitthread_submit';
+		obj_submitthread_submit.value='New thread';
+		obj_submitthread_submit.disabled=true;
+		obj_submitthread_form.appendChild(obj_submitthread_submit);
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
@@ -383,10 +405,9 @@ function thread(thread_id) {
 	
 	if (http_request.status == 200) {
 		//Update global variables
-		if (snaf.current != null //if not invoked through back()
-		 && !snaf.loading) { //and not loading
-			snaf.back.push(snaf.current);
-		}
+		//Do not add to back history if dontindex is set
+		if (!snaf.dontindex) { snaf.back.push(snaf.current); }
+		snaf.dontindex=false;
 		snaf.current={
 		 'location':thread,
 		 'locationid':thread_id };
@@ -408,7 +429,7 @@ function thread(thread_id) {
 		//Refresh link
 		var obj_refresh=document.createElement('a');
 		obj_refresh.onclick=function() {
-			snaf.current=null; //Do not index in back history
+			snaf.dontindex=true; //Disable indexing
 			thread(thread_id); //Refresh thread
 		}
 		obj_refresh.appendChild(document.createTextNode('Refresh'));
@@ -461,39 +482,52 @@ function thread(thread_id) {
 				obj_body.appendChild(document.createTextNode(xml_body)); //.replace(/\n/g,document.createElement('br'))
 			}
 			//Create reply form
-			var obj_reply=document.createElement('form');
-			obj_reply.onsubmit=function() { submitreply(); return false; }
-			obj_reply.id='submitreply_form';
-			obj_reply.acceptCharset='utf-8';
-			obj_fat.appendChild(obj_reply);
-			// thread_id
-			var obj_thread_id=document.createElement('input');
-			obj_thread_id.type='hidden';
-			obj_thread_id.id='submitreply_thread_id';
-			obj_thread_id.value=thread_id;
-			obj_reply.appendChild(obj_thread_id);
+			var obj_submitreply_form=document.createElement('form');
+			obj_submitreply_form.onsubmit=function() { submitreply(); return false; }
+			obj_submitreply_form.id='submitreply_form';
+			obj_submitreply_form.acceptCharset='utf-8';
+			obj_fat.appendChild(obj_submitreply_form);
 			// Subject
-			obj_reply.appendChild(document.createTextNode('Subject:'));
-			obj_reply.appendChild(document.createElement('br'));
-			var obj_subject=document.createElement('input');
-			obj_subject.type='text';
-			obj_subject.id='submitreply_subject';
-			obj_subject.value='Re: '+xml_posts[0].getElementsByTagName('subject')[0].textContent;
-			obj_reply.appendChild(obj_subject);
-			obj_reply.appendChild(document.createElement('br'));
+			obj_submitreply_form.appendChild(document.createTextNode('Subject:'));
+			obj_submitreply_form.appendChild(document.createElement('br'));
+			var obj_submitreply_subject=document.createElement('input');
+			obj_submitreply_subject.type='text';
+			obj_submitreply_subject.id='submitreply_subject';
+			obj_submitreply_subject.value='Re: '+xml_posts[0].getElementsByTagName('subject')[0].textContent;
+			if (!snaf.login) {
+				obj_submitreply_subject.disabled=true; }
+			obj_submitreply_subject.onkeyup=function() {
+				if (obj_submitreply_subject.value && obj_submitreply_body.value) {
+					obj_submitreply_submit.disabled=false;
+				} else {
+					obj_submitreply_submit.disabled=true;
+				}
+			}
+			obj_submitreply_form.appendChild(obj_submitreply_subject);
+			obj_submitreply_form.appendChild(document.createElement('br'));
 			// Body
-			obj_reply.appendChild(document.createTextNode('Body:'));
-			obj_reply.appendChild(document.createElement('br'));
-			var obj_body=document.createElement('textarea');
-			obj_body.id='submitreply_body';
-			obj_reply.appendChild(obj_body);
-			obj_reply.appendChild(document.createElement('br'));
+			obj_submitreply_form.appendChild(document.createTextNode('Body:'));
+			obj_submitreply_form.appendChild(document.createElement('br'));
+			var obj_submitreply_body=document.createElement('textarea');
+			obj_submitreply_body.id='submitreply_body';
+			if (!snaf.login) {
+				obj_submitreply_body.disabled=true; }
+			obj_submitreply_body.onkeyup=function() {
+				if (obj_submitreply_subject.value && obj_submitreply_body.value) {
+					obj_submitreply_submit.disabled=false;
+				} else {
+					obj_submitreply_submit.disabled=true;
+				}
+			}
+			obj_submitreply_form.appendChild(obj_submitreply_body);
+			obj_submitreply_form.appendChild(document.createElement('br'));
 			// Submit
-			var obj_submit=document.createElement('input');
-			obj_submit.type='submit';
-			obj_submit.id='submitreply_submit';
-			obj_submit.value='Reply';
-			obj_reply.appendChild(obj_submit);
+			var obj_submitreply_submit=document.createElement('input');
+			obj_submitreply_submit.type='submit';
+			obj_submitreply_submit.id='submitreply_submit';
+			obj_submitreply_submit.value='Reply';
+			obj_submitreply_submit.disabled=true;
+			obj_submitreply_form.appendChild(obj_submitreply_submit);
 		} else {
 			obj_fat.appendChild(document.createElement('br'));
 			obj_fat.appendChild(document.createTextNode('Thread not found'));
@@ -505,13 +539,7 @@ function thread(thread_id) {
 }
 
 function submitforum() {
-	if (!snaf.login) {
-		alert('Noob! Login required!');
-		return false;
-	}
-	
 	//Grab objects
-	var obj_forum_id=document.getElementById('submitforum_forum_id');
 	var obj_subject=document.getElementById('submitforum_subject');
 	var obj_body=document.getElementById('submitforum_body');
 	var obj_submit=document.getElementById('submitforum_submit');
@@ -530,7 +558,7 @@ function submitforum() {
 	}
 	
 	//Make the request
-	http_request.open('POST','hooks/submitforum.php?forum_id='+obj_forum_id.value,false);
+	http_request.open('POST','hooks/submitforum.php?forum_id='+snaf.current.locationid,false);
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
@@ -541,8 +569,8 @@ function submitforum() {
 	if (http_request.status == 200) {
 		var state=http_request.responseText;
 		if (state == 'success') {
-			snaf.current=null; //Do not index in back history
-			forum(obj_forum_id.value); //Refresh forum
+			snaf.dontindex=true; //Disable indexing
+			forum(snaf.current.locationid); //Refresh forum
 		}
 		else {
 			alert('Error: '+state);
@@ -562,13 +590,7 @@ function submitforum() {
 }
 
 function submitthread() {
-	if (!snaf.login) {
-		alert('Noob! Login required!');
-		return false;
-	}
-	
 	//Grab objects
-	var obj_forum_id=document.getElementById('submitthread_forum_id');
 	var obj_subject=document.getElementById('submitthread_subject');
 	var obj_body=document.getElementById('submitthread_body');
 	var obj_submit=document.getElementById('submitthread_submit');
@@ -587,7 +609,7 @@ function submitthread() {
 	}
 	
 	//Make the request
-	http_request.open('POST','hooks/submitthread.php?forum_id='+obj_forum_id.value,false);
+	http_request.open('POST','hooks/submitthread.php?forum_id='+snaf.current.locationid,false);
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
@@ -598,8 +620,8 @@ function submitthread() {
 	if (http_request.status == 200) {
 		var state=http_request.responseText;
 		if (state == 'success') {
-			snaf.current=null; //Do not index in back history
-			forum(obj_forum_id.value); //Refresh forum
+			snaf.dontindex=true; //Disable indexing
+			forum(snaf.current.locationid); //Refresh forum
 		}
 		else {
 			alert('Error: '+state);
@@ -619,13 +641,7 @@ function submitthread() {
 }
 
 function submitreply() {
-	if (!snaf.login) {
-		alert('Noob! Login required!');
-		return false;
-	}
-
 	//Grab objects
-	var obj_thread_id=document.getElementById('submitreply_thread_id');
 	var obj_subject=document.getElementById('submitreply_subject');
 	var obj_body=document.getElementById('submitreply_body');
 	var obj_submit=document.getElementById('submitreply_submit');
@@ -644,7 +660,7 @@ function submitreply() {
 	}
 	
 	//Make the request
-	http_request.open('POST','hooks/submitreply.php?thread_id='+obj_thread_id.value,false);
+	http_request.open('POST','hooks/submitreply.php?thread_id='+snaf.current.locationid,false);
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
@@ -655,8 +671,8 @@ function submitreply() {
 	if (http_request.status == 200) {
 		var state=http_request.responseText;
 		if (state == 'success') {
-			snaf.current=null; //Do not index in back history
-			thread(obj_thread_id.value); //Refresh thread
+			snaf.dontindex=true; //Disable indexing
+			thread(snaf.current.locationid); //Refresh thread
 		}
 		else {
 			alert('Error: '+state);
@@ -683,6 +699,7 @@ function login() {
 	var obj_login_error=document.getElementById('login_error');
 	
 	//Make sure we got all the needed input
+	/* Disabling boxes take care of this
 	if (!obj_username.value) {
 		while (obj_login_error.hasChildNodes()) {
 			obj_login_error.removeChild(obj_login_error.firstChild); }
@@ -694,7 +711,7 @@ function login() {
 			obj_login_error.removeChild(obj_login_error.firstChild); }
 		obj_login_error.appendChild(document.createTextNode('You must provide a password'));
 		return false;
-	}
+	}*/
 	
 	//Disable input boxes
 	obj_username.disabled=true;
@@ -783,7 +800,11 @@ function httpauth() {
 			//Enable input boxes
 			obj_username.disabled=false;
 			obj_password.disabled=false;
-			obj_login_submit.disabled=false;
+			if (obj_username.value && obj_password.value) {
+				obj_login_submit.disabled=false;
+			} else {
+				obj_login_submit.disabled=true;
+			}
 			//Print error message
 			var obj_login_error=document.getElementById('login_error');
 			while (obj_login_error.hasChildNodes()) {
@@ -795,7 +816,11 @@ function httpauth() {
 			//Enable input boxes
 			obj_subject.disabled=false;
 			obj_body.disabled=false;
-			obj_submit.disabled=false;
+			if (obj_username.value && obj_password.value) {
+				obj_login_submit.disabled=false;
+			} else {
+				obj_login_submit.disabled=true;
+			}
 		}
 	} else {
 		alert('There was a problem with the request:\n'+
