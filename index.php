@@ -49,6 +49,7 @@ echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 window.onload=function() {
 	//Create global variable
 	window.snaf={
+	 'loading':true,
 	 'login':<?php echo isset($user['login'])?'true':'false'; ?>,
 <?php
 if (isset($_SERVER['REQUEST_URI'])) {
@@ -63,7 +64,9 @@ if (!isset($location)) {
 	 'current':{
 	  'location':<?php echo $location[0]; ?>,
 	  'locationid':<?php echo isset($location[1])?$location[1]:'0'; ?> },
-	 'back':[] };
+	 'back':[{
+	  'location':forum,
+	  'locationid':0 }] };
 	load();
 }
 	</script>

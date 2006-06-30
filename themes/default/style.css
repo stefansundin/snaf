@@ -27,12 +27,12 @@ a {
 	float:right;
 }
 
-#fat #newforum {
+#fat #submitforum_form {
 	width:50%;
 	float:left;
 	text-align:center;
 }
-#fat #newthread {
+#fat #submitthread_form {
 	width:50%;
 	float:right;
 	text-align:center;
@@ -57,6 +57,6 @@ a {
 #fat .post .body .reply {
 	float:right;
 }
-#fat #reply {
+#fat #submitreply_form {
 	text-align:center;
 }

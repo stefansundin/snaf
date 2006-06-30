@@ -35,19 +35,20 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-if (isset($_GET['id'])) { #thread.php?id=2
-	$id=$_GET['id']; }
-else if (isset($_SERVER['PATH_INFO'])) { #thread.php?id=2
-	$id=basename($_SERVER['PATH_INFO']); }
-
-if (!isset($id)) {
-	echo 'Supply a thread id.';
+#Make sure we got all the needed input
+if (!isset($_GET['thread_id'])) {
+	echo 'not enough input';
+	exit();
+}
+#Make sure there is something in my input
+if (!is_numeric($_GET['thread_id'])) {
+	echo 'thread_id not valid';
 	exit();
 }
 
 $result=mysql_query('SELECT forum_id,post_id,author,date,subject,body '.
  'FROM '.SNAF_TABLEPREFIX.'fat '.
- 'WHERE thread_id="'.mysql_real_escape_string($id).'" and post_id>0')
+ 'WHERE thread_id="'.mysql_real_escape_string($_GET['thread_id']).'" and post_id>0')
  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 header('Content-Type: text/xml');

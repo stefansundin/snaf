@@ -37,13 +37,28 @@ require_once('../includes/session.php');
 
 #Must be logged in
 if (!isset($user['login'])) {
-	echo 'user not logged in';
+	echo 'Not logged in';
 	exit();
 }
 
-#Make sure we got all the stuff
-if (!isset($_GET['thread_id']) || !isset($_POST['subject']) || !isset($_POST['body'])) {
-	echo 'not enough stuff';
+#Make sure we got all the needed input
+if (!isset($_GET['thread_id'])
+ || !isset($_POST['subject'])
+ || !isset($_POST['body'])) {
+	echo 'not enough input';
+	exit();
+}
+#Make sure there is something in my input
+if (!is_numeric($_GET['thread_id'])) {
+	echo 'thread_id not valid';
+	exit();
+}
+if ($_POST['subject'] == '') {
+	echo 'empty subject';
+	exit();
+}
+if ($_POST['body'] == '') {
+	echo 'empty body';
 	exit();
 }
 
@@ -56,7 +71,7 @@ $result_forum_id=mysql_query('SELECT forum_id '.
  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 if (mysql_numrows($result_forum_id) == 0) {
-	echo 'no forum_id found';
+	echo 'forum_id not found';
 	exit();
 }
 

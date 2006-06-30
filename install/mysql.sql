@@ -16,8 +16,17 @@ CREATE TABLE snaf_accounts (
 );
 
 #fat — "forums and threads"
-#For forums; forum_id refer to the forums parent forum (0 if top-level forum),
-#and thread_id refer to its own forum_id
+#forum_id decide where the data should be, 0 for top-level.
+#thread_id: for forums, thread_id refer to its own forum_id.
+#           for threads, thread_id refer to the threads id
+#           a forums thread_id may be the same as a threads,
+#           selecting take regard to if post_id is 0
+#post_id: for forums, post_id is 0
+#         for threads, post_id is >0
+#author: username
+#date: time in unix time
+#subject: subject
+#body: body
 CREATE TABLE snaf_fat (
 	forum_id int UNSIGNED NOT NULL,
 	thread_id int UNSIGNED NOT NULL,
@@ -35,7 +44,7 @@ INSERT INTO snaf_fat VALUES (
 	1,
 	0,
 	"author",
-	1337,
+	1150736367,
 	"General Discussion",
 	"Talk about general stuff here"
 );
@@ -45,7 +54,7 @@ INSERT INTO snaf_fat VALUES (
 	2,
 	0,
 	"author",
-	1337,
+	1150736367,
 	"Quake",
 	"Talk about Quake here"
 );
@@ -55,7 +64,7 @@ INSERT INTO snaf_fat VALUES (
 	3,
 	0,
 	"author",
-	1337,
+	1150736367,
 	"Half-Life",
 	"Talk about Half-Life here"
 );
@@ -63,7 +72,7 @@ INSERT INTO snaf_fat VALUES (
 #Thread 1
 INSERT INTO snaf_fat VALUES (
 	1,
-	4,
+	1,
 	NULL,
 	"recover",
 	1150736367,
@@ -73,7 +82,7 @@ INSERT INTO snaf_fat VALUES (
 
 INSERT INTO snaf_fat VALUES (
 	1,
-	4,
+	1,
 	NULL,
 	"kakmannen",
 	1150736667,
@@ -83,7 +92,7 @@ INSERT INTO snaf_fat VALUES (
 
 INSERT INTO snaf_fat VALUES (
 	1,
-	4,
+	1,
 	NULL,
 	"recover",
 	1150736687,
@@ -94,7 +103,7 @@ INSERT INTO snaf_fat VALUES (
 #Thread 2
 INSERT INTO snaf_fat VALUES (
 	1,
-	5,
+	2,
 	NULL,
 	"recover",
 	1150737367,
@@ -104,7 +113,7 @@ INSERT INTO snaf_fat VALUES (
 
 INSERT INTO snaf_fat VALUES (
 	1,
-	5,
+	2,
 	NULL,
 	"kakmannen",
 	1151430517,

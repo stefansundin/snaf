@@ -35,20 +35,22 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-#Is our user logged in?
-if (isset($user['login'])) { #Yes
-	#Delete the cookie
-	$cookie=session_get_cookie_params();
-	if (!isset($cookie['domain']) && !isset($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path']); }
-	else if (empty($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
-	else { setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
-	unset($cookie);
-	session_destroy(); #Destroy the session
-	echo 'success';
-	exit(19);
-} else { #No
+#Must be logged in
+if (!isset($user['login'])) {
 	echo 'not logged in';
-	exit(11);
+	exit();
 }
+
+#Delete cookie
+$cookie=session_get_cookie_params();
+if (!isset($cookie['domain']) && !isset($cookie['secure'])) {
+	setcookie(session_name(),'',time()-3600,$cookie['path']); }
+else if (empty($cookie['secure'])) {
+	setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
+else {
+	setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
+session_destroy(); #Destroy session
+
+echo 'success';
 
 ?>

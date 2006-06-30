@@ -37,32 +37,48 @@ require_once('../includes/session.php');
 
 #Must be logged in
 if (!isset($user['login'])) {
-	echo 'user not logged in';
+	echo 'not logged in';
 	exit();
 }
 
-#Make sure we got all the stuff
+#Make sure we got all the needed input
 if (!isset($_GET['forum_id'])
  || !isset($_POST['subject'])
  || !isset($_POST['body'])) {
-	echo 'not enough stuff';
+	echo 'not enough input';
+	exit();
+}
+#Make sure there is something in my input
+if (!is_numeric($_GET['forum_id'])) {
+	echo 'forum_id not valid';
+	exit();
+}
+if ($_POST['subject'] == '') {
+	echo 'empty subject';
+	exit();
+}
+if ($_POST['body'] == '') {
+	echo 'empty body';
 	exit();
 }
 
 #Query for thread_id
 $result=mysql_query('SELECT MAX(thread_id) '.
- 'FROM '.SNAF_TABLEPREFIX.'fat LIMIT 1')
+ 'FROM '.SNAF_TABLEPREFIX.'fat '.
+ 'WHERE post_id=0 LIMIT 1')
  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
-if (mysql_numrows($result) == 0) {
-	echo 'no thread_id found';
-	exit();
+//MAX(thread_id) will return NULL if there is no rows
+if (mysql_result($result,0,'MAX(thread_id)') == 'NULL') {
+	$thread_id=1;
+} else {
+	$thread_id=mysql_result($result,0,'MAX(thread_id)')+1;
 }
 
 #Submit
 mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
  mysql_real_escape_string($_GET['forum_id']).','.
- (mysql_result($result,0,'MAX(thread_id)')+1).','.
+ $thread_id.','.
  '0,'.
  '"'.mysql_real_escape_string($_SESSION['username']).'",'.
  time().','.

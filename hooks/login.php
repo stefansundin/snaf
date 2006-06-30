@@ -59,7 +59,7 @@ if (isset($_POST['password'])) { #password
 	}
 }
 # HTTP-Authentication?
-else if (SNAF_HTTPAUTH && isset($_GET['httpauth'])) {
+if (SNAF_HTTPAUTH && isset($_GET['httpauth'])) {
 	#Has the user supplied anything with HTTP-Authentication?
 	if (isset($_SERVER['PHP_AUTH_USER'])) { #username
 		if ($_SERVER['PHP_AUTH_USER'] !== '') {
@@ -74,13 +74,30 @@ else if (SNAF_HTTPAUTH && isset($_GET['httpauth'])) {
 	else { #No password provided, query for HTTP Authentication
 		header('WWW-Authenticate: Basic realm="SNAF"');
 		header('HTTP/1.0 401 Unauthorized');
-		#exit('Cancel button pressed');
+		echo 'cancel button pressed';
+		exit();
 	}
 }
 /*# If no username has been provided, presume id 1
 if (!isset($login['username']) && isset($login['password'])) {
 	$login['username']=1;
 }*/
+
+#Make sure we got all the needed input
+if (!isset($login['username'])
+ || !isset($login['password'])) {
+	echo 'not enough input';
+	exit();
+}
+#Make sure there is something in my input
+if ($login['username'] == '') {
+	echo 'empty username';
+	exit();
+}
+if ($login['password'] == '') {
+	echo 'empty password';
+	exit();
+}
 
 #Try to login if credentials were supplied
 if (isset($login['username']) && isset($login['password'])) {
@@ -112,24 +129,12 @@ if (isset($login['username']) && isset($login['password'])) {
 		#IP check against session takeovers
 		$_SESSION['ip']=SNAF_IP;
 		echo 'success';
-		exit(9);
+		exit();
 	}
 	else { #No
 		echo 'invalid credentials';
-		exit(8);
+		exit();
 	}
-}
-
-#Did our user supply any credentials at all?
-if (!isset($login['username']) and !isset($login['password'])) {
-	echo 'no credentials';
-	exit(7);
-}
-
-#Did our user try to login but supplied only one credential?
-else if (isset($login['username']) xor isset($login['password'])) {
-	echo 'one credential';
-	exit(6);
 }
 
 ?>

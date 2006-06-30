@@ -20,6 +20,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 Description:
 This file query the SQL database for things in a forum and return it in XML
 format.
+Getting num:
+SELECT COUNT(DISTINCT thread_id),COUNT(*) FROM snaf_fat WHERE forum_id=1 AND post_id>0
+num_threads = COUNT(DISTINCT thread_id)
+num_posts = COUNT(*)
 */
 
 #Be sure this file is the one who start execution
@@ -36,23 +40,25 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-if (isset($_GET['forum_id'])) { #forum.php?id=2
-	$forum_id=$_GET['forum_id']; }
-else if (isset($_SERVER['PATH_INFO'])) { #forum.php/2
-	$forum_id=basename($_SERVER['PATH_INFO']); }
-
-if (!isset($forum_id)) {
-	$forum_id=0;
+#Make sure we got all the needed input
+if (!isset($_GET['forum_id'])) {
+	echo 'not enough input';
+	exit();
+}
+#Make sure there is something in my input
+if (!is_numeric($_GET['forum_id'])) {
+	echo 'forum_id not valid';
+	exit();
 }
 
 #Query for forum
 $result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
  'FROM '.SNAF_TABLEPREFIX.'fat '.
- 'WHERE forum_id="'.mysql_real_escape_string($forum_id).'" AND (post_id=0 OR post_id=1)')
+ 'WHERE forum_id="'.mysql_real_escape_string($_GET['forum_id']).'" '.
+ 'AND (post_id=0 OR post_id=1)')
  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 header('Content-Type: text/xml');
-
 echo '<?xml version="1.0"?'.">\n";
 echo <<<END
 <!DOCTYPE spec PUBLIC
@@ -64,7 +70,16 @@ END;
 if (mysql_numrows($result) !== 0) {
 	for ($i=0; $i < mysql_numrows($result); $i++) {
 		if (mysql_result($result,$i,'post_id') == 0) {
-			echo "\t<forum forum_id=\"".mysql_result($result,$i,'thread_id')."\" num_threads=\"todo\" num_posts=\"todo\">\n";
+			#Query for num_threads and num_posts
+			$result_num=mysql_query('SELECT '.
+			 'COUNT(DISTINCT thread_id),COUNT(*) '.
+			 'FROM '.SNAF_TABLEPREFIX.'fat WHERE '.
+			 'forum_id='.mysql_result($result,$i,'thread_id').' '.
+			 'AND post_id>0')
+			 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+			echo "\t<forum forum_id=\"".mysql_result($result,$i,'thread_id')."\"".
+			 " num_threads=\"".mysql_result($result_num,0,'COUNT(DISTINCT thread_id)')."\"".
+			 " num_posts=\"".mysql_result($result_num,0,'COUNT(*)')."\">\n";
 			echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
 			echo "\t\t<body>".mysql_result($result,$i,'body')."</body>\n";
 			echo "\t</forum>\n";
