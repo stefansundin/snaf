@@ -57,12 +57,11 @@ window.onload=function() {
 	 'back':[{
 	  'location':forum,
 	  'locationid':0 }],
-	 'dontindex':true };
+	 'dontindex':true,
+	 'display':{} };
 	load();
 }
 	</script>
 </head>
-<body>
-	Your browser does not support JavaScript.
-</body>
+<body><p>Your browser does not support JavaScript.</p></body>
 </html>

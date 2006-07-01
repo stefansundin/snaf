@@ -66,19 +66,19 @@ if (SNAF_HTTPAUTH && isset($_GET['httpauth'])) {
 			$login['username']=$_SERVER['PHP_AUTH_USER'];
 		}
 	}
-	if (isset($_SERVER['PHP_AUTH_PW'])) { #password
+	else if (isset($_SERVER['PHP_AUTH_PW'])) { #password
 		if ($_SERVER['PHP_AUTH_PW'] !== '') {
 			$login['password']=md5raw($_SERVER['PHP_AUTH_PW']);
 		}
 	}
-	else { #No password provided, query for HTTP Authentication
+	else { #Nothing provided, query for HTTP Authentication
 		header('WWW-Authenticate: Basic realm="SNAF"');
 		header('HTTP/1.0 401 Unauthorized');
 		echo 'cancel button pressed';
 		exit();
 	}
 }
-/*# If no username has been provided, presume id 1
+/*# Presume id 1 if no username was provided
 if (!isset($login['username']) && isset($login['password'])) {
 	$login['username']=1;
 }*/

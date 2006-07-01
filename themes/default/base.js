@@ -56,7 +56,7 @@ function load() {
 	//Remove "Your browser does not support JavaScript."
 	obj_body.removeChild(obj_body.firstChild);
 	
-	//Create stuff
+	//Create objects
 	// login
 	var obj_login=document.createElement('div');
 	obj_login.id='login';
@@ -67,13 +67,9 @@ function load() {
 	obj_fat.id='fat';
 	obj_body.appendChild(obj_fat);
 	
-	//Do stuff
-	// login
-	if (snaf.login) {
-		dologin();
-	} else {
-		dologout();
-	}
+	//Display
+	// refresh
+	refresh();
 	// location
 	snaf.current.location(snaf.current.locationid);
 	// done
@@ -97,71 +93,155 @@ function back() {
 	}
 }
 
-function refreshuser() {
-	if (snaf.current.location == forum) {
-		if (snaf.login) {
-			//Enable submit forum form
-			var obj_submitforum_subject=document.getElementById('submitforum_subject');
-			var obj_submitforum_body=document.getElementById('submitforum_body');
-			var obj_submitforum_submit=document.getElementById('submitforum_submit');
-			obj_submitforum_subject.disabled=false;
-			obj_submitforum_body.disabled=false;
-			if (obj_submitforum_subject.value && obj_submitforum_body.value) {
-				obj_submitforum_submit.disabled=false;
-			} else {
-				obj_submitforum_submit.disabled=true;
+function refresh() {
+	if ((!snaf.display.login || snaf.loading) && snaf.login) {
+		var obj_login=document.getElementById('login');
+		//Update global variable
+		snaf.display.login=true;
+		//Clear obj_login
+		while (obj_login.hasChildNodes()) {
+			obj_login.removeChild(obj_login.firstChild); }
+		//Logout link
+		var obj_logout=document.createElement('a');
+		obj_logout.onclick=function(){ logout(); }
+		obj_logout.appendChild(document.createTextNode('Logout'));
+		obj_login.appendChild(obj_logout);
+		
+		//Update other things
+		if (!snaf.loading) {
+			if (snaf.current.location == forum) {
+				//Enable submit forum form
+				var obj_submitforum_subject=document.getElementById('submitforum_subject');
+				var obj_submitforum_body=document.getElementById('submitforum_body');
+				var obj_submitforum_submit=document.getElementById('submitforum_submit');
+				obj_submitforum_subject.disabled=false;
+				obj_submitforum_body.disabled=false;
+				if (obj_submitforum_subject.value && obj_submitforum_body.value) {
+					obj_submitforum_submit.disabled=false;
+				} else {
+					obj_submitforum_submit.disabled=true;
+				}
+				
+				//Enable submit thread form
+				var obj_submitthread_subject=document.getElementById('submitthread_subject');
+				var obj_submitthread_body=document.getElementById('submitthread_body');
+				var obj_submitthread_submit=document.getElementById('submitthread_submit');
+				obj_submitthread_subject.disabled=false;
+				obj_submitthread_body.disabled=false;
+				if (obj_submitthread_subject.value && obj_submitthread_body.value) {
+					obj_submitthread_submit.disabled=false;
+				} else {
+					obj_submitthread_submit.disabled=true;
+				}
 			}
-			
-			//Enable submit thread form
-			var obj_submitthread_subject=document.getElementById('submitthread_subject');
-			var obj_submitthread_body=document.getElementById('submitthread_body');
-			var obj_submitthread_submit=document.getElementById('submitthread_submit');
-			obj_submitthread_subject.disabled=false;
-			obj_submitthread_body.disabled=false;
-			if (obj_submitthread_subject.value && obj_submitthread_body.value) {
-				obj_submitthread_submit.disabled=false;
-			} else {
-				obj_submitthread_submit.disabled=true;
+			else if (snaf.current.location == thread) {
+				//Enable submit reply form
+				var obj_submitreply_subject=document.getElementById('submitreply_subject');
+				var obj_submitreply_body=document.getElementById('submitreply_body');
+				var obj_submitreply_submit=document.getElementById('submitreply_submit');
+				obj_submitreply_subject.disabled=false;
+				obj_submitreply_body.disabled=false;
+				if (obj_submitreply_subject.value && obj_submitreply_body.value) {
+					obj_submitreply_submit.disabled=false;
+				} else {
+					obj_submitreply_submit.disabled=true;
+				}
 			}
-		} else {
-			//Disable submit forum form
-			var obj_submitforum_subject=document.getElementById('submitforum_subject');
-			var obj_submitforum_body=document.getElementById('submitforum_body');
-			var obj_submitforum_submit=document.getElementById('submitforum_submit');
-			obj_submitforum_subject.disabled=true;
-			obj_submitforum_body.disabled=true;
-			obj_submitforum_submit.disabled=true;
-			
-			//Disable submit thread form
-			var obj_submitthread_subject=document.getElementById('submitthread_subject');
-			var obj_submitthread_body=document.getElementById('submitthread_body');
-			var obj_submitthread_submit=document.getElementById('submitthread_submit');
-			obj_submitthread_subject.disabled=true;
-			obj_submitthread_body.disabled=true;
-			obj_submitthread_submit.disabled=true;
 		}
 	}
-	else if (snaf.current.location == thread) {
-		if (snaf.login) {
-			//Enable submit reply form
-			var obj_submitreply_subject=document.getElementById('submitreply_subject');
-			var obj_submitreply_body=document.getElementById('submitreply_body');
-			var obj_submitreply_submit=document.getElementById('submitreply_submit');
-			obj_submitreply_subject.disabled=false;
-			obj_submitreply_body.disabled=false;
-			if (obj_submitreply_subject.value && obj_submitreply_body.value) {
-				obj_submitreply_submit.disabled=false;
+	else if ((snaf.display.login || snaf.loading) && !snaf.login) {
+		var obj_login=document.getElementById('login');
+		//Update global variable
+		snaf.display.login=false;
+		//Clear obj_login
+		while (obj_login.hasChildNodes()) {
+			obj_login.removeChild(obj_login.firstChild); }
+		
+		//Create login form
+		var obj_login_form=document.createElement('form');
+		obj_login_form.method='post';
+		obj_login_form.id='login_form';
+		obj_login_form.onsubmit=function(){ login(); return false; }
+		obj_login_form.acceptCharset='utf-8';
+		obj_login.appendChild(obj_login_form);
+		
+		// Username
+		obj_login_form.appendChild(document.createTextNode('Username: '));
+		var obj_username=document.createElement('input');
+		obj_username.type='text';
+		obj_username.id='login_username';
+		obj_username.onkeyup=function() {
+			if (obj_username.value && obj_password.value) {
+				obj_login_submit.disabled=false;
 			} else {
+				obj_login_submit.disabled=true;
+			}
+		}
+		obj_login_form.appendChild(obj_username);
+		obj_login_form.appendChild(document.createElement('br'));
+		
+		// Password
+		obj_login_form.appendChild(document.createTextNode('Password: '));
+		var obj_password=document.createElement('input');
+		obj_password.type='password';
+		obj_password.id='login_password';
+		obj_password.onkeyup=function() {
+			if (obj_username.value && obj_password.value) {
+				obj_login_submit.disabled=false;
+			} else {
+				obj_login_submit.disabled=true;
+			}
+		}
+		obj_login_form.appendChild(obj_password);
+		obj_login_form.appendChild(document.createElement('br'));
+		
+		// Submit
+		var obj_login_submit=document.createElement('input');
+		obj_login_submit.type='submit';
+		obj_login_submit.id='login_submit';
+		obj_login_submit.value='Login';
+		obj_login_submit.disabled=true;
+		obj_login_form.appendChild(obj_login_submit);
+		
+		//HTTP-Authenticate
+		var obj_httpauth=document.createElement('a');
+		obj_httpauth.onclick=function() { httpauth(); }
+		obj_httpauth.appendChild(document.createTextNode('HTTP-Authenticate'));
+		obj_login.appendChild(obj_httpauth);
+		
+		//Error
+		var obj_error=document.createElement('div');
+		obj_error.id='login_error';
+		obj_login.appendChild(obj_error);
+		
+		//Update other things
+		if (!snaf.loading) {
+			if (snaf.current.location == forum) {
+				//Disable submit forum form
+				var obj_submitforum_subject=document.getElementById('submitforum_subject');
+				var obj_submitforum_body=document.getElementById('submitforum_body');
+				var obj_submitforum_submit=document.getElementById('submitforum_submit');
+				obj_submitforum_subject.disabled=true;
+				obj_submitforum_body.disabled=true;
+				obj_submitforum_submit.disabled=true;
+				
+				//Disable submit thread form
+				var obj_submitthread_subject=document.getElementById('submitthread_subject');
+				var obj_submitthread_body=document.getElementById('submitthread_body');
+				var obj_submitthread_submit=document.getElementById('submitthread_submit');
+				obj_submitthread_subject.disabled=true;
+				obj_submitthread_body.disabled=true;
+				obj_submitthread_submit.disabled=true;
+			}
+			else if (snaf.current.location == thread) {
+				//Disable submit reply form
+				var obj_submitreply_subject=document.getElementById('submitreply_subject');
+				var obj_submitreply_body=document.getElementById('submitreply_body');
+				var obj_submitreply_submit=document.getElementById('submitreply_submit');
+				obj_submitreply_subject.disabled=true;
+				obj_submitreply_body.disabled=true;
 				obj_submitreply_submit.disabled=true;
 			}
-		} else {
-			//Disable submit reply form
-			var obj_submitreply_subject=document.getElementById('submitreply_subject');
-			var obj_submitreply_body=document.getElementById('submitreply_body');
-			var obj_submitreply_submit=document.getElementById('submitreply_submit');
-			obj_submitreply_subject.disabled=true;
-			obj_submitreply_body.disabled=true;
-			obj_submitreply_submit.disabled=true;
 		}
 	}
 }
@@ -695,28 +775,13 @@ function login() {
 	//Grab objects
 	var obj_username=document.getElementById('login_username');
 	var obj_password=document.getElementById('login_password');
-	var obj_login_submit=document.getElementById('login_submit');
-	var obj_login_error=document.getElementById('login_error');
-	
-	//Make sure we got all the needed input
-	/* Disabling boxes take care of this
-	if (!obj_username.value) {
-		while (obj_login_error.hasChildNodes()) {
-			obj_login_error.removeChild(obj_login_error.firstChild); }
-		obj_login_error.appendChild(document.createTextNode('You must provide a username'));
-		return false;
-	}
-	if (!obj_password.value) {
-		while (obj_login_error.hasChildNodes()) {
-			obj_login_error.removeChild(obj_login_error.firstChild); }
-		obj_login_error.appendChild(document.createTextNode('You must provide a password'));
-		return false;
-	}*/
+	var obj_submit=document.getElementById('login_submit');
+	var obj_error=document.getElementById('login_error');
 	
 	//Disable input boxes
 	obj_username.disabled=true;
 	obj_password.disabled=true;
-	obj_login_submit.disabled=true;
+	obj_submit.disabled=true;
 	
 	var http_request=false;
 	http_request=new XMLHttpRequest();
@@ -738,17 +803,18 @@ function login() {
 	if (http_request.status == 200) {
 		var state=http_request.responseText;
 		if (state == 'success') {
-			dologin();
+			snaf.login=true;
+			refresh();
 		}
 		else if (state == 'invalid credentials') {
 			//Enable input boxes
 			obj_username.disabled=false;
 			obj_password.disabled=false;
-			obj_login_submit.disabled=false;
+			obj_submit.disabled=false;
 			//Print error message
-			while (obj_login_error.hasChildNodes()) {
-				obj_login_error.removeChild(obj_login_error.firstChild); }
-			obj_login_error.appendChild(document.createTextNode('Invalid credentials'));
+			while (obj_error.hasChildNodes()) {
+				obj_error.removeChild(obj_error.firstChild); }
+			obj_error.appendChild(document.createTextNode('Invalid credentials'));
 		}
 		else {
 			alert('Error: '+state);
@@ -763,7 +829,7 @@ function login() {
 		//Enable input boxes
 		obj_username.disabled=false;
 		obj_password.disabled=false;
-		obj_login_submit.disabled=false;
+		obj_submit.disabled=false;
 	}
 }
 
@@ -783,33 +849,34 @@ function httpauth() {
 	//Grab objects
 	var obj_username=document.getElementById('login_username');
 	var obj_password=document.getElementById('login_password');
-	var obj_login_submit=document.getElementById('login_submit');
+	var obj_submit=document.getElementById('login_submit');
 	
 	//Disable input boxes
 	obj_username.disabled=true;
 	obj_password.disabled=true;
-	obj_login_submit.disabled=true;
+	obj_submit.disabled=true;
 	
 	//What happened?
 	if (http_request.status == 200) {
 		var state=http_request.responseText;
 		if (state == 'success') {
-			dologin();
+			snaf.login=true;
+			refresh();
 		}
 		else if (state == 'invalid credentials') {
 			//Enable input boxes
 			obj_username.disabled=false;
 			obj_password.disabled=false;
 			if (obj_username.value && obj_password.value) {
-				obj_login_submit.disabled=false;
+				obj_submit.disabled=false;
 			} else {
-				obj_login_submit.disabled=true;
+				obj_submit.disabled=true;
 			}
 			//Print error message
-			var obj_login_error=document.getElementById('login_error');
-			while (obj_login_error.hasChildNodes()) {
-				obj_login_error.removeChild(obj_login_error.firstChild); }
-			obj_login_error.appendChild(document.createTextNode('Invalid credentials'));
+			var obj_error=document.getElementById('login_error');
+			while (obj_error.hasChildNodes()) {
+				obj_error.removeChild(obj_error.firstChild); }
+			obj_error.appendChild(document.createTextNode('Invalid credentials'));
 		}
 		else {
 			alert('Error: '+state);
@@ -817,9 +884,9 @@ function httpauth() {
 			obj_subject.disabled=false;
 			obj_body.disabled=false;
 			if (obj_username.value && obj_password.value) {
-				obj_login_submit.disabled=false;
+				obj_submit.disabled=false;
 			} else {
-				obj_login_submit.disabled=true;
+				obj_submit.disabled=true;
 			}
 		}
 	} else {
@@ -828,7 +895,7 @@ function httpauth() {
 		//Enable input boxes
 		obj_username.disabled=false;
 		obj_password.disabled=false;
-		obj_login_submit.disabled=false;
+		obj_submit.disabled=false;
 	}
 }
 
@@ -847,7 +914,8 @@ function logout() {
 	if (http_request.status == 200) {
 		var state=http_request.responseText;
 		if (state == 'success') {
-			dologout();
+			snaf.login=false;
+			refresh();
 		}
 		else {
 			alert('Error: '+state);
@@ -856,90 +924,4 @@ function logout() {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
 	}
-}
-
-function dologin() {
-	var obj_login=document.getElementById('login');
-	//Update global variable
-	if (!snaf.loading) {
-		snaf.login=true;
-		refreshuser();
-	}
-	//Clear obj_login
-	while (obj_login.hasChildNodes()) {
-		obj_login.removeChild(obj_login.firstChild); }
-	//Logout link
-	var obj_logout=document.createElement('a');
-	obj_logout.onclick=function(){ logout(); }
-	obj_logout.appendChild(document.createTextNode('Logout'));
-	obj_login.appendChild(obj_logout);
-}
-
-function dologout() {
-	var obj_login=document.getElementById('login');
-	//Update global variable
-	if (!snaf.loading) {
-		snaf.login=false;
-		refreshuser();
-	}
-	//Clear obj_login
-	while (obj_login.hasChildNodes()) {
-		obj_login.removeChild(obj_login.firstChild); }
-	
-	//Create login form
-	var obj_login_form=document.createElement('form');
-	obj_login_form.method='post';
-	obj_login_form.id='login_form';
-	obj_login_form.onsubmit=function(){ login(); return false; }
-	obj_login_form.acceptCharset='utf-8';
-	obj_login.appendChild(obj_login_form);
-	
-	// Username
-	obj_login_form.appendChild(document.createTextNode('Username: '));
-	var obj_username=document.createElement('input');
-	obj_username.type='text';
-	obj_username.id='login_username';
-	obj_username.onkeyup=function() {
-		if (obj_username.value && obj_password.value) {
-			obj_login_submit.disabled=false;
-		} else {
-			obj_login_submit.disabled=true;
-		}
-	}
-	obj_login_form.appendChild(obj_username);
-	obj_login_form.appendChild(document.createElement('br'));
-	
-	// Password
-	obj_login_form.appendChild(document.createTextNode('Password: '));
-	var obj_password=document.createElement('input');
-	obj_password.type='password';
-	obj_password.id='login_password';
-	obj_password.onkeyup=function() {
-		if (obj_username.value && obj_password.value) {
-			obj_login_submit.disabled=false;
-		} else {
-			obj_login_submit.disabled=true;
-		}
-	}
-	obj_login_form.appendChild(obj_password);
-	obj_login_form.appendChild(document.createElement('br'));
-	
-	// Submit
-	var obj_login_submit=document.createElement('input');
-	obj_login_submit.type='submit';
-	obj_login_submit.id='login_submit';
-	obj_login_submit.value='Login';
-	obj_login_submit.disabled=true;
-	obj_login_form.appendChild(obj_login_submit);
-	
-	//HTTP_auth
-	var obj_httpauth=document.createElement('a');
-	obj_httpauth.onclick=function() { httpauth(); }
-	obj_httpauth.appendChild(document.createTextNode('HTTP-Authenticate'));
-	obj_login.appendChild(obj_httpauth);
-	
-	//Login_error
-	var obj_login_error=document.createElement('div');
-	obj_login_error.id='login_error';
-	obj_login.appendChild(obj_login_error);
 }

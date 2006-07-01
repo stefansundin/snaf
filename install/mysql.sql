@@ -43,80 +43,89 @@ INSERT INTO snaf_fat VALUES (
 	0,
 	1,
 	0,
-	"author",
+	"recover",
+	1150736367,
+	"SNAF",
+	"Discuss SNAF here"
+);
+
+INSERT INTO snaf_fat VALUES (
+	1,
+	2,
+	0,
+	"recover",
+	1150736367,
+	"Announcements",
+	"Announcements will be posted here"
+);
+
+INSERT INTO snaf_fat VALUES (
+	1,
+	3,
+	0,
+	"recover",
+	1150736367,
+	"Bugtracker",
+	"Report bugs here"
+);
+
+INSERT INTO snaf_fat VALUES (
+	1,
+	4,
+	0,
+	"recover",
+	1150736367,
+	"Feature request",
+	"Request features here"
+);
+
+INSERT INTO snaf_fat VALUES (
+	0,
+	5,
+	0,
+	"recover",
 	1150736367,
 	"General Discussion",
 	"Talk about general stuff here"
 );
 
-INSERT INTO snaf_fat VALUES (
-	0,
-	2,
-	0,
-	"author",
-	1150736367,
-	"Quake",
-	"Talk about Quake here"
-);
-
-INSERT INTO snaf_fat VALUES (
-	0,
-	3,
-	0,
-	"author",
-	1150736367,
-	"Half-Life",
-	"Talk about Half-Life here"
-);
-
 #Thread 1
 INSERT INTO snaf_fat VALUES (
-	1,
+	2,
 	1,
 	NULL,
 	"recover",
 	1150736367,
-	"SNAF forum",
-	"Woohooo! SNAF är på väg! :P"
+	"Introducing SNAF",
+	"SNAF is a community-forum focusing on utilizing the most cutting-edge specifications of the web available."
 );
 
 INSERT INTO snaf_fat VALUES (
-	1,
-	1,
-	NULL,
-	"kakmannen",
-	1150736667,
-	"Re: SNAF forum",
-	"Ja, det får vi hoppas"
-);
-
-INSERT INTO snaf_fat VALUES (
-	1,
-	1,
+	2,
+	2,
 	NULL,
 	"recover",
-	1150736687,
-	"Re: SNAF forum",
-	"Mmm... Men när man programmerar något själv så går det inte så snabbt"
+	1150736367,
+	"Contributing",
+	"SNAF is currently in alpha-phase development. You can still make a checkout of the trunk source (most recent code) from our Subversion repository with 'svn checkout svn://recover.mine.nu/snaf/trunk snaf'. Commiting requires authorization, but that doesn't stop you from contributing, you should email me (recover89@gmail.com) if you have made a patch you think should be introduced in the SNAF mainline releases."
 );
 
-#Thread 2
 INSERT INTO snaf_fat VALUES (
-	1,
 	2,
+	3,
 	NULL,
 	"recover",
 	1150737367,
-	"SNAF problems",
+	"Problems solved",
 	"JavaScript closure problem solved! :)"
 );
 
 INSERT INTO snaf_fat VALUES (
-	1,
 	2,
+	3,
 	NULL,
-	"kakmannen",
+	"recover",
 	1151430517,
-	"Re: SNAF problems",
+	"Re: Problems solved",
 	"post_id auto_increment problem solved! :P"
 );
