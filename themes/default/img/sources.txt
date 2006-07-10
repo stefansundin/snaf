@@ -1,0 +1,14 @@
+Theme filename:   <-         Project:        -> Project filename:
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+user.png          <-     famfamfam_silk      -> icon.png
+icon.png          <-  Tango Desktop Project  -> internet-group-chat.svg
+
+
+
+famfamfam_silk [ http://www.famfamfam.com/lab/icons/silk/ ]:
+Creative Commons 2.5 [ http://creativecommons.org/licenses/by/2.5/ ].
+
+Tango Desktop Project [ http://tango.freedesktop.org/ ]:
+The color palette is public domain. The actual icons are licensed under the
+Creative Commons Attribution Share-Alike license
+[ http://creativecommons.org/licenses/by-sa/2.5/ ].

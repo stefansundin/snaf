@@ -21,8 +21,8 @@ Description:
 This file validates the credentials when a user try to login.
 $_SESSION is NOT set unless our user successfully logins.
 If the username is composed of numbers the username is assumed to be a users id.
-If no username is supplied, a login with id 1 is tried, which is the first
-account to be created.
+(If no username is supplied, a login with user_id 1 is tried, which is the first
+account to be created.)
 */
 
 #Be sure this file is the one who start execution
@@ -39,10 +39,20 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
+header('Content-Type: text/xml');
+
 #Have our user already logged in?
 if (isset($user['login'])) { #Yes
-	echo 'already logged in';
-	exit(5);
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+	echo '<action result="already logged in" />'."\n";
+	echo '</everything>';
+	exit();
 }
 
 #Get login credentials
@@ -74,11 +84,19 @@ if (SNAF_HTTPAUTH && isset($_GET['httpauth'])) {
 	else { #Nothing provided, query for HTTP Authentication
 		header('WWW-Authenticate: Basic realm="SNAF"');
 		header('HTTP/1.0 401 Unauthorized');
-		echo 'cancel button pressed';
+		echo '<?xml version="1.0"?'.">\n";
+		echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+		echo '<action result="cancel button pressed" />'."\n";
+		echo '</everything>';
 		exit();
 	}
 }
-/*# Presume id 1 if no username was provided
+/*# Presume user_id 1 if no username was provided
 if (!isset($login['username']) && isset($login['password'])) {
 	$login['username']=1;
 }*/
@@ -86,33 +104,57 @@ if (!isset($login['username']) && isset($login['password'])) {
 #Make sure we got all the needed input
 if (!isset($login['username'])
  || !isset($login['password'])) {
-	echo 'not enough input';
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+	echo '<action result="not enough input" />'."\n";
+	echo '</everything>';
 	exit();
 }
 #Make sure there is something in my input
 if ($login['username'] == '') {
-	echo 'empty username';
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+	echo '<action result="empty username" />'."\n";
+	echo '</everything>';
 	exit();
 }
-if ($login['password'] == '') {
-	echo 'empty password';
+else if ($login['password'] == '') {
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+	echo '<action result="empty password" />'."\n";
+	echo '</everything>';
 	exit();
 }
 
 #Try to login if credentials were supplied
-if (isset($login['username']) && isset($login['password'])) {
-	#Login using id if username is composed of numbers
+if ($login['username'] != ''
+ && $login['password'] != '') {
+	#Login using user_id if username is composed of numbers
 	if (is_numeric($login['username'])) {
-		$result=mysql_query('SELECT id,username,permission '.
+		$result=mysql_query('SELECT user_id,username,permission '.
 		 'FROM '.SNAF_TABLEPREFIX.'accounts '.
-		 'WHERE id='.mysql_real_escape_string($login['username']).' '.
+		 'WHERE user_id='.mysql_real_escape_string($login['username']).' '.
 		 'AND password="'.mysql_real_escape_string($login['password']).'" '.
 		 'LIMIT 1')
 		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 	}
 	#Or else with username
 	else {
-		$result=mysql_query('SELECT id,username,permission '.
+		$result=mysql_query('SELECT user_id,username,permission '.
 		 'FROM '.SNAF_TABLEPREFIX.'accounts '.
 		 'WHERE username="'.mysql_real_escape_string($login['username']).'" '.
 		 'AND password="'.mysql_real_escape_string($login['password']).'" '.
@@ -122,17 +164,31 @@ if (isset($login['username']) && isset($login['password'])) {
 	#Valid credentials?
 	if (mysql_numrows($result) !== 0) { #Yes
 		session_start();
-		#Generate a new session id, use if users can specify session ids in url
-		#session_regenerate_id();
-		$_SESSION['id']=(int)mysql_result($result,0,'id');
+		$_SESSION['user_id']=(int)mysql_result($result,0,'user_id');
 		$_SESSION['username']=mysql_result($result,0,'username');
 		#IP check against session takeovers
 		$_SESSION['ip']=SNAF_IP;
-		echo 'success';
+		echo '<?xml version="1.0"?'.">\n";
+		echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+		echo '<action result="success" user_id="'.mysql_result($result,0,'user_id').'" username="'.mysql_result($result,0,'username').'" />'."\n";
+		echo '</everything>';
 		exit();
 	}
 	else { #No
-		echo 'invalid credentials';
+		echo '<?xml version="1.0"?'.">\n";
+		echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+		echo '<action result="invalid credentials" />'."\n";
+		echo '</everything>';
 		exit();
 	}
 }

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="success" user_id="1" username="recover" />
+</everything>

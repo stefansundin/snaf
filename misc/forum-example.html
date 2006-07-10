@@ -1,62 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<!DOCTYPE html PUBLIC
+	"-//W3C//DTD XHTML 1.1//EN"
+	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<title>SNAF — Forum example</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<style type="text/css">
-a {
-	color:rgb(0,0,255);
-	cursor:pointer;
-}
-#forum .forum {
-	border:1px solid rgb(0,0,0);
-}
-#forum .forum .num {
-	float:right;
-}
-#forum .forum .num_threads {
-	width:100px;
-	display:inline;
-}
-#forum .forum .num_posts {
-	width:100px;
-	display:inline;
-}
-	</style>
+	<link rel="stylesheet" href="../themes/default/style.css" title="Default" type="text/css" charset="utf-8" media="all" />
 </head>
 <body>
-	<div id="forum">
-		<div id="forum1" class="forum">
+	<div id="fat">
+		<a>Refresh</a>
+		<div class="forum" id="forum1">
 			<div class="num">
-				<div class="num_threads">1</div>
-				<div class="num_posts">2</div>
+				<div class="num_threads">0 threads</div>
+				<div class="num_posts">0 posts</div>
 			</div>
 			<div class="body">
-				<a onclick="forum(1)">General Discussion</a><br />
+				<a>SNAF</a><br>
+				Discuss SNAF here
+			</div>
+		</div>
+		<div class="forum" id="forum5">
+			<div class="num">
+				<div class="num_threads">2 threads</div>
+				<div class="num_posts">9 posts</div>
+			</div>
+			<div class="body">
+				<a>General Discussion</a><br>
 				Talk about general stuff here
 			</div>
 		</div>
-		<div id="forum2" class="forum">
-			<div class="num">
-				<div class="num_threads">4</div>
-				<div class="num_posts">8</div>
-			</div>
-			<div class="body">
-				<a onclick="forum(1)">Half-Life</a><br />
-				Talk about Half-Life here
-			</div>
+		<div class="thread" id="thread10">
+			<a class="author">recover</a>
+			<a class="subject">qwertyuio</a>
 		</div>
-		<div id="forum3" class="forum">
-			<div class="num">
-				<div class="num_threads">12</div>
-				<div class="num_posts">55</div>
-			</div>
-			<div class="body">
-				<a onclick="forum(1)">Quake</a><br />
-				Talk about Quake here
-			</div>
-		</div>
+		<form accept-charset="utf-8" id="submitforum_form">
+			Subject:<br>
+			<input disabled="disabled" id="submitforum_subject" type="text"><br>
+			Body:<br><textarea disabled="disabled" id="submitforum_body"></textarea><br>
+			<input disabled="disabled" value="New forum" id="submitforum_submit" type="submit">
+		</form>
+		<form accept-charset="utf-8" id="submitthread_form">
+			Subject:<br><input disabled="disabled" id="submitthread_subject" type="text"><br>
+			Body:<br><textarea disabled="disabled" id="submitthread_body"></textarea><br>
+			<input disabled="disabled" value="New thread" id="submitthread_submit" type="submit">
+		</form>
 	</div>
 </body>
 </html>

@@ -71,8 +71,6 @@ if (mysql_numrows($result) !== 0) {
 	}
 }
 
-echo <<<END
-</everything>
-END;
+echo '</everything>';
 
 ?>

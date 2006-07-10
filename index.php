@@ -43,6 +43,7 @@ echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
 	<title>SNAF — Loading...</title>
+	<link rel="icon" href="themes/<?php echo SNAF_THEME; ?>/img/icon.png" type="image/png" />
 	<link rel="stylesheet" href="themes/<?php echo SNAF_THEME; ?>/style.css" title="Default" type="text/css" charset="utf-8" media="all" />
 	<script type="application/javascript" src="themes/<?php echo SNAF_THEME; ?>/base.js" charset="utf-8"></script>
 	<script type="application/javascript">
@@ -50,7 +51,19 @@ window.onload=function() {
 	//Create global variable
 	window.snaf={
 	 'loading':true,
-	 'login':<?php echo isset($user['login'])?'true':'false'; ?>,
+	 'user':{
+<?php
+if (isset($user['login'])) {
+	echo <<<END
+	  'login':true,
+	  'user_id':{$_SESSION['user_id']},
+	  'username':'{$_SESSION['username']}'
+END;
+	echo " },\n";
+} else {
+	echo "\t  'login':false },\n";
+}
+?>
 	 'current':{
 	  'location':<?php echo isset($_GET['location'])?$_GET['location']:'forum'; ?>,
 	  'locationid':<?php echo isset($_GET['locationid'])?$_GET['locationid']:'0'; ?> },
@@ -63,5 +76,7 @@ window.onload=function() {
 }
 	</script>
 </head>
-<body><p>Your browser does not support JavaScript.</p></body>
+<body>
+	<p>Your browser does not support JavaScript.</p>
+</body>
 </html>

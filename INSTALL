@@ -22,7 +22,7 @@ Below is an example of such a statement, change paths to your need.
 	RewriteRule ^logout$ index.php
 	RewriteRule ^forum:([0-9]+)$ index.php?location=forum&locationid=$1
 	RewriteRule ^thread:([0-9]+)$ index.php?location=thread&locationid=$1
-	RewriteRule ^user:([a-zA-Z][a-zA-Z0-9]*)$ index.php?location=user&locationid=$1
+	RewriteRule ^user:([a-zA-Z][a-zA-Z0-9]*)$ index.php?location=user&locationid='$1'
 </Directory>
 
 Remember, freedom is nice...

@@ -1,10 +1,43 @@
 body {
 	background:rgb(255,255,255);
 	color:rgb(0,0,0);
+	margin:1px;
+	font:medium sans-serif;
 }
 a {
 	color:rgb(0,0,255);
 	cursor:pointer;
+}
+
+/*userbar*/
+#userbar {
+	float:right;
+	cursor:default;
+	font-size:small;
+}
+#userbar a {
+	margin-right:15px;
+}
+#userbar #ub_user,
+#userbar #ub_login {
+	padding-left:20px;
+	background:url(img/user.png) top left no-repeat;
+}
+
+/*loginbox*/
+#loginbox {
+	position:absolute;
+	top:20px;
+	right:0;
+	background-color:rgb(232,238,250);
+	background-position:3px 3px;
+	border:1px solid rgb(195,217,255);
+	font-size:small;
+	text-align:right;
+	display:none;
+}
+#login_submit {
+	float:left;
 }
 
 /*forum()*/
@@ -13,12 +46,6 @@ a {
 }
 #fat .forum .num {
 	float:right;
-}
-#fat .forum .num_threads {
-/*	display:inline;*/
-}
-#fat .forum .num_posts {
-/*	display:inline;*/
 }
 
 #fat .thread {

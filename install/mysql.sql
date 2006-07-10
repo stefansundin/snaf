@@ -5,13 +5,13 @@ DROP DATABASE snaf;CREATE DATABASE snaf;USE snaf;
 
 #accounts
 CREATE TABLE snaf_accounts (
-	id int UNSIGNED NOT NULL AUTO_INCREMENT,
+	user_id int UNSIGNED NOT NULL AUTO_INCREMENT,
 	username varchar(30) NOT NULL,
 	password char(16) BINARY NOT NULL,
 	permission text NOT NULL,
 	details mediumtext,
-	PRIMARY KEY (id),
-	UNIQUE id (id),
+	PRIMARY KEY (user_id),
+	UNIQUE id (user_id),
 	UNIQUE username (username)
 );
 

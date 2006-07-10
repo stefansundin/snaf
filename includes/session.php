@@ -24,15 +24,15 @@ scripts can refer to to get a users username, permissions and other details
 The choice of $user instead of $_SESSION was decided because even users who
 hasn't loggedin should be able to have their permissions and set options.
 If a session cookie is detected this script checks if the session is valid,
-if it is and contains an id, the script queries the database for user details,
-which it then puts in $user.
+if it is and contains an user_id, the script queries the database for user
+details, which it then puts in $user.
 If the user however isn't loggedin, the script put default values into $user.
 */
 
 #Be sure this file is not the one who started execution
 if (!defined('SNAF')) {
  	echo __FILE__.' is not a valid entry point';
-	exit(1);
+	exit();
 }
 
 if (extension_loaded('session')) {
@@ -45,18 +45,18 @@ if (extension_loaded('session')) {
 	if (isset($_COOKIE[session_name()])) { #He might have
 		session_start(); #Start session
 		#If the session
-		# have an id
+		# have an user_id
 		# have an IP associated with the session
 		#then we proceed
 		
-		if (isset($_SESSION['id']) && isset($_SESSION['ip'])) {
+		if (isset($_SESSION['user_id']) && isset($_SESSION['ip'])) {
 			#We assume a session fixation if the IP associated with the session doesn't match our user's IP
 			
 			if ($_SESSION['ip'] == SNAF_IP) { #IP's match
 				#Check if account still exists and update variables
 				$result=mysql_query('SELECT permission '.
 									'FROM '.SNAF_TABLEPREFIX.'accounts '.
-									'WHERE id="'.mysql_real_escape_string($_SESSION['id']).'" '.
+									'WHERE user_id="'.mysql_real_escape_string($_SESSION['user_id']).'" '.
 									'LIMIT 1')
 									or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 				#Do the account still exists?
@@ -70,7 +70,7 @@ if (extension_loaded('session')) {
 					}
 					if (!is_array($user['permission'])) { #This really shouldn't happen
 						echo "Permission isn't an array, exiting";
-						exit(2);
+						exit();
 					}
 					$user['login']=true;
 				}
