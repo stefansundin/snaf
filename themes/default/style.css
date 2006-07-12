@@ -24,7 +24,7 @@ a {
 	background:url(img/user.png) top left no-repeat;
 }
 
-/*loginbox*/
+/*boxes*/
 #loginbox {
 	position:absolute;
 	top:20px;
@@ -38,6 +38,27 @@ a {
 }
 #login_submit {
 	float:left;
+}
+#login_error {
+	color:rgb(204,0,0);
+}
+/*submitaccountbox*/
+#submitaccountbox {
+	position:absolute;
+	top:20px;
+	right:0;
+	background-color:rgb(232,238,250);
+	background-position:3px 3px;
+	border:1px solid rgb(195,217,255);
+	font-size:small;
+	text-align:right;
+	display:none;
+}
+#submitaccount_submit {
+	float:left;
+}
+#submitaccount_error {
+	color:rgb(204,0,0);
 }
 
 /*forum()*/

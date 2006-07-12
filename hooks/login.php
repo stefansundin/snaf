@@ -28,7 +28,7 @@ account to be created.)
 #Be sure this file is the one who start execution
 if (defined('SNAF')) {
  	echo __FILE__.' must be the entry point';
-	exit(1);
+	exit();
 }
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
