@@ -24,7 +24,7 @@ This file initializes an environment well suited for general usage.
 #Be sure this file is the one who start execution
 if (defined('SNAF')) {
  	echo __FILE__.' must be the entry point';
-	exit(1);
+	exit();
 }
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
@@ -71,7 +71,11 @@ END;
 	  'location':forum,
 	  'locationid':0 }],
 	 'dontindex':true,
-	 'display':{} };
+	 'display':{},
+	 'support':{
+<?php
+	echo "\t  'httpauth':".('SNAF_HTTPAUTH'?'true':'false')." } };\n";
+?>
 	load();
 }
 	</script>

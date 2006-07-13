@@ -25,30 +25,35 @@ a {
 }
 
 /*boxes*/
+#login_error,
+#submitaccount_error {
+	color:rgb(204,0,0);
+	padding-top:6px;
+}
+/*loginbox*/
 #loginbox {
 	position:absolute;
 	top:20px;
 	right:0;
-	background-color:rgb(232,238,250);
-	background-position:3px 3px;
+	background:rgb(232,238,250);
 	border:1px solid rgb(195,217,255);
 	font-size:small;
 	text-align:right;
 	display:none;
 }
-#login_submit {
+#login_rememberme_label {
 	float:left;
 }
-#login_error {
-	color:rgb(204,0,0);
+#login_submit {
+	clear:both;
+	float:left;
 }
 /*submitaccountbox*/
 #submitaccountbox {
 	position:absolute;
 	top:20px;
 	right:0;
-	background-color:rgb(232,238,250);
-	background-position:3px 3px;
+	background:rgb(232,238,250);
 	border:1px solid rgb(195,217,255);
 	font-size:small;
 	text-align:right;
@@ -56,9 +61,6 @@ a {
 }
 #submitaccount_submit {
 	float:left;
-}
-#submitaccount_error {
-	color:rgb(204,0,0);
 }
 
 /*forum()*/

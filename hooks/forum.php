@@ -77,6 +77,7 @@ if (mysql_numrows($result) !== 0) {
 			 'forum_id='.mysql_result($result,$i,'thread_id').' '.
 			 'AND post_id>0')
 			 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+			
 			echo "\t<forum forum_id=\"".mysql_result($result,$i,'thread_id')."\"".
 			 " num_threads=\"".mysql_result($result_num,0,'COUNT(DISTINCT thread_id)')."\"".
 			 " num_posts=\"".mysql_result($result_num,0,'COUNT(*)')."\">\n";

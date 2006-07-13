@@ -1,6 +1,6 @@
 <?php
 /*
-SNAF — Hooks — Submit reply
+SNAF — Hooks — Login through HTTP-Authentication
 Copyright (C) 2006  Stefan Sundin (recover89@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file submits a reply to a thread.
+This file validates the credentials when a user try to login through HTTP-Auth.
+$_SESSION is NOT set unless our user successfully logins.
+If the username is composed of numbers the username is assumed to be a users id.
 */
 
 #Be sure this file is the one who start execution
@@ -37,113 +39,125 @@ require_once('../includes/session.php');
 
 header('Content-Type: text/xml');
 
-#Must be logged in
-if (!isset($user['login'])) {
+#Is HTTP-Authentication enabled?
+if (!SNAF_HTTPAUTH) { #No
 	echo '<?xml version="1.0"?'.">\n";
 	echo <<<END
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="not logged in" />
+<action result="http-auth disabled" />
+</everything>
+END;
+	exit();
+}
+
+#Are our user already logged in?
+if (isset($user['login'])) { #Yes
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+<action result="already logged in" />
 </everything>
 END;
 	exit();
 }
 
 #Make sure we got all the needed input
-if (!isset($_GET['thread_id'])
- || !isset($_POST['subject'])
- || !isset($_POST['body'])) {
+if (!isset($_SERVER['PHP_AUTH_USER'])
+ || !isset($_SERVER['PHP_AUTH_PW'])) {
+	#This might just as well mean that the user hasn't been prompted
+	header('WWW-Authenticate: Basic realm="'.SNAF_SITENAME.'"');
+	header('HTTP/1.0 401 Unauthorized');
 	echo '<?xml version="1.0"?'.">\n";
 	echo <<<END
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="not enough input" />
+<action result="not enough input" />
 </everything>
 END;
 	exit();
 }
 #Make sure there is something in my input
-if (!is_numeric($_GET['thread_id'])) {
+if ($_SERVER['PHP_AUTH_USER'] == '') {
 	echo '<?xml version="1.0"?'.">\n";
 	echo <<<END
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="thread_id not valid" />
+<action result="empty username" />
 </everything>
 END;
 	exit();
 }
-if ($_POST['subject'] == '') {
+if ($_SERVER['PHP_AUTH_PW'] == '') {
 	echo '<?xml version="1.0"?'.">\n";
 	echo <<<END
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="empty subject" />
+<action result="empty password" />
 </everything>
 END;
 	exit();
 }
-if ($_POST['body'] == '') {
+
+#Query if login was successful using user_id if username is composed of numbers
+if (is_numeric($_SERVER['PHP_AUTH_USER'])) {
+	$result=mysql_query('SELECT user_id,username,permission '.
+	 'FROM '.SNAF_TABLEPREFIX.'accounts '.
+	 'WHERE user_id='.mysql_real_escape_string($_SERVER['PHP_AUTH_USER']).' '.
+	 'AND password="'.mysql_real_escape_string(md5raw($_SERVER['PHP_AUTH_PW'])).'" '.
+	 'LIMIT 1')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+}
+#Or else with username
+else {
+	$result=mysql_query('SELECT user_id,username,permission '.
+	 'FROM '.SNAF_TABLEPREFIX.'accounts '.
+	 'WHERE username="'.mysql_real_escape_string($_SERVER['PHP_AUTH_USER']).'" '.
+	 'AND password="'.mysql_real_escape_string(md5raw($_SERVER['PHP_AUTH_PW'])).'" '.
+	 'LIMIT 1')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+}
+
+#Valid credentials?
+if (mysql_numrows($result) !== 0) { #Yes
+	session_start();
+	$_SESSION['user_id']=(int)mysql_result($result,0,'user_id');
+	$_SESSION['username']=mysql_result($result,0,'username');
+	#IP check against session takeovers
+	$_SESSION['ip']=SNAF_IP;
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>\n
+END;
+	echo '<action result="success" user_id="'.mysql_result($result,0,'user_id').'" username="'.mysql_result($result,0,'username').'" />'."\n";
+	echo '</everything>';
+	exit();
+}
+else { #No
 	echo '<?xml version="1.0"?'.">\n";
 	echo <<<END
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="empty body" />
+<action result="invalid credentials" />
 </everything>
 END;
 	exit();
 }
-
-#Query for forum_id
-$result=mysql_query('SELECT forum_id '.
- 'FROM '.SNAF_TABLEPREFIX.'fat '.
- 'WHERE thread_id="'.mysql_real_escape_string($_GET['thread_id']).'" '.
- 'AND post_id=1 '.
- 'LIMIT 1')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
-if (mysql_numrows($result) == 0) {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="forum_id not found" />
-</everything>
-END;
-	exit();
-}
-
-#Submit
-mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
- mysql_result($result,0,'forum_id').',
- "'.mysql_real_escape_string($_GET['thread_id']).'",
- NULL,
- "'.mysql_real_escape_string($_SESSION['username']).'",
- '.time().',
- "'.mysql_real_escape_string($_POST['subject']).'",
- "'.mysql_real_escape_string($_POST['body']).'")')
-  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
-echo '<?xml version="1.0"?'.">\n";
-echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="success" />
-</everything>
-END;
 
 ?>

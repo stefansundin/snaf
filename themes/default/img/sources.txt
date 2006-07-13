@@ -1,4 +1,4 @@
-Theme filename:   <-         Project:        -> Project filename:
+Filename:         <-         Project:        -> Project filename:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 user.png          <-     famfamfam_silk      -> icon.png
 icon.png          <-  Tango Desktop Project  -> internet-group-chat.svg

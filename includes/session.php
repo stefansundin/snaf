@@ -55,10 +55,10 @@ if (extension_loaded('session')) {
 			if ($_SESSION['ip'] == SNAF_IP) { #IP's match
 				#Check if account still exists and update variables
 				$result=mysql_query('SELECT permission '.
-									'FROM '.SNAF_TABLEPREFIX.'accounts '.
-									'WHERE user_id="'.mysql_real_escape_string($_SESSION['user_id']).'" '.
-									'LIMIT 1')
-									or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+				 'FROM '.SNAF_TABLEPREFIX.'accounts '.
+				 'WHERE user_id="'.mysql_real_escape_string($_SESSION['user_id']).'" '.
+				 'LIMIT 1')
+				  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 				#Do the account still exists?
 				if (mysql_numrows($result) !== 0) { #Yes
 					if (unserialize(mysql_result($result,0,'permission')) == array('root')) {

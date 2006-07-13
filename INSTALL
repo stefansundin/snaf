@@ -13,7 +13,6 @@ You can install SNAF in some different ways, to state some:
 To use nice URLs in SNAF you must use Apache with the module mod_rewrite and
 apply a <Directory> statement.
 Below is an example of such a statement, change paths to your need.
-(not used yet)
 <Directory /www/snaf>
 	RewriteEngine On
 	#The path below should point to the dirname of the url, e.g. /snaf for http://yourserver.com/snaf
@@ -24,5 +23,9 @@ Below is an example of such a statement, change paths to your need.
 	RewriteRule ^thread:([0-9]+)$ index.php?location=thread&locationid=$1
 	RewriteRule ^user:([a-zA-Z][a-zA-Z0-9]*)$ index.php?location=user&locationid='$1'
 </Directory>
+
+You will also need to create a MySQL database like this:
+CREATE DATABASE snaf;
+GRANT ALL PRIVILEGES ON snaf.* TO snaf@localhost;
 
 Remember, freedom is nice...

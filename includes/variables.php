@@ -24,7 +24,7 @@ This file do some stuff to some variables.
 #Be sure this file is not the one who started execution
 if (!defined('SNAF')) {
  	echo __FILE__.' is not a valid entry point';
-	exit(1);
+	exit();
 }
 
 #If magic quotes is...

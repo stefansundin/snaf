@@ -24,7 +24,7 @@ This file installs SQL stuff.
 #Be sure this file is the one who start execution
 if (defined('SNAF')) {
  	echo __FILE__.' must be the entry point';
-	exit(1);
+	exit();
 }
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
@@ -61,13 +61,16 @@ for ($i=0; $i < count($sql); $i++) {
 #Can I create an install.lock file, i.e. do I have permission?
 if (is_writable('.')) { #Yes
 	file_put_contents('install.lock','');
-	exit("Install complete.");
+	echo 'Install complete.';
 }
 else { #No — output notice
-	exit("Install complete.\n".
-	     "However, I did not have access to lock the installer.\n".
-	     "To lock the installer manually create the file \"".dirname(__FILE__)."/install.lock\".\n".
-	     "Alternatively you can delete the install directory, \"".dirname(__FILE__)."\".");
+	$dirname=dirname(__FILE__);
+	echo <<<END
+Install complete.
+However, I did not have access to lock the installer.
+To lock the installer manually create the file "$dirname/install.lock"
+Alternatively you can delete the install directory, "$dirname".
+END;
 }
 
 ?>

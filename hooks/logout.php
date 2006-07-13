@@ -35,22 +35,40 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-#Must be logged in
-if (!isset($user['login'])) {
-	echo 'not logged in';
-	exit();
+header('Content-Type: text/xml');
+
+#Are our user logged in?
+if (!isset($user['login'])) { #No
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="not logged in" />
+</everything>
+END;
+} else { #Yes
+	#Delete cookie
+	$cookie=session_get_cookie_params();
+	if (!isset($cookie['domain'])
+	 && !isset($cookie['secure'])) {
+		setcookie(session_name(),'',time()-3600,$cookie['path']); }
+	else if (empty($cookie['secure'])) {
+		setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
+	else {
+		setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
+	session_destroy(); #Destroy session
+	
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="success" />
+</everything>
+END;
 }
-
-#Delete cookie
-$cookie=session_get_cookie_params();
-if (!isset($cookie['domain']) && !isset($cookie['secure'])) {
-	setcookie(session_name(),'',time()-3600,$cookie['path']); }
-else if (empty($cookie['secure'])) {
-	setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
-else {
-	setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
-session_destroy(); #Destroy session
-
-echo 'success';
 
 ?>

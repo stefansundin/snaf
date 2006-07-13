@@ -35,20 +35,46 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
+header('Content-Type: text/xml');
+
 #Make sure we got all the needed input
 if (!isset($_POST['username'])
  || !isset($_POST['password'])
  || !isset($_POST['email'])) {
-	echo 'not enough input';
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="not enough input" />
+</everything>
+END;
 	exit();
 }
 #Make sure there is something in my input
 if ($_POST['username'] == '') {
-	echo 'empty username';
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="empty username" />
+</everything>
+END;
 	exit();
 }
 if ($_POST['password'] == '') {
-	echo 'empty password';
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="empty password" />
+</everything>
+END;
 	exit();
 }
 
@@ -59,7 +85,15 @@ $result=mysql_query('SELECT COUNT(*) '.
  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 if (mysql_result($result,0,'COUNT(*)') !== '0') {
-	echo 'username already exists';
+	echo '<?xml version="1.0"?'.">\n";
+	echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="username already exists" />
+</everything>
+END;
 	exit();
 }
 
@@ -72,6 +106,14 @@ mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES ('.
  '"'.mysql_real_escape_string(serialize(array('email'=>$_POST['email']))).'")')
   or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
-echo 'success';
+echo '<?xml version="1.0"?'.">\n";
+echo <<<END
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="success" />
+</everything>
+END;
 
 ?>

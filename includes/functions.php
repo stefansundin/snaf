@@ -24,7 +24,7 @@ This file contains functions used throughout SNAF.
 #Be sure this file is not the one who started execution
 if (!defined('SNAF')) {
  	echo __FILE__.' is not a valid entry point';
-	exit(1);
+	exit();
 }
 
 # array_map_recursize — Same as array_map, but recursize
