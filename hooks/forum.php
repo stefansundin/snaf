@@ -59,13 +59,12 @@ $result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 header('Content-Type: text/xml');
-echo '<?xml version="1.0"?'.">\n";
-echo <<<END
+
+echo '<?xml version="1.0"?'.'>
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>\n
-END;
+<everything>'."\n";
 
 if (mysql_numrows($result) !== 0) {
 	for ($i=0; $i < mysql_numrows($result); $i++) {

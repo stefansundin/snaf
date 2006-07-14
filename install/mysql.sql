@@ -107,7 +107,7 @@ INSERT INTO snaf_fat VALUES (
 	"recover",
 	1150736367,
 	"Contributing",
-	"SNAF is currently in alpha-phase development. You can still make a checkout of the trunk source (most recent code) from our Subversion repository with 'svn checkout svn://recover.mine.nu/snaf/trunk snaf'. Commiting requires authorization, but that doesn't stop you from contributing, you should email me (recover89@gmail.com) if you have made a patch you think should be introduced in the SNAF mainline releases."
+	"SNAF is currently in alpha-phase development. You can still make a checkout of the trunk source (most recent code) from our Subversion repository with 'svn checkout svn://recover.mine.nu/snaf/trunk snaf'. Commiting requires authorization, but that doesn't stop you from contributing, you should email me (recover89@gmail.com) if you have made a patch or something you think should be introduced in SNAF mainline releases."
 );
 
 INSERT INTO snaf_fat VALUES (

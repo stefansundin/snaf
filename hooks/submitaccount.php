@@ -35,85 +35,52 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-header('Content-Type: text/xml');
-
 #Make sure we got all the needed input
 if (!isset($_POST['username'])
  || !isset($_POST['password'])
  || !isset($_POST['email'])) {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="not enough input" />
-</everything>
-END;
-	exit();
+	$xml_result='not enough input';
 }
 #Make sure there is something in my input
-if ($_POST['username'] == '') {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="empty username" />
-</everything>
-END;
-	exit();
+else if ($_POST['username'] == '') {
+	$xml_result='empty username';
 }
-if ($_POST['password'] == '') {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="empty password" />
-</everything>
-END;
-	exit();
+else if ($_POST['password'] == '') {
+	$xml_result='empty password';
 }
-
-#Query to check if username already exists
-$result=mysql_query('SELECT COUNT(*) '.
- 'FROM '.mysql_real_escape_string(SNAF_TABLEPREFIX).'accounts '.
- 'WHERE username="'.$_POST['username'].'" LIMIT 1')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
-if (mysql_result($result,0,'COUNT(*)') !== '0') {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="username already exists" />
-</everything>
-END;
-	exit();
+#Input seems good so far
+else {
+	#Query to check if username already exists
+	$result=mysql_query('SELECT COUNT(*) '.
+	 'FROM '.mysql_real_escape_string(SNAF_TABLEPREFIX).'accounts '.
+	 'WHERE username="'.$_POST['username'].'" LIMIT 1')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+	
+	if (mysql_result($result,0,'COUNT(*)') !== '0') {
+		$xml_result='username already exists';
+	}
+	else {
+		#Submit
+		mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES ('.
+		 'NULL,'.
+		 '"'.mysql_real_escape_string($_POST['username']).'",'.
+		 '"'.mysql_real_escape_string(md5raw($_POST['password'])).'",'.
+		 '"'.mysql_real_escape_string(serialize(array('registred user'))).'",'.
+		 '"'.mysql_real_escape_string(serialize(array('email'=>$_POST['email']))).'")')
+		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+		
+		$xml_result='success';
+	}
 }
 
-#Submit
-mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'accounts VALUES ('.
- 'NULL,'.
- '"'.$_POST['username'].'",'.
- '"'.mysql_real_escape_string(md5raw($_POST['password'])).'",'.
- '"'.mysql_real_escape_string(serialize(array('registred user'))).'",'.
- '"'.mysql_real_escape_string(serialize(array('email'=>$_POST['email']))).'")')
-  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+header('Content-Type: text/xml');
 
-echo '<?xml version="1.0"?'.">\n";
-echo <<<END
+echo '<?xml version="1.0"?'.'>
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="success" />
-</everything>
-END;
+	<action result="'.$xml_result.'" />
+</everything>';
 
 ?>

@@ -274,7 +274,12 @@ function display(state,box) {
 				var obj_form=document.createElement('form');
 				obj_form.method='post';
 				obj_form.id='login_form';
-				obj_form.onsubmit=function(){ login(); return false; }
+				obj_form.onsubmit=function(){
+					login(obj_username.value,
+					 obj_password.value,
+					 obj_rememberme.checked);
+					return false;
+				}
 				obj_form.acceptCharset='utf-8';
 				obj_loginbox.appendChild(obj_form);
 				
@@ -890,15 +895,8 @@ function submitaccount() {
 		var xml_action=xml.getElementsByTagName('action')[0];
 		var xml_result=xml_action.getAttribute('result');
 		if (xml_result == 'success') {
-			display('show','loginbox');
-			//Grab objects
-			var obj_login_form=document.getElementById('login_form');
-			var obj_login_username=document.getElementById('login_username');
-			var obj_login_password=document.getElementById('login_password');
-			//Issue credentials & submit
-			obj_login_username.value=obj_username.value;
-			obj_login_password.value=obj_password.value;
-			obj_login_form.onsubmit();
+			display('hide','submitaccountbox');
+			login(obj_username.value,obj_password.value,false);
 			//Set boxes to default
 			obj_username.value='';
 			obj_password.value='';
@@ -1085,18 +1083,21 @@ function submitreply() {
 	obj_submit.disabled=false;
 }
 
-function login() {
-	//Grab objects
-	var obj_username=document.getElementById('login_username');
-	var obj_password=document.getElementById('login_password');
-	var obj_rememberme=document.getElementById('login_rememberme');
-	var obj_submit=document.getElementById('login_submit');
-	var obj_error=document.getElementById('login_error');
-	
-	//Disable input boxes
-	obj_username.disabled=true;
-	obj_password.disabled=true;
-	obj_submit.disabled=true;
+function login(username, password, rememberme) {
+	var obj_loginbox=document.getElementById('loginbox');
+	if (obj_loginbox.hasChildNodes()) {
+		//Grab objects
+		var obj_username=document.getElementById('login_username');
+		var obj_password=document.getElementById('login_password');
+		var obj_rememberme=document.getElementById('login_rememberme');
+		var obj_submit=document.getElementById('login_submit');
+		var obj_error=document.getElementById('login_error');
+		//Disable input boxes
+		obj_username.disabled=true;
+		obj_password.disabled=true;
+		obj_rememberme.disabled=true;
+		obj_submit.disabled=true;
+	}
 	
 	var http_request=false;
 	http_request=new XMLHttpRequest();
@@ -1111,9 +1112,9 @@ function login() {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'username='+encodeURI(obj_username.value)+
-		'&password='+encodeURI(obj_password.value)+
-		(obj_rememberme.checked?'&rememberme=1':''));
+		'username='+encodeURI(username)+
+		'&password='+encodeURI(password)+
+		(rememberme?'&rememberme=1':''));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1125,41 +1126,78 @@ function login() {
 			snaf.user.user_id=xml_action.getAttribute('user_id');
 			snaf.user.username=xml_action.getAttribute('username');
 			refresh();
-			//Set boxes to default
-			obj_username.value='';
-			obj_password.value='';
-			obj_rememberme.checked=true;
-			//Change disabled state
-			obj_username.disabled=false;
-			obj_password.disabled=false;
-			obj_rememberme.disabled=false;
-			obj_submit.disabled=true;
-			//Clear eventual error
-			while (obj_error.hasChildNodes()) {
-				obj_error.removeChild(obj_error.firstChild); }
-			return true;
+			if (obj_loginbox.hasChildNodes()) {
+				//Set boxes to default
+				obj_username.value='';
+				obj_password.value='';
+				obj_rememberme.checked=true;
+				//Change disabled state
+				obj_username.disabled=false;
+				obj_password.disabled=false;
+				obj_rememberme.disabled=false;
+				obj_submit.disabled=true;
+				//Clear eventual error
+				while (obj_error.hasChildNodes()) {
+					obj_error.removeChild(obj_error.firstChild); }
+				return true;
+			}
 		}
-		else if (xml_result == 'invalid credentials') {
-			//Print error message
-			while (obj_error.hasChildNodes()) {
-				obj_error.removeChild(obj_error.firstChild); }
-			obj_error.appendChild(document.createTextNode('Invalid credentials'));
+		else if (obj_loginbox.hasChildNodes()) {
+			if (xml_result == 'invalid credentials') {
+				//Print error message
+				while (obj_error.hasChildNodes()) {
+					obj_error.removeChild(obj_error.firstChild); }
+				obj_error.appendChild(document.createTextNode('Invalid credentials'));
+			}
+			else {
+				alert('Error: '+xml_result);
+			}
 		}
 		else {
-			alert('Error: '+xml_result);
+			if (xml_result == 'invalid credentials') {
+				alert('Invalid credentials');
+			}
+			else if (xml_result == 'not enough input') {
+				alert('Not enough input');
+			}
+			else {
+				alert('Error: '+xml_result);
+			}
 		}
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
 	}
-	//Enable input boxes
-	obj_username.disabled=false;
-	obj_password.disabled=false;
-	obj_rememberme.disabled=false;
-	obj_submit.disabled=false;
+	if (obj_loginbox.hasChildNodes()) {
+		//Enable input boxes
+		obj_username.disabled=false;
+		obj_password.disabled=false;
+		obj_rememberme.disabled=false;
+		if (obj_username.value
+		 && obj_password.value) {
+			obj_submit.disabled=false;
+		} else {
+			obj_submit.disabled=true;
+		}
+	}
 }
 
 function httpauth() {
+	var obj_loginbox=document.getElementById('loginbox');
+	if (obj_loginbox.hasChildNodes()) {
+		//Grab objects
+		var obj_username=document.getElementById('login_username');
+		var obj_password=document.getElementById('login_password');
+		var obj_rememberme=document.getElementById('login_rememberme');
+		var obj_submit=document.getElementById('login_submit');
+		var obj_error=document.getElementById('login_error');
+		//Disable input boxes
+		obj_username.disabled=true;
+		obj_password.disabled=true;
+		obj_rememberme.disabled=true;
+		obj_submit.disabled=true;
+	}
+	
 	var http_request=false;
 	http_request=new XMLHttpRequest();
 	if (!http_request) {
@@ -1172,20 +1210,6 @@ function httpauth() {
 	http_request.open('GET','hooks/httpauth.php',false);
 	http_request.send(null);
 	
-	if (snaf.display.loginbox) {
-		//Grab objects
-		var obj_username=document.getElementById('login_username');
-		var obj_password=document.getElementById('login_password');
-		var obj_rememberme=document.getElementById('login_rememberme');
-		var obj_submit=document.getElementById('login_submit');
-		
-		//Disable input boxes
-		obj_username.disabled=true;
-		obj_password.disabled=true;
-		obj_rememberme.disabled=true;
-		obj_submit.disabled=true;
-	}
-	
 	//What happened?
 	if (http_request.status == 200) {
 		var xml=http_request.responseXML;
@@ -1196,7 +1220,7 @@ function httpauth() {
 			snaf.user.user_id=xml_action.getAttribute('user_id');
 			snaf.user.username=xml_action.getAttribute('username');
 			refresh();
-			var obj_loginbox=document.getElementById('loginbox');
+			
 			if (obj_loginbox.hasChildNodes()) {
 				//Set boxes to default
 				obj_username.value='';
@@ -1208,7 +1232,7 @@ function httpauth() {
 				obj_rememberme.disabled=false;
 				obj_submit.disabled=true;
 				//Clear eventual error
-				while (obj_error.hasChildNodes()) { !!!!!!!!!!!!!!
+				while (obj_error.hasChildNodes()) {
 					obj_error.removeChild(obj_error.firstChild); }
 				return true;
 			}
@@ -1228,12 +1252,13 @@ function httpauth() {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
 	}
-	if (snaf.display.loginbox) {
+	if (obj_loginbox.hasChildNodes()) {
 		//Enable input boxes
 		obj_username.disabled=false;
 		obj_password.disabled=false;
 		obj_rememberme.disabled=false;
-		if (obj_username.value && obj_password.value) {
+		if (obj_username.value
+		 && obj_password.value) {
 			obj_submit.disabled=false;
 		} else {
 			obj_submit.disabled=true;

@@ -35,114 +35,63 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-header('Content-Type: text/xml');
-
 #Must be logged in
 if (!isset($user['login'])) {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="not logged in" />
-</everything>
-END;
-	exit();
+	$xml_result='not logged in';
 }
-
 #Make sure we got all the needed input
-if (!isset($_GET['forum_id'])
+else if (!isset($_GET['forum_id'])
  || !isset($_POST['subject'])
  || !isset($_POST['body'])) {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="not enough input" />
-</everything>
-END;
-	exit();
+	$xml_result='not enough input';
 }
 #Make sure there is something in my input
-if (!is_numeric($_GET['forum_id'])) {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="forum_id not valid" />
-</everything>
-END;
-	exit();
+else if (!is_numeric($_GET['forum_id'])) {
+	$xml_result='forum_id not valid';
 }
-if ($_POST['subject'] == '') {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="empty subject" />
-</everything>
-END;
-	exit();
+else if ($_POST['subject'] == '') {
+	$xml_result='empty subject';
 }
-if ($_POST['body'] == '') {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="empty body" />
-</everything>
-END;
-	exit();
+else if ($_POST['body'] == '') {
+	$xml_result='empty body';
 }
-
-#Query for thread_id
-$result=mysql_query('SELECT MAX(thread_id) '.
- 'FROM '.SNAF_TABLEPREFIX.'fat LIMIT 1')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
-if (mysql_numrows($result) == 0) {
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="thread_id not found" />
-</everything>
-END;
-	exit();
-} else {
-	$thread_id=mysql_result($result,0,'MAX(thread_id)')+1;
+#Input seems good so far
+else {
+	#Query for thread_id
+	$result=mysql_query('SELECT MAX(thread_id) '.
+	 'FROM '.SNAF_TABLEPREFIX.'fat '.
+	 'WHERE post_id=1 LIMIT 1')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+	
+	#MAX(thread_id) will return NULL if there are no existing threads
+	if (mysql_result($result,0,'MAX(thread_id)') == 'NULL') {
+		$thread_id=1;
+	} else {
+		$thread_id=mysql_result($result,0,'MAX(thread_id)')+1;
+	}
+	
+	#Submit
+	mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
+	 mysql_real_escape_string($_GET['forum_id']).','.
+	 $thread_id.','.
+	 'NULL,'.
+	 '"'.mysql_real_escape_string($_SESSION['username']).'",'.
+	 time().','.
+	 '"'.mysql_real_escape_string($_POST['subject']).'",'.
+	 '"'.mysql_real_escape_string($_POST['body']).'")')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+	
+	$xml_result='success';
 }
 
-#Submit
-mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
- mysql_real_escape_string($_GET['forum_id']).','.
- $thread_id.','.
- 'NULL,'.
- '"'.mysql_real_escape_string($_SESSION['username']).'",'.
- time().','.
- '"'.mysql_real_escape_string($_POST['subject']).'",'.
- '"'.mysql_real_escape_string($_POST['body']).'")')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+header('Content-Type: text/xml');
 
-echo '<?xml version="1.0"?'.">\n";
-echo <<<END
+echo '<?xml version="1.0"?'.'>
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="success" thread_id="${thread_id}" />
-</everything>
-END;
+	<action result="'.$xml_result.'" '.($xml_result=='success'?'thread_id="'.$thread_id.'" ':'').'/>
+</everything>';
 
 ?>

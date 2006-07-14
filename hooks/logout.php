@@ -35,19 +35,9 @@ require_once('../includes/variables.php');
 require_once('../includes/session.php');
 #Done
 
-header('Content-Type: text/xml');
-
 #Are our user logged in?
 if (!isset($user['login'])) { #No
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="not logged in" />
-</everything>
-END;
+	$xml_result='not logged in';
 } else { #Yes
 	#Delete cookie
 	$cookie=session_get_cookie_params();
@@ -60,15 +50,17 @@ END;
 		setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
 	session_destroy(); #Destroy session
 	
-	echo '<?xml version="1.0"?'.">\n";
-	echo <<<END
+	$xml_result='success';
+}
+
+header('Content-Type: text/xml');
+
+echo '<?xml version="1.0"?'.'>
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
 <everything>
-	<action result="success" />
-</everything>
-END;
-}
+	<action result="'.$xml_result.'" />
+</everything>';
 
 ?>
