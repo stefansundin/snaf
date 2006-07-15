@@ -63,22 +63,54 @@ a {
 	float:left;
 }
 
+/*fat*/
+#fat,
+#submitthreadbox,
+#submitreplybox {
+	margin:0 2%;
+}
+#fat #top {
+	font-size:small;
+	color:rgb(56,54,49);
+	text-align:center;
+	padding:2px 0 5px;
+}
+#fat #top #back {
+	float:left;
+}
+#fat #top #back a {
+	padding-left:20px;
+	background:url(img/back.png) top left no-repeat;
+}
+#fat #top #refresh a {
+	padding-left:20px;
+	background:url(img/refresh.png) top left no-repeat;
+}
+
 /*forum()*/
+/* forum*/
 #fat .forum {
 	border:1px solid rgb(0,0,0);
+	background:rgb(243,245,248);
+}
+#fat .forum .body {
+	font-size:small;
+}
+#fat .forum .body .subject {
+	font-size:medium;
 }
 #fat .forum .num {
 	float:right;
+	font-size:small;
 }
-
+/* thread*/
 #fat .thread {
 	border:1px solid rgb(0,0,0);
-}
-#fat .thread .subject {
-
+	background:rgb(243,245,248);
 }
 #fat .thread .author {
 	float:right;
+	font-size:small;
 }
 
 #fat #submitforum_form {
@@ -91,26 +123,97 @@ a {
 	float:right;
 	text-align:center;
 }
+/* submit*/
+#fat #addforum {
+	margin-top:4px;
+	text-align:center;
+	font-size:small;
+}
+#fat #addforum a {
+	padding-left:20px;
+	background:url(img/comments.png) top left no-repeat;
+}
+#fat #addthread {
+	margin-top:10px;
+	text-align:center;
+	font-size:small;
+}
+#fat #addthread a {
+	padding-left:20px;
+	background:url(img/comment.png) top left no-repeat;
+}
 
 /*thread()*/
-#fat .post {
-	border:1px solid rgb(0,0,0);
+#fat .post,
+#submitreplybox #submitreply_form,
+#submitthreadbox #submitthread_form {
+	border:1px solid rgb(56,54,49);
+	margin-bottom:10px;
+	font-size:small;
 }
-#fat .post .author {
-	float:left;
-	width:100px;
-	font-size:9pt;
-}
-#fat .post .body {
-	margin-left:105px;
-	border-left:1px solid rgb(0,0,0);
-}
-#fat .post .body .topinfo {
+#fat .post .topinfo,
+#submitreplybox #submitreply_form .topinfo,
+#submitthreadbox #submitthread_form .topinfo {
+	background:rgb(100,140,191);
+	color:rgb(255,255,255);
+	font-weight:bold;
+	padding:3px;
+	margin:1px;
 	border-bottom:1px solid rgb(100,100,100);
 }
-#fat .post .body .reply {
+#fat .post .topinfo .date,
+#submitreplybox #submitreply_form .topinfo .date,
+#submitthreadbox #submitthread_form .topinfo .date {
 	float:right;
 }
-#fat #submitreply_form {
+#fat .post .author,
+#submitreplybox #submitreply_form .author,
+#submitthreadbox #submitthread_form .author {
+	float:left;
+	width:12%;
+	font-size:small;
+	padding-left:4px;
+	background:rgb(243,245,248);
+}
+#fat .post .body,
+#submitreplybox #submitreply_form .body,
+#submitthreadbox #submitthread_form .body {
+	margin-left:12.5%;
+	padding:5px;
+	border-left:1px solid rgb(255,255,255);
+	background:rgb(238,241,245);
+}
+/* submit*/
+#fat #addreply {
 	text-align:center;
+	font-size:small;
+}
+#fat #addreply a {
+	padding-left:20px;
+	background:url(img/comment.png) top left no-repeat;
+}
+
+#submitreplybox #submitreply_form,
+#submitthreadbox #submitthread_form {
+	margin-top:25px;
+}
+#submitreplybox #submitreply_form .topinfo,
+#submitthreadbox #submitthread_form .topinfo {
+	padding:3px;
+}
+#submitreplybox #submitreply_form .topinfo .subject input,
+#submitthreadbox #submitthread_form .topinfo .subject input {
+	width:200px;
+	font-size:small;
+	border:0;
+}
+#submitreplybox #submitreply_form .body textarea,
+#submitthreadbox #submitthread_form .body textarea {
+	width:99%;
+	height:100px;
+	border:1px solid rgb(165,172,178);
+}
+#submitreplybox #submitreply_form .body input,
+#submitthreadbox #submitthread_form .body input {
+	margin-top:3px;
 }

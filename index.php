@@ -42,7 +42,7 @@ echo '<?xml version="1.0" encoding="utf-8"?'.">\n";
 	"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
 <head>
-	<title>SNAF — Loading...</title>
+	<title><?php echo SNAF_SITENAME; ?> — Loading...</title>
 	<link rel="icon" href="themes/<?php echo SNAF_THEME; ?>/img/icon.png" type="image/png" />
 	<link rel="stylesheet" href="themes/<?php echo SNAF_THEME; ?>/style.css" title="Default" type="text/css" charset="utf-8" media="all" />
 	<script type="application/javascript" src="themes/<?php echo SNAF_THEME; ?>/base.js" charset="utf-8"></script>
@@ -51,6 +51,8 @@ window.onload=function() {
 	//Create global variable
 	window.snaf={
 	 'loading':true,
+	 'sitename':'<?php echo SNAF_SITENAME; ?>',
+	 'version':'<?php echo SNAF_VERSION; ?>',
 	 'user':{
 <?php
 if (isset($user['login'])) {
@@ -82,5 +84,7 @@ END;
 </head>
 <body>
 	<p>Your browser does not support JavaScript.</p>
+	<hr />
+	SNAF version <?php echo SNAF_VERSION; ?>
 </body>
 </html>

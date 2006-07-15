@@ -1,14 +1,18 @@
 Filename:         <-         Project:        -> Project filename:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-user.png          <-     famfamfam_silk      -> icon.png
 icon.png          <-  Tango Desktop Project  -> internet-group-chat.svg
+user.png          <-     famfamfam_silk      -> icon.png
+back.png          <-     famfamfam_silk      -> arrow_left.png
+refresh.png       <-     famfamfam_silk      -> arrow_refresh.png
+comments.png      <-     famfamfam_silk      -> comments.png
+comment.png       <-     famfamfam_silk      -> comment.png
 
 
-
-famfamfam_silk [ http://www.famfamfam.com/lab/icons/silk/ ]:
-Creative Commons 2.5 [ http://creativecommons.org/licenses/by/2.5/ ].
 
 Tango Desktop Project [ http://tango.freedesktop.org/ ]:
 The color palette is public domain. The actual icons are licensed under the
 Creative Commons Attribution Share-Alike license
 [ http://creativecommons.org/licenses/by-sa/2.5/ ].
+
+famfamfam_silk [ http://www.famfamfam.com/lab/icons/silk/ ]:
+Creative Commons 2.5 [ http://creativecommons.org/licenses/by/2.5/ ].

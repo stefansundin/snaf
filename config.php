@@ -35,7 +35,7 @@ if (!defined('SNAF')
 }
 
 #Define constants
-define('SNAF_SITENAME','*The* SNAF forum');
+define('SNAF_SITENAME','The SNAF forum, no really, *the* SNAF forum');
 # Database settings
 define('SNAF_DBSERVER','localhost');
 define('SNAF_DBNAME','snaf');

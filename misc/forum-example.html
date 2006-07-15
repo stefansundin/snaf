@@ -10,14 +10,17 @@
 </head>
 <body>
 	<div id="fat">
-		<a>Refresh</a>
+		<div id="top">
+			<div id="back"><a>back</a></div>
+			<div id="refresh"><a>refresh</a></div>
+		</div>
 		<div class="forum" id="forum1">
 			<div class="num">
-				<div class="num_threads">0 threads</div>
-				<div class="num_posts">0 posts</div>
+				<div class="num_threads">2 threads</div>
+				<div class="num_posts">4 posts</div>
 			</div>
 			<div class="body">
-				<a>SNAF</a><br>
+				<div class="subject"><a>SNAF</a></div>
 				Discuss SNAF here
 			</div>
 		</div>
@@ -27,7 +30,7 @@
 				<div class="num_posts">9 posts</div>
 			</div>
 			<div class="body">
-				<a>General Discussion</a><br>
+				<div class="subject"><a>General Discussion</a></div>
 				Talk about general stuff here
 			</div>
 		</div>
@@ -35,6 +38,9 @@
 			<a class="author">recover</a>
 			<a class="subject">qwertyuio</a>
 		</div>
+		
+		<div id="addthread"><a id="addthread_link">add thread</a></div>
+		<div id="addforum"><a id="addforum_link">add forum</a></div>
 		<form accept-charset="utf-8" id="submitforum_form">
 			Subject:<br>
 			<input disabled="disabled" id="submitforum_subject" type="text"><br>

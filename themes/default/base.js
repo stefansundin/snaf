@@ -19,33 +19,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 Description:
 This file contain the JavaScript which the entire site depends on.
 
-http_request.readyState:
- * 0 — Uninitialized — The initial value.
- * 1 — Open — The open() method has been successfully called.
- * 2 — Sent — The UA successfully completed the request,
-              but no data has yet been received.
- * 3 — Receiving — Immediately before receiving the message body (if any).
-                   All HTTP headers have been received.
- * 4 — Loaded — The data transfer has been completed.
-
-http_request.status:
- 200 = successful connection.
-
-nodeType:
- * Node.ELEMENT_NODE == 1
- * Node.ATTRIBUTE_NODE == 2
- * Node.TEXT_NODE == 3
- * Node.CDATA_SECTION_NODE == 4
- * Node.ENTITY_REFERENCE_NODE == 5
- * Node.ENTITY_NODE == 6
- * Node.PROCESSING_INSTRUCTION_NODE == 7
- * Node.COMMENT_NODE == 8
- * Node.DOCUMENT_NODE == 9
- * Node.DOCUMENT_TYPE_NODE == 10
- * Node.DOCUMENT_FRAGMENT_NODE == 11
- * Node.NOTATION_NODE == 12 
- So we'll better ignore nodeType 3 (text, whitespaces) and 8 (comments).
-
 Clear all childs inside an element:
 while (element.hasChildNodes()) {
 	element.removeChild(element.firstChild); }
@@ -55,33 +28,46 @@ function load() {
 	//Create a new body (effectively removes all childrens in the existing body)
 	document.body=document.createElement('body');
 	//Grab body
-	var obj_body=document.body;
+	var body=document.body;
 	
 	//Create objects
 	// userbar
 	var obj_userbar=document.createElement('div');
 	obj_userbar.id='userbar';
-	obj_body.appendChild(obj_userbar);
-	// loginbox
-	var obj_box=document.createElement('div');
-	obj_box.id='loginbox';
-	obj_body.appendChild(obj_box);
-	// submitaccountbox
-	var obj_box=document.createElement('div');
-	obj_box.id='submitaccountbox';
-	obj_body.appendChild(obj_box);
+	body.appendChild(obj_userbar);
 	// fat
 	var obj_fat=document.createElement('div');
 	obj_fat.id='fat';
-	obj_body.appendChild(obj_fat);
+	body.appendChild(obj_fat);
+	// loginbox
+	var obj_box=document.createElement('div');
+	obj_box.id='loginbox';
+	body.appendChild(obj_box);
+	// submitaccountbox
+	var obj_box=document.createElement('div');
+	obj_box.id='submitaccountbox';
+	body.appendChild(obj_box);
+	// submitforumbox
+	var obj_box=document.createElement('div');
+	obj_box.id='submitforumbox';
+	body.appendChild(obj_box);
+	// submitthreadbox
+	var obj_box=document.createElement('div');
+	obj_box.id='submitthreadbox';
+	body.appendChild(obj_box);
+	// submitreplybox
+	var obj_box=document.createElement('div');
+	obj_box.id='submitreplybox';
+	body.appendChild(obj_box);
 	
 	//Display
 	// refresh
 	refresh();
 	// location
 	snaf.current.location(snaf.current.locationid);
+	// title
+	document.title=snaf.sitename;
 	// done
-	document.title='SNAF';
 	snaf.loading=false;
 }
 
@@ -92,6 +78,10 @@ function closurecallback(callbackFunc,callbackArg) {
 }
 
 function back() {
+	//Hide interfering boxes
+	display('hide','submitforumbox');
+	display('hide','submitthreadbox');
+	display('hide','submitreplybox');
 	if (snaf.back.length > 0) {
 		var nextback=snaf.back.pop();
 		snaf.dontindex=true; //Disable indexing
@@ -141,45 +131,86 @@ function refresh() {
 				display('hide','loginbox');
 			}
 			if (snaf.current.location == forum) {
+				//Change the add forum text
+				var obj_addforum_link=document.getElementById('addforum_link');
+				while (obj_addforum_link.hasChildNodes()) {
+					obj_addforum_link.removeChild(obj_addforum_link.firstChild); }
+				obj_addforum_link.appendChild(document.createTextNode('add forum'));
+				//Change the add thread text
+				var obj_addthread_link=document.getElementById('addthread_link');
+				while (obj_addthread_link.hasChildNodes()) {
+					obj_addthread_link.removeChild(obj_addthread_link.firstChild); }
+				obj_addthread_link.appendChild(document.createTextNode('add thread'));
+			}
+			var obj_submitforumbox=document.getElementById('submitforumbox');
+			if (obj_submitforumbox.hasChildNodes()) {
 				//Enable submitforum form
-				var obj_subject=document.getElementById('submitforum_subject');
-				var obj_body=document.getElementById('submitforum_body');
-				var obj_submit=document.getElementById('submitforum_submit');
-				obj_subject.disabled=false;
-				obj_body.disabled=false;
-				if (obj_subject.value
-				 && obj_body.value) {
-					obj_submit.disabled=false;
+				var form_subject=document.getElementById('submitforum_subject');
+				var form_body=document.getElementById('submitforum_body');
+				var form_submit=document.getElementById('submitforum_submit');
+				form_subject.disabled=false;
+				form_body.disabled=false;
+				if (form_subject.value
+				 && form_body.value) {
+					form_submit.disabled=false;
 				} else {
-					obj_submit.disabled=true;
-				}
-				
-				//Enable submitthread form
-				var obj_subject=document.getElementById('submitthread_subject');
-				var obj_body=document.getElementById('submitthread_body');
-				var obj_submit=document.getElementById('submitthread_submit');
-				obj_subject.disabled=false;
-				obj_body.disabled=false;
-				if (obj_subject.value
-				 && obj_body.value) {
-					obj_submit.disabled=false;
-				} else {
-					obj_submit.disabled=true;
+					form_submit.disabled=true;
 				}
 			}
-			else if (snaf.current.location == thread) {
-				//Enable submitreply form
-				var obj_subject=document.getElementById('submitreply_subject');
-				var obj_body=document.getElementById('submitreply_body');
-				var obj_submit=document.getElementById('submitreply_submit');
-				obj_subject.disabled=false;
-				obj_body.disabled=false;
-				if (obj_subject.value
-				 && obj_body.value) {
-					obj_submit.disabled=false;
+			var obj_submitthreadbox=document.getElementById('submitthreadbox');
+			if (obj_submitthreadbox.hasChildNodes()) {
+				//Change author
+				var obj_author=document.getElementById('addthread_author');
+				while (obj_author.hasChildNodes()) {
+					obj_author.removeChild(obj_author.firstChild); }
+				var obj_author_link=document.createElement('a');
+				obj_author_link.onclick=closurecallback(user,snaf.user.username);
+				obj_author_link.appendChild(document.createTextNode(snaf.user.username));
+				obj_author.appendChild(obj_author_link);
+				//Enable submitthread form
+				var form_subject=document.getElementById('submitthread_subject');
+				var form_body=document.getElementById('submitthread_body');
+				var form_submit=document.getElementById('submitthread_submit');
+				form_subject.disabled=false;
+				form_body.disabled=false;
+				if (form_subject.value
+				 && form_body.value) {
+					form_submit.disabled=false;
 				} else {
-					obj_submit.disabled=true;
+					form_submit.disabled=true;
 				}
+			}
+			if (snaf.current.location == thread) {
+				//Change the add reply text
+				var obj_addreply_link=document.getElementById('addreply_link');
+				while (obj_addreply_link.hasChildNodes()) {
+					obj_addreply_link.removeChild(obj_addreply_link.firstChild); }
+				obj_addreply_link.appendChild(document.createTextNode('add reply'));
+			}
+			var obj_submitreplybox=document.getElementById('submitreplybox');
+			if (obj_submitreplybox.hasChildNodes()) {
+				//Change author
+				var obj_author=document.getElementById('addreply_author');
+				while (obj_author.hasChildNodes()) {
+					obj_author.removeChild(obj_author.firstChild); }
+				var obj_author_link=document.createElement('a');
+				obj_author_link.onclick=closurecallback(user,snaf.user.username);
+				obj_author_link.appendChild(document.createTextNode(snaf.user.username));
+				obj_author.appendChild(obj_author_link);
+				//Enable submitreply form
+				var form_subject=document.getElementById('submitreply_subject');
+				var form_body=document.getElementById('submitreply_body');
+				var form_submit=document.getElementById('submitreply_submit');
+				form_subject.disabled=false;
+				form_body.disabled=false;
+				if (form_subject.value
+				 && form_body.value) {
+					form_submit.disabled=false;
+				} else {
+					form_submit.disabled=true;
+				}
+				//Change submit button text
+				form_submit.value='Add reply';
 			}
 		}
 	}
@@ -217,50 +248,86 @@ function refresh() {
 		//Update other things
 		if (!snaf.loading) {
 			if (snaf.current.location == forum) {
-				//Disable submitforum form
-				var obj_subject=document.getElementById('submitforum_subject');
-				var obj_body=document.getElementById('submitforum_body');
-				var obj_submit=document.getElementById('submitforum_submit');
-				obj_subject.disabled=true;
-				obj_body.disabled=true;
-				obj_submit.disabled=true;
-				
-				//Disable submitthread form
-				var obj_subject=document.getElementById('submitthread_subject');
-				var obj_body=document.getElementById('submitthread_body');
-				var obj_submit=document.getElementById('submitthread_submit');
-				obj_subject.disabled=true;
-				obj_body.disabled=true;
-				obj_submit.disabled=true;
+				//Change the add forum text
+				var obj_addforum_link=document.getElementById('addforum_link');
+				while (obj_addforum_link.hasChildNodes()) {
+					obj_addforum_link.removeChild(obj_addforum_link.firstChild); }
+				obj_addforum_link.appendChild(document.createTextNode('add forum (requires login)'));
+				//Change the add thread text
+				var obj_addthread_link=document.getElementById('addthread_link');
+				while (obj_addthread_link.hasChildNodes()) {
+					obj_addthread_link.removeChild(obj_addthread_link.firstChild); }
+				obj_addthread_link.appendChild(document.createTextNode('add thread (requires login)'));
 			}
-			else if (snaf.current.location == thread) {
+			var obj_submitforumbox=document.getElementById('submitforumbox');
+			if (obj_submitforumbox.hasChildNodes()) {
+				//Disable submitforum form
+				var form_subject=document.getElementById('submitforum_subject');
+				var form_body=document.getElementById('submitforum_body');
+				var form_submit=document.getElementById('submitforum_submit');
+				form_subject.disabled=true;
+				form_body.disabled=true;
+				form_submit.disabled=true;
+			}
+			var obj_submitthreadbox=document.getElementById('submitthreadbox');
+			if (obj_submitthreadbox.hasChildNodes()) {
+				//Change author
+				var obj_author=document.getElementById('addthread_author');
+				while (obj_author.hasChildNodes()) {
+					obj_author.removeChild(obj_author.firstChild); }
+				obj_author.appendChild(document.createTextNode('Anonymous Coward'));
+				//Disable submitthread form
+				var form_subject=document.getElementById('submitthread_subject');
+				var form_body=document.getElementById('submitthread_body');
+				var form_submit=document.getElementById('submitthread_submit');
+				form_subject.disabled=true;
+				form_body.disabled=true;
+				form_submit.disabled=true;
+			}
+			if (snaf.current.location == thread) {
+				//Change the add reply text
+				var obj_addreply_link=document.getElementById('addreply_link');
+				while (obj_addreply_link.hasChildNodes()) {
+					obj_addreply_link.removeChild(obj_addreply_link.firstChild); }
+				obj_addreply_link.appendChild(document.createTextNode('add reply (requires login)'));
+			}
+			var obj_submitreplybox=document.getElementById('submitreplybox');
+			if (obj_submitreplybox.hasChildNodes()) {
+				//Change author
+				var obj_author=document.getElementById('addreply_author');
+				while (obj_author.hasChildNodes()) {
+					obj_author.removeChild(obj_author.firstChild); }
+				obj_author.appendChild(document.createTextNode('Anonymous Coward'));
 				//Disable submitreply form
-				var obj_subject=document.getElementById('submitreply_subject');
-				var obj_body=document.getElementById('submitreply_body');
-				var obj_submit=document.getElementById('submitreply_submit');
-				obj_subject.disabled=true;
-				obj_body.disabled=true;
-				obj_submit.disabled=true;
+				var form_subject=document.getElementById('submitreply_subject');
+				var form_body=document.getElementById('submitreply_body');
+				var form_submit=document.getElementById('submitreply_submit');
+				form_subject.disabled=true;
+				form_body.disabled=true;
+				form_submit.disabled=true;
+				//Change submit button text
+				form_submit.value+=' (requires login)';
 			}
 		}
 	}
 }
 
 function display(state,box) {
-	if (box == 'all') {
-		if (state == 'hide') {
-			display('hide','loginbox');
-			display('hide','submitaccountbox');
-		}
+	if (state == 'hide' && box == 'all') {
+		display('hide','loginbox');
+		display('hide','submitaccountbox');
+		display('hide','submitforumbox');
+		display('hide','submitthreadbox');
+		display('hide','submitreplybox');
 	}
 	else if (box == 'loginbox') {
 		if (state == 'toggle') {
-			if (snaf.display.loginbox) { display('hide','loginbox'); }
-			else { display('show','loginbox'); }
+			if (snaf.display.loginbox) { display('hide',box); }
+			else { display('show',box); }
 		}
 		else if (state == 'show') {
-			//Hide other boxes
-			display('hide','all');
+			//Hide interfering boxes
+			display('hide','submitaccountbox');
 			//Update global variable
 			snaf.display.loginbox=true;
 			//Grab loginbox
@@ -271,57 +338,57 @@ function display(state,box) {
 			//Create loginbox contents if not already present
 			if (!obj_loginbox.hasChildNodes()) {
 				//Create login form
-				var obj_form=document.createElement('form');
-				obj_form.method='post';
-				obj_form.id='login_form';
-				obj_form.onsubmit=function(){
-					login(obj_username.value,
-					 obj_password.value,
-					 obj_rememberme.checked);
+				var form=document.createElement('form');
+				form.method='post';
+				form.id='login_form';
+				form.onsubmit=function(){
+					login(form_username.value,
+					 form_password.value,
+					 form_rememberme.checked);
 					return false;
 				}
-				obj_form.acceptCharset='utf-8';
-				obj_loginbox.appendChild(obj_form);
+				form.acceptCharset='utf-8';
+				obj_loginbox.appendChild(form);
 				
 				// Username
-				obj_form.appendChild(document.createTextNode('Username: '));
-				var obj_username=document.createElement('input');
-				obj_username.type='text';
-				obj_username.id='login_username';
-				obj_username.onkeypress=closurecallback(formsanitycheck,'login');
-				obj_username.onkeyup=closurecallback(formsanitycheck,'login');
-				obj_form.appendChild(obj_username);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(document.createTextNode('Username: '));
+				var form_username=document.createElement('input');
+				form_username.type='text';
+				form_username.id='login_username';
+				form_username.onkeypress=closurecallback(formsanitycheck,'login');
+				form_username.onkeyup=closurecallback(formsanitycheck,'login');
+				form.appendChild(form_username);
+				form.appendChild(document.createElement('br'));
 				
 				// Password
-				obj_form.appendChild(document.createTextNode('Password: '));
-				var obj_password=document.createElement('input');
-				obj_password.type='password';
-				obj_password.id='login_password';
-				obj_password.onkeypress=closurecallback(formsanitycheck,'login');
-				obj_password.onkeyup=closurecallback(formsanitycheck,'login');
-				obj_form.appendChild(obj_password);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(document.createTextNode('Password: '));
+				var form_password=document.createElement('input');
+				form_password.type='password';
+				form_password.id='login_password';
+				form_password.onkeypress=closurecallback(formsanitycheck,'login');
+				form_password.onkeyup=closurecallback(formsanitycheck,'login');
+				form.appendChild(form_password);
+				form.appendChild(document.createElement('br'));
 				
 				// Remember me
 				var obj_rememberme_label=document.createElement('label');
 				obj_rememberme_label.id='login_rememberme_label';
-				var obj_rememberme=document.createElement('input');
-				obj_rememberme.type='checkbox';
-				obj_rememberme.id='login_rememberme';
-				obj_rememberme.checked=true;
-				obj_rememberme_label.appendChild(obj_rememberme);
+				var form_rememberme=document.createElement('input');
+				form_rememberme.type='checkbox';
+				form_rememberme.id='login_rememberme';
+				form_rememberme.checked=true;
+				obj_rememberme_label.appendChild(form_rememberme);
 				obj_rememberme_label.appendChild(document.createTextNode('Remember me for ten years'));
-				obj_form.appendChild(obj_rememberme_label);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(obj_rememberme_label);
+				form.appendChild(document.createElement('br'));
 				
 				// Submit
-				var obj_submit=document.createElement('input');
-				obj_submit.type='submit';
-				obj_submit.id='login_submit';
-				obj_submit.value='Sign in';
-				obj_submit.disabled=true;
-				obj_form.appendChild(obj_submit);
+				var form_submit=document.createElement('input');
+				form_submit.type='submit';
+				form_submit.id='login_submit';
+				form_submit.value='Sign in';
+				form_submit.disabled=true;
+				form.appendChild(form_submit);
 				
 				//Error
 				var obj_error=document.createElement('div');
@@ -329,10 +396,10 @@ function display(state,box) {
 				obj_loginbox.appendChild(obj_error);
 			}
 			else {
-				var obj_username=document.getElementById('login_username');
+				var form_username=document.getElementById('login_username');
 			}
 			//Focus username box
-			obj_username.focus();
+			form_username.focus();
 		}
 		else if (state == 'hide') {
 			//Update global variable
@@ -346,12 +413,12 @@ function display(state,box) {
 	else if (box == 'submitaccountbox') {
 		if (state == 'toggle') {
 			if (snaf.display.submitaccountbox) {
-				display('hide','submitaccountbox'); }
-			else { display('show','submitaccountbox'); }
+				display('hide',box); }
+			else { display('show',box); }
 		}
 		else if (state == 'show') {
-			//Hide all boxes
-			display('hide','all');
+			//Hide interfering boxes
+			display('hide','loginbox');
 			//Update global variable
 			snaf.display.submitaccountbox=true;
 			//Grab box
@@ -362,58 +429,58 @@ function display(state,box) {
 			//Create submitaccountbox contents if not already present
 			if (!obj_box.hasChildNodes()) {
 				//Create submitaccountbox form
-				var obj_form=document.createElement('form');
-				obj_form.method='post';
-				obj_form.id='submitaccount_form';
-				obj_form.onsubmit=function(){ submitaccount(); return false; }
-				obj_form.acceptCharset='utf-8';
-				obj_box.appendChild(obj_form);
+				var form=document.createElement('form');
+				form.method='post';
+				form.id='submitaccount_form';
+				form.onsubmit=function(){ submitaccount(); return false; }
+				form.acceptCharset='utf-8';
+				obj_box.appendChild(form);
 				
 				// Username
-				obj_form.appendChild(document.createTextNode('Username: '));
-				var obj_username=document.createElement('input');
-				obj_username.type='text';
-				obj_username.id='submitaccount_username';
-				obj_username.onkeypress=closurecallback(formsanitycheck,'submitaccount');
-				obj_username.onkeyup=closurecallback(formsanitycheck,'submitaccount');
-				obj_form.appendChild(obj_username);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(document.createTextNode('Username: '));
+				var form_username=document.createElement('input');
+				form_username.type='text';
+				form_username.id='submitaccount_username';
+				form_username.onkeypress=closurecallback(formsanitycheck,'submitaccount');
+				form_username.onkeyup=closurecallback(formsanitycheck,'submitaccount');
+				form.appendChild(form_username);
+				form.appendChild(document.createElement('br'));
 				
 				// Password
-				obj_form.appendChild(document.createTextNode('Password: '));
-				var obj_password=document.createElement('input');
-				obj_password.type='password';
-				obj_password.id='submitaccount_password';
-				obj_password.onkeypress=closurecallback(formsanitycheck,'submitaccount');
-				obj_password.onkeyup=closurecallback(formsanitycheck,'submitaccount');
-				obj_form.appendChild(obj_password);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(document.createTextNode('Password: '));
+				var form_password=document.createElement('input');
+				form_password.type='password';
+				form_password.id='submitaccount_password';
+				form_password.onkeypress=closurecallback(formsanitycheck,'submitaccount');
+				form_password.onkeyup=closurecallback(formsanitycheck,'submitaccount');
+				form.appendChild(form_password);
+				form.appendChild(document.createElement('br'));
 				
 				// Confirm password
-				obj_form.appendChild(document.createTextNode('Confirm password: '));
-				var obj_confirmpassword=document.createElement('input');
-				obj_confirmpassword.type='password';
-				obj_confirmpassword.id='submitaccount_confirmpassword';
-				obj_confirmpassword.onkeyup=closurecallback(formsanitycheck,'submitaccount');
-				obj_form.appendChild(obj_confirmpassword);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(document.createTextNode('Confirm password: '));
+				var form_confirmpassword=document.createElement('input');
+				form_confirmpassword.type='password';
+				form_confirmpassword.id='submitaccount_confirmpassword';
+				form_confirmpassword.onkeyup=closurecallback(formsanitycheck,'submitaccount');
+				form.appendChild(form_confirmpassword);
+				form.appendChild(document.createElement('br'));
 				
 				// Email
-				obj_form.appendChild(document.createTextNode('Email (optional): '));
-				var obj_email=document.createElement('input');
-				obj_email.type='text';
-				obj_email.id='submitaccount_email';
-				obj_email.onkeyup=closurecallback(formsanitycheck,'submitaccount');
-				obj_form.appendChild(obj_email);
-				obj_form.appendChild(document.createElement('br'));
+				form.appendChild(document.createTextNode('Email (optional): '));
+				var form_email=document.createElement('input');
+				form_email.type='text';
+				form_email.id='submitaccount_email';
+				form_email.onkeyup=closurecallback(formsanitycheck,'submitaccount');
+				form.appendChild(form_email);
+				form.appendChild(document.createElement('br'));
 				
 				// Submit
-				var obj_submit=document.createElement('input');
-				obj_submit.type='submit';
-				obj_submit.id='submitaccount_submit';
-				obj_submit.value='Create account';
-				obj_submit.disabled=true;
-				obj_form.appendChild(obj_submit);
+				var form_submit=document.createElement('input');
+				form_submit.type='submit';
+				form_submit.id='submitaccount_submit';
+				form_submit.value='Create account';
+				form_submit.disabled=true;
+				form.appendChild(form_submit);
 				
 				//Error
 				var obj_error=document.createElement('div');
@@ -421,16 +488,288 @@ function display(state,box) {
 				obj_box.appendChild(obj_error);
 			}
 			else {
-				var obj_username=document.getElementById('submitaccount_username');
+				var form_username=document.getElementById('submitaccount_username');
 			}
 			//Focus username box
-			obj_username.focus();
+			form_username.focus();
 		}
 		else if (state == 'hide') {
 			//Update global variable
 			snaf.display.submitaccountbox=false;
 			//Grab box
 			var obj_box=document.getElementById('submitaccountbox');
+			//Hide box
+			obj_box.style.display='none';
+		}
+	}
+	else if (box == 'submitforumbox') {
+		if (state == 'toggle') {
+			if (snaf.display.submitforumbox) {
+				display('hide',box); }
+			else { display('show',box); }
+		}
+		else if (state == 'show') {
+			//Hide interfering boxes
+			display('hide','submitthreadbox');
+			display('hide','submitreplybox');
+			//Update global variable
+			snaf.display.submitforumbox=true;
+			//Grab box
+			var obj_box=document.getElementById('submitforumbox');
+			//Show box
+			obj_box.style.display='block';
+			
+			//Create contents if not already present
+			if (!obj_box.hasChildNodes()) {
+				//Create submitforum form
+				var form=document.createElement('form');
+				form.onsubmit=function() { submitforum(); return false; }
+				form.id='submitforum_form';
+				form.acceptCharset='utf-8';
+				obj_box.appendChild(form);
+				// Subject
+				form.appendChild(document.createTextNode('Subject:'));
+				form.appendChild(document.createElement('br'));
+				var form_subject=document.createElement('input');
+				form_subject.type='text';
+				form_subject.id='submitforum_subject';
+				if (!snaf.user.login) {
+					form_subject.disabled=true; }
+				form_subject.onkeypress=closurecallback(formsanitycheck,'submitforum');
+				form_subject.onkeyup=closurecallback(formsanitycheck,'submitforum');
+				form.appendChild(form_subject);
+				form.appendChild(document.createElement('br'));
+				// Body
+				form.appendChild(document.createTextNode('Body:'));
+				form.appendChild(document.createElement('br'));
+				var form_body=document.createElement('textarea');
+				form_body.id='submitforum_body';
+				if (!snaf.user.login) {
+					form_body.disabled=true; }
+				form_body.onkeypress=closurecallback(formsanitycheck,'submitforum');
+				form_body.onkeyup=closurecallback(formsanitycheck,'submitforum');
+				form.appendChild(form_body);
+				form.appendChild(document.createElement('br'));
+				// Submit
+				var form_submit=document.createElement('input');
+				form_submit.type='submit';
+				form_submit.id='submitforum_submit';
+				form_submit.value='New forum';
+				form_submit.disabled=true;
+				form.appendChild(form_submit);
+			}
+			else {
+				var form_subject=document.getElementById('submitforum_subject');
+			}
+			//Focus username box
+			form_subject.focus();
+		}
+		else if (state == 'hide') {
+			//Update global variable
+			snaf.display.submitforumbox=false;
+			//Grab box
+			var obj_box=document.getElementById('submitforumbox');
+			//Hide box
+			obj_box.style.display='none';
+		}
+	}
+	else if (box == 'submitthreadbox') {
+		if (state == 'toggle') {
+			if (snaf.display.submitthreadbox) {
+				display('hide',box); }
+			else { display('show',box); }
+		}
+		else if (state == 'show') {
+			//Hide interfering boxes
+			display('hide','submitforumbox');
+			display('hide','submitreplybox');
+			//Update global variable
+			snaf.display.submitthreadbox=true;
+			//Grab box
+			var obj_box=document.getElementById('submitthreadbox');
+			//Show box
+			obj_box.style.display='block';
+			
+			//Create contents if not already present
+			if (!obj_box.hasChildNodes()) {
+				//Create submitthread form
+				var form=document.createElement('form');
+				form.onsubmit=function() { submitthread(); return false; }
+				form.id='submitthread_form';
+				form.acceptCharset='utf-8';
+				obj_box.appendChild(form);
+				
+				//Topinfo
+				var obj_topinfo=document.createElement('div');
+				obj_topinfo.className='topinfo';
+				form.appendChild(obj_topinfo);
+				// Date
+				var obj_topinfo_date=document.createElement('div');
+				obj_topinfo_date.className='date';
+				obj_topinfo_date.appendChild(document.createTextNode('New thread'));
+				obj_topinfo.appendChild(obj_topinfo_date);
+				// Subject
+				var obj_topinfo_subject=document.createElement('div');
+				obj_topinfo_subject.className='subject';
+				obj_topinfo.appendChild(obj_topinfo_subject);
+				var form_subject=document.createElement('input');
+				form_subject.type='text';
+				form_subject.id='submitthread_subject';
+				if (!snaf.user.login) {
+					form_subject.disabled=true; }
+				form_subject.onkeypress=closurecallback(formsanitycheck,'submitthread');
+				form_subject.onkeyup=closurecallback(formsanitycheck,'submitthread');
+				obj_topinfo_subject.appendChild(form_subject);
+				
+				//Author
+				var obj_author=document.createElement('div');
+				obj_author.className='author';
+				obj_author.id='addthread_author';
+				if (snaf.user.login) {
+					var obj_author_link=document.createElement('a');
+					obj_author_link.onclick=closurecallback(user,snaf.user.username);
+					obj_author_link.appendChild(document.createTextNode(snaf.user.username));
+					obj_author.appendChild(obj_author_link);
+				} else {
+					obj_author.appendChild(document.createTextNode('Anonymous Coward'));
+				}
+				form.appendChild(obj_author);
+				
+				//Body
+				var obj_body=document.createElement('div');
+				obj_body.className='body';
+				form.appendChild(obj_body);
+				var form_body=document.createElement('textarea');
+				form_body.id='submitthread_body';
+				if (!snaf.user.login) {
+					form_body.disabled=true; }
+				form_body.onkeypress=closurecallback(formsanitycheck,'submitthread');
+				form_body.onkeyup=closurecallback(formsanitycheck,'submitthread');
+				obj_body.appendChild(form_body);
+				obj_body.appendChild(document.createElement('br'));
+				//Submit
+				var form_submit=document.createElement('input');
+				form_submit.type='submit';
+				form_submit.id='submitthread_submit';
+				form_submit.value='Add thread';
+				if (!snaf.user.login) {
+					form_submit.value+=' (requires login)';
+				}
+				form_submit.disabled=true;
+				obj_body.appendChild(form_submit);
+			}
+			else {
+				var form_subject=document.getElementById('submitthread_subject');
+			}
+			//Focus subject box
+			form_subject.focus();
+		}
+		else if (state == 'hide') {
+			//Update global variable
+			snaf.display.submitthreadbox=false;
+			//Grab box
+			var obj_box=document.getElementById('submitthreadbox');
+			//Hide box
+			obj_box.style.display='none';
+		}
+	}
+	else if (box == 'submitreplybox') {
+		if (state == 'toggle') {
+			if (snaf.display.submitreplybox) {
+				display('hide',box); }
+			else { display('show',box,arguments[2],arguments[3]); }
+		}
+		else if (state == 'show') {
+			//Hide interfering boxes
+			display('hide','submitforumbox');
+			display('hide','submitthreadbox');
+			//Update global variable
+			snaf.display.submitreplybox=true;
+			//Grab box
+			var obj_box=document.getElementById('submitreplybox');
+			//Show box
+			obj_box.style.display='block';
+			
+			//Create contents if not already present
+			if (!obj_box.hasChildNodes()) {
+				//Create submitreply form
+				var form=document.createElement('form');
+				form.onsubmit=function() { submitreply(); return false; }
+				form.id='submitreply_form';
+				form.acceptCharset='utf-8';
+				obj_box.appendChild(form);
+				
+				//Topinfo
+				var obj_topinfo=document.createElement('div');
+				obj_topinfo.className='topinfo';
+				form.appendChild(obj_topinfo);
+				// Date
+				var obj_topinfo_date=document.createElement('div');
+				obj_topinfo_date.className='date';
+				obj_topinfo_date.appendChild(document.createTextNode('Add reply #'+(parseInt(arguments[2])+1)));
+				obj_topinfo.appendChild(obj_topinfo_date);
+				// Subject
+				var obj_topinfo_subject=document.createElement('div');
+				obj_topinfo_subject.className='subject';
+				obj_topinfo.appendChild(obj_topinfo_subject);
+				var form_subject=document.createElement('input');
+				form_subject.type='text';
+				form_subject.id='submitreply_subject';
+				form_subject.value='Re: '+arguments[3];
+				if (!snaf.user.login) {
+					form_subject.disabled=true; }
+				form_subject.onkeypress=closurecallback(formsanitycheck,'submitreply');
+				form_subject.onkeyup=closurecallback(formsanitycheck,'submitreply');
+				obj_topinfo_subject.appendChild(form_subject);
+				
+				//Author
+				var obj_author=document.createElement('div');
+				obj_author.className='author';
+				obj_author.id='addreply_author';
+				if (snaf.user.login) {
+					var obj_author_link=document.createElement('a');
+					obj_author_link.onclick=closurecallback(user,snaf.user.username);
+					obj_author_link.appendChild(document.createTextNode(snaf.user.username));
+					obj_author.appendChild(obj_author_link);
+				} else {
+					obj_author.appendChild(document.createTextNode('Anonymous Coward'));
+				}
+				form.appendChild(obj_author);
+				
+				//Body
+				var obj_body=document.createElement('div');
+				obj_body.className='body';
+				form.appendChild(obj_body);
+				var form_body=document.createElement('textarea');
+				form_body.id='submitreply_body';
+				if (!snaf.user.login) {
+					form_body.disabled=true; }
+				form_body.onkeypress=closurecallback(formsanitycheck,'submitreply');
+				form_body.onkeyup=closurecallback(formsanitycheck,'submitreply');
+				obj_body.appendChild(form_body);
+				obj_body.appendChild(document.createElement('br'));
+				//Submit
+				var form_submit=document.createElement('input');
+				form_submit.type='submit';
+				form_submit.id='submitreply_submit';
+				form_submit.value='Add reply';
+				if (!snaf.user.login) {
+					form_submit.value+=' (requires login)';
+				}
+				form_submit.disabled=true;
+				obj_body.appendChild(form_submit);
+			}
+			else {
+				var form_body=document.getElementById('submitreply_body');
+			}
+			//Focus body box
+			form_body.focus();
+		}
+		else if (state == 'hide') {
+			//Update global variable
+			snaf.display.submitreplybox=false;
+			//Grab box
+			var obj_box=document.getElementById('submitreplybox');
 			//Hide box
 			obj_box.style.display='none';
 		}
@@ -459,6 +798,10 @@ function forum(forum_id) {
 		snaf.current={
 		 'location':forum,
 		 'locationid':forum_id };
+		//Hide interfering boxes
+		display('hide','submitforumbox');
+		display('hide','submitthreadbox');
+		display('hide','submitreplybox');
 		
 		//Grab fat
 		var obj_fat=document.getElementById('fat');
@@ -466,20 +809,28 @@ function forum(forum_id) {
 		while (obj_fat.hasChildNodes()) {
 			obj_fat.removeChild(obj_fat.firstChild); }
 		
-		//Back link
+		//Top
+		var obj_top=document.createElement('div');
+		obj_top.id='top';
+		obj_fat.appendChild(obj_top);
+		// Back
 		if (forum_id != 0) {
-			obj_back=document.createElement('a');
-			obj_back.onclick=function() { back(); }
-			obj_back.appendChild(document.createTextNode('« back'));
-			obj_fat.appendChild(obj_back);
-			obj_fat.appendChild(document.createTextNode(' | '));
+			var obj_back=document.createElement('div');
+			obj_back.id='back';
+			var obj_back_link=document.createElement('a');
+			obj_back_link.onclick=function() { back(); }
+			obj_back_link.appendChild(document.createTextNode('back'));
+			obj_back.appendChild(obj_back_link);
+			obj_top.appendChild(obj_back);
 		}
-		
-		//Refresh link
-		var obj_refresh=document.createElement('a');
-		obj_refresh.onclick=locationrefresh;
-		obj_refresh.appendChild(document.createTextNode('Refresh'));
-		obj_fat.appendChild(obj_refresh);
+		// Refresh
+		var obj_refresh=document.createElement('div');
+		obj_refresh.id='refresh';
+		var obj_refresh_link=document.createElement('a');
+		obj_refresh_link.onclick=locationrefresh;
+		obj_refresh_link.appendChild(document.createTextNode('refresh'));
+		obj_refresh.appendChild(obj_refresh_link);
+		obj_top.appendChild(obj_refresh);
 		
 		var xml=http_request.responseXML;
 		//List forums
@@ -517,11 +868,13 @@ function forum(forum_id) {
 			var obj_body=document.createElement('div');
 			obj_body.className='body';
 			// Subject
-			var obj_subject=document.createElement('a');
-			obj_subject.onclick=closurecallback(forum,xml_forum_id);
-			obj_subject.appendChild(document.createTextNode(xml_subject));
+			var obj_subject=document.createElement('div');
+			obj_subject.className='subject';
+			var obj_subject_link=document.createElement('a');
+			obj_subject_link.onclick=closurecallback(forum,xml_forum_id);
+			obj_subject_link.appendChild(document.createTextNode(xml_subject));
+			obj_subject.appendChild(obj_subject_link);
 			obj_body.appendChild(obj_subject);
-			obj_body.appendChild(document.createElement('br'));
 			obj_body.appendChild(document.createTextNode(xml_body));
 			obj_forum.appendChild(obj_body);
 		}
@@ -556,83 +909,33 @@ function forum(forum_id) {
 		
 		//If no forums or threads was reported, print message
 		if (xml_forums.length == 0 && xml_threads.length == 0) {
-			obj_fat.appendChild(document.createElement('br'));
 			obj_fat.appendChild(document.createTextNode('No forums or threads found.'));
 		}
 		
-		//Create submitforum form
-		var obj_form=document.createElement('form');
-		obj_form.onsubmit=function() { submitforum(); return false; }
-		obj_form.id='submitforum_form';
-		obj_form.acceptCharset='utf-8';
-		obj_fat.appendChild(obj_form);
-		// Subject
-		obj_form.appendChild(document.createTextNode('Subject:'));
-		obj_form.appendChild(document.createElement('br'));
-		var obj_subject=document.createElement('input');
-		obj_subject.type='text';
-		obj_subject.id='submitforum_subject';
+		//Create addthread link
+		var obj_addthread=document.createElement('div');
+		obj_addthread.id='addthread';
+		obj_fat.appendChild(obj_addthread);
+		var obj_addthread_link=document.createElement('a');
+		obj_addthread_link.id='addthread_link';
+		obj_addthread_link.appendChild(document.createTextNode('add thread'));
 		if (!snaf.user.login) {
-			obj_subject.disabled=true; }
-		obj_subject.onkeypress=closurecallback(formsanitycheck,'submitforum');
-		obj_subject.onkeyup=closurecallback(formsanitycheck,'submitforum');
-		obj_form.appendChild(obj_subject);
-		obj_form.appendChild(document.createElement('br'));
-		// Body
-		obj_form.appendChild(document.createTextNode('Body:'));
-		obj_form.appendChild(document.createElement('br'));
-		var obj_body=document.createElement('textarea');
-		obj_body.id='submitforum_body';
+			obj_addthread_link.appendChild(document.createTextNode(' (requires login)'));
+		}
+		obj_addthread_link.onclick=function() { display('toggle','submitthreadbox'); }
+		obj_addthread.appendChild(obj_addthread_link);
+		//Create addforum link
+		var obj_addforum=document.createElement('div');
+		obj_addforum.id='addforum';
+		obj_fat.appendChild(obj_addforum);
+		var obj_addforum_link=document.createElement('a');
+		obj_addforum_link.id='addforum_link';
+		obj_addforum_link.appendChild(document.createTextNode('add forum'));
 		if (!snaf.user.login) {
-			obj_body.disabled=true; }
-		obj_body.onkeypress=closurecallback(formsanitycheck,'submitforum');
-		obj_body.onkeyup=closurecallback(formsanitycheck,'submitforum');
-		obj_form.appendChild(obj_body);
-		obj_form.appendChild(document.createElement('br'));
-		// Submit
-		var obj_submit=document.createElement('input');
-		obj_submit.type='submit';
-		obj_submit.id='submitforum_submit';
-		obj_submit.value='New forum';
-		obj_submit.disabled=true;
-		obj_form.appendChild(obj_submit);
-		
-		//Create submitthread form
-		var obj_form=document.createElement('form');
-		obj_form.onsubmit=function() { submitthread(); return false; }
-		obj_form.id='submitthread_form';
-		obj_form.acceptCharset='utf-8';
-		obj_fat.appendChild(obj_form);
-		// Subject
-		obj_form.appendChild(document.createTextNode('Subject:'));
-		obj_form.appendChild(document.createElement('br'));
-		var obj_subject=document.createElement('input');
-		obj_subject.type='text';
-		obj_subject.id='submitthread_subject';
-		if (!snaf.user.login) {
-			obj_subject.disabled=true; }
-		obj_subject.onkeypress=closurecallback(formsanitycheck,'submitthread');
-		obj_subject.onkeyup=closurecallback(formsanitycheck,'submitthread');
-		obj_form.appendChild(obj_subject);
-		obj_form.appendChild(document.createElement('br'));
-		// Body
-		obj_form.appendChild(document.createTextNode('Body:'));
-		obj_form.appendChild(document.createElement('br'));
-		var obj_body=document.createElement('textarea');
-		obj_body.id='submitthread_body';
-		if (!snaf.user.login) {
-			obj_body.disabled=true; }
-		obj_body.onkeypress=closurecallback(formsanitycheck,'submitthread');
-		obj_body.onkeyup=closurecallback(formsanitycheck,'submitthread');
-		obj_form.appendChild(obj_body);
-		obj_form.appendChild(document.createElement('br'));
-		// Submit
-		var obj_submit=document.createElement('input');
-		obj_submit.type='submit';
-		obj_submit.id='submitthread_submit';
-		obj_submit.value='New thread';
-		obj_submit.disabled=true;
-		obj_form.appendChild(obj_submit);
+			obj_addforum_link.appendChild(document.createTextNode(' (requires login)'));
+		}
+		obj_addforum_link.onclick=function() { display('toggle','submitforumbox'); }
+		obj_addforum.appendChild(obj_addforum_link);
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
@@ -659,24 +962,35 @@ function thread(thread_id) {
 		snaf.current={
 		 'location':thread,
 		 'locationid':thread_id };
+		//Hide interfering boxes
+		display('hide','submitforumbox');
+		display('hide','submitthreadbox');
 		
 		//Grab fat
 		var obj_fat=document.getElementById('fat');
 		//Clear fat
 		while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
 		
-		//Back link
-		var obj_back=document.createElement('a');
-		obj_back.onclick=function() { back(); }
-		obj_back.appendChild(document.createTextNode('« back'));
-		obj_fat.appendChild(obj_back);
-		obj_fat.appendChild(document.createTextNode(' | '));
-		
-		//Refresh link
-		var obj_refresh=document.createElement('a');
-		obj_refresh.onclick=locationrefresh;
-		obj_refresh.appendChild(document.createTextNode('Refresh'));
-		obj_fat.appendChild(obj_refresh);
+		//Top
+		var obj_top=document.createElement('div');
+		obj_top.id='top';
+		obj_fat.appendChild(obj_top);
+		// Back
+		var obj_back=document.createElement('div');
+		obj_back.id='back';
+		var obj_back_link=document.createElement('a');
+		obj_back_link.onclick=function() { back(); }
+		obj_back_link.appendChild(document.createTextNode('back'));
+		obj_back.appendChild(obj_back_link);
+		obj_top.appendChild(obj_back);
+		// Refresh
+		var obj_refresh=document.createElement('div');
+		obj_refresh.id='refresh';
+		var obj_refresh_link=document.createElement('a');
+		obj_refresh_link.onclick=locationrefresh;
+		obj_refresh_link.appendChild(document.createTextNode('refresh'));
+		obj_refresh.appendChild(obj_refresh_link);
+		obj_top.appendChild(obj_refresh);
 		
 		var xml=http_request.responseXML;
 		var xml_posts=xml.getElementsByTagName('post');
@@ -695,10 +1009,25 @@ function thread(thread_id) {
 				obj_post.className='post';
 				obj_fat.appendChild(obj_post);
 				
+				//Topinfo
+				var obj_topinfo=document.createElement('div');
+				obj_topinfo.className='topinfo';
+				obj_post.appendChild(obj_topinfo);
+				// Date
+				var obj_topinfo_date=document.createElement('div');
+				obj_topinfo_date.className='date';
+				obj_topinfo_date.appendChild(document.createTextNode('Reply #'+xml_post_id+' on '+xml_date));
+				obj_topinfo.appendChild(obj_topinfo_date);
+				// Subject
+				var obj_topinfo_subject=document.createElement('div');
+				obj_topinfo_subject.className='subject';
+				obj_topinfo_subject.appendChild(document.createTextNode(xml_subject));
+				obj_topinfo.appendChild(obj_topinfo_subject);
+				
 				//Author
 				var obj_author=document.createElement('div');
 				obj_author.className='author';
-				obj_author_link=document.createElement('a');
+				var obj_author_link=document.createElement('a');
 				obj_author_link.onclick=closurecallback(user,xml_author);
 				obj_author_link.appendChild(document.createTextNode(xml_author));
 				obj_author.appendChild(obj_author_link);
@@ -707,63 +1036,26 @@ function thread(thread_id) {
 				//Body
 				var obj_body=document.createElement('div');
 				obj_body.className='body';
+				obj_body.appendChild(document.createTextNode(xml_body));
 				obj_post.appendChild(obj_body);
-				// Topinfo
-				var obj_topinfo=document.createElement('div');
-				obj_topinfo.className='topinfo';
-				//  Reply
-				var obj_topinfo_reply=document.createElement('div');
-				obj_topinfo_reply.className='reply';
-				obj_topinfo_reply.appendChild(document.createTextNode('Reply #'+xml_post_id+' on '+xml_date));
-				obj_topinfo.appendChild(obj_topinfo_reply);
-				//  Subject
-				var obj_topinfo_subject=document.createElement('div');
-				obj_topinfo_subject.className='subject';
-				obj_topinfo_subject.appendChild(document.createTextNode(xml_subject));
-				obj_topinfo.appendChild(obj_topinfo_subject);
-				// Body continued
-				obj_body.appendChild(obj_topinfo);
-				obj_body.appendChild(document.createTextNode(xml_body)); //.replace(/\n/g,document.createElement('br'))
 			}
-			//Create submitreply form
-			var obj_form=document.createElement('form');
-			obj_form.onsubmit=function() { submitreply(); return false; }
-			obj_form.id='submitreply_form';
-			obj_form.acceptCharset='utf-8';
-			obj_fat.appendChild(obj_form);
-			// Subject
-			obj_form.appendChild(document.createTextNode('Subject:'));
-			obj_form.appendChild(document.createElement('br'));
-			var obj_subject=document.createElement('input');
-			obj_subject.type='text';
-			obj_subject.id='submitreply_subject';
-			obj_subject.value='Re: '+xml_posts[0].getElementsByTagName('subject')[0].textContent;
+			//Create reply link
+			var obj_addreply=document.createElement('div');
+			obj_addreply.id='addreply';
+			obj_fat.appendChild(obj_addreply);
+			var obj_addreply_link=document.createElement('a');
+			obj_addreply_link.id='addreply_link';
+			obj_addreply_link.appendChild(document.createTextNode('add reply'));
 			if (!snaf.user.login) {
-				obj_subject.disabled=true; }
-			obj_subject.onkeypress=closurecallback(formsanitycheck,'submitreply');
-			obj_subject.onkeyup=closurecallback(formsanitycheck,'submitreply');
-			obj_form.appendChild(obj_subject);
-			obj_form.appendChild(document.createElement('br'));
-			// Body
-			obj_form.appendChild(document.createTextNode('Body:'));
-			obj_form.appendChild(document.createElement('br'));
-			var obj_body=document.createElement('textarea');
-			obj_body.id='submitreply_body';
-			if (!snaf.user.login) {
-				obj_body.disabled=true; }
-			obj_body.onkeypress=closurecallback(formsanitycheck,'submitreply');
-			obj_body.onkeyup=closurecallback(formsanitycheck,'submitreply');
-			obj_form.appendChild(obj_body);
-			obj_form.appendChild(document.createElement('br'));
-			// Submit
-			var obj_submit=document.createElement('input');
-			obj_submit.type='submit';
-			obj_submit.id='submitreply_submit';
-			obj_submit.value='Reply';
-			obj_submit.disabled=true;
-			obj_form.appendChild(obj_submit);
+				obj_addreply_link.appendChild(document.createTextNode(' (requires login)'));
+			}
+			obj_addreply_link.onclick=function() {
+				display('toggle',
+				 'submitreplybox',
+				 xml_post_id,
+				 xml_posts[0].getElementsByTagName('subject')[0].textContent); }
+			obj_addreply.appendChild(obj_addreply_link);
 		} else {
-			obj_fat.appendChild(document.createElement('br'));
 			obj_fat.appendChild(document.createTextNode('Thread not found'));
 		}
 	} else {
@@ -775,46 +1067,45 @@ function thread(thread_id) {
 function formsanitycheck(form) {
 	if (form == 'login') {
 		//Grab objects
-		var obj_username=document.getElementById('login_username');
-		var obj_password=document.getElementById('login_password');
-		var obj_submit=document.getElementById('login_submit');
-		if (obj_username.value
-		 && obj_password.value) {
+		var form_username=document.getElementById('login_username');
+		var form_password=document.getElementById('login_password');
+		var form_submit=document.getElementById('login_submit');
+		if (form_username.value
+		 && form_password.value) {
 			//Disable submit
-			obj_submit.disabled=false;
+			form_submit.disabled=false;
 		} else {
 			//Enable submit
-			obj_submit.disabled=true;
+			form_submit.disabled=true;
 		}
 	}
 	else if (form == 'submitaccount') {
 		//Grab objects
-		var obj_username=document.getElementById('submitaccount_username');
-		var obj_password=document.getElementById('submitaccount_password');
-		var obj_confirmpassword=document.getElementById('submitaccount_confirmpassword');
-		var obj_submit=document.getElementById('submitaccount_submit');
+		var form_username=document.getElementById('submitaccount_username');
+		var form_password=document.getElementById('submitaccount_password');
+		var form_confirmpassword=document.getElementById('submitaccount_confirmpassword');
+		var form_submit=document.getElementById('submitaccount_submit');
 		var obj_error=document.getElementById('submitaccount_error');
 		//Make sure passwords match
-		if (obj_password.value == obj_confirmpassword.value) {
-			if (obj_username.value
-			 && obj_password.value
-			 && obj_confirmpassword.value) {
+		if (form_password.value == form_confirmpassword.value) {
+			if (form_username.value
+			 && form_password.value
+			 && form_confirmpassword.value) {
 				//Clear eventual error messages
 				while (obj_error.hasChildNodes()) {
 					obj_error.removeChild(obj_error.firstChild); }
 				//Enable submit
-				obj_submit.disabled=false;
+				form_submit.disabled=false;
 			}
 		}
-		else if (obj_password.value
-		      && obj_confirmpassword.value) {
+		else if (form_password.value
+		      && form_confirmpassword.value) {
 			//Print error message
 			while (obj_error.hasChildNodes()) {
 				obj_error.removeChild(obj_error.firstChild); }
-			obj_error.appendChild(
-			 document.createTextNode('Passwords do not match'));
+			obj_error.appendChild(document.createTextNode('Passwords do not match'));
 			//Disable submit
-			obj_submit.disabled=true;
+			form_submit.disabled=true;
 		}
 		else {
 			while (obj_error.hasChildNodes()) {
@@ -822,55 +1113,55 @@ function formsanitycheck(form) {
 		}
 	}
 	else if (form == 'submitforum') {
-		var obj_subject=document.getElementById('submitforum_subject');
-		var obj_body=document.getElementById('submitforum_body');
-		var obj_submit=document.getElementById('submitforum_submit');
-		if (obj_subject.value
-		 && obj_body.value) {
-			obj_submit.disabled=false;
+		var form_subject=document.getElementById('submitforum_subject');
+		var form_body=document.getElementById('submitforum_body');
+		var form_submit=document.getElementById('submitforum_submit');
+		if (form_subject.value
+		 && form_body.value) {
+			form_submit.disabled=false;
 		} else {
-			obj_submit.disabled=true;
+			form_submit.disabled=true;
 		}
 	}
 	else if (form == 'submitthread') {
-		var obj_subject=document.getElementById('submitthread_subject');
-		var obj_body=document.getElementById('submitthread_body');
-		var obj_submit=document.getElementById('submitthread_submit');
-		if (obj_subject.value
-		 && obj_body.value) {
-			obj_submit.disabled=false;
+		var form_subject=document.getElementById('submitthread_subject');
+		var form_body=document.getElementById('submitthread_body');
+		var form_submit=document.getElementById('submitthread_submit');
+		if (form_subject.value
+		 && form_body.value) {
+			form_submit.disabled=false;
 		} else {
-			obj_submit.disabled=true;
+			form_submit.disabled=true;
 		}
 	}
 	else if (form == 'submitreply') {
-		var obj_subject=document.getElementById('submitreply_subject');
-		var obj_body=document.getElementById('submitreply_body');
-		var obj_submit=document.getElementById('submitreply_submit');
-		if (obj_subject.value
-		 && obj_body.value) {
-			obj_submit.disabled=false;
+		var form_subject=document.getElementById('submitreply_subject');
+		var form_body=document.getElementById('submitreply_body');
+		var form_submit=document.getElementById('submitreply_submit');
+		if (form_subject.value
+		 && form_body.value) {
+			form_submit.disabled=false;
 		} else {
-			obj_submit.disabled=true;
+			form_submit.disabled=true;
 		}
 	}
 }
 
 function submitaccount() {
 	//Grab objects
-	var obj_username=document.getElementById('submitaccount_username');
-	var obj_password=document.getElementById('submitaccount_password');
-	var obj_confirmpassword=document.getElementById('submitaccount_confirmpassword');
-	var obj_email=document.getElementById('submitaccount_email');
-	var obj_submit=document.getElementById('submitaccount_submit');
-	var obj_error=document.getElementById('submitaccount_error');
+	var form_username=document.getElementById('submitaccount_username');
+	var form_password=document.getElementById('submitaccount_password');
+	var form_confirmpassword=document.getElementById('submitaccount_confirmpassword');
+	var form_email=document.getElementById('submitaccount_email');
+	var form_submit=document.getElementById('submitaccount_submit');
+	var form_error=document.getElementById('submitaccount_error');
 	
 	//Disable input boxes
-	obj_username.disabled=true;
-	obj_password.disabled=true;
-	obj_confirmpassword.disabled=true;
-	obj_email.disabled=true;
-	obj_submit.disabled=true;
+	form_username.disabled=true;
+	form_password.disabled=true;
+	form_confirmpassword.disabled=true;
+	form_email.disabled=true;
+	form_submit.disabled=true;
 	
 	var http_request=false;
 	http_request=new XMLHttpRequest();
@@ -885,9 +1176,9 @@ function submitaccount() {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'username='+encodeURI(obj_username.value)+
-		'&password='+encodeURI(obj_password.value)+
-		'&email='+encodeURI(obj_email.value));
+		'username='+encodeURI(form_username.value)+
+		'&password='+encodeURI(form_password.value)+
+		'&email='+encodeURI(form_email.value));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -896,18 +1187,18 @@ function submitaccount() {
 		var xml_result=xml_action.getAttribute('result');
 		if (xml_result == 'success') {
 			display('hide','submitaccountbox');
-			login(obj_username.value,obj_password.value,false);
-			//Set boxes to default
-			obj_username.value='';
-			obj_password.value='';
-			obj_confirmpassword.value='';
-			obj_email.value='';
+			login(form_username.value,form_password.value,false);
+			//Reset input boxes
+			form_username.value='';
+			form_password.value='';
+			form_confirmpassword.value='';
+			form_email.value='';
 			//Change disabled state
-			obj_username.disabled=false;
-			obj_password.disabled=false;
-			obj_confirmpassword.disabled=false;
-			obj_email.disabled=false;
-			obj_submit.disabled=true;
+			form_username.disabled=false;
+			form_password.disabled=false;
+			form_confirmpassword.disabled=false;
+			form_email.disabled=false;
+			form_submit.disabled=true;
 			//Clear eventual error
 			while (obj_error.hasChildNodes()) {
 				obj_error.removeChild(obj_error.firstChild); }
@@ -928,23 +1219,23 @@ function submitaccount() {
 		       http_request.statusText);
 	}
 	//Enble input boxes
-	obj_username.disabled=false;
-	obj_password.disabled=false;
-	obj_confirmpassword.disabled=false;
-	obj_email.disabled=false;
-	obj_submit.disabled=false;
+	form_username.disabled=false;
+	form_password.disabled=false;
+	form_confirmpassword.disabled=false;
+	form_email.disabled=false;
+	form_submit.disabled=false;
 }
 
 function submitforum() {
 	//Grab objects
-	var obj_subject=document.getElementById('submitforum_subject');
-	var obj_body=document.getElementById('submitforum_body');
-	var obj_submit=document.getElementById('submitforum_submit');
+	var form_subject=document.getElementById('submitforum_subject');
+	var form_body=document.getElementById('submitforum_body');
+	var form_submit=document.getElementById('submitforum_submit');
 	
 	//Disable input boxes
-	obj_subject.disabled=true;
-	obj_body.disabled=true;
-	obj_submit.disabled=true;
+	form_subject.disabled=true;
+	form_body.disabled=true;
+	form_submit.disabled=true;
 
 	var http_request=false;
 	http_request=new XMLHttpRequest();
@@ -959,8 +1250,8 @@ function submitforum() {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'subject='+encodeURI(obj_subject.value)+
-		'&body='+encodeURI(obj_body.value));
+		'subject='+encodeURI(form_subject.value)+
+		'&body='+encodeURI(form_body.value));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -968,6 +1259,16 @@ function submitforum() {
 		var xml_action=xml.getElementsByTagName('action')[0];
 		var xml_result=xml_action.getAttribute('result');
 		if (xml_result == 'success') {
+			//Reset input boxes default
+			form_subject.value='';
+			form_body.value='';
+			//Change disabled state
+			form_subject.disabled=false;
+			form_body.disabled=false;
+			form_submit.disabled=true;
+			//Hide submitforumbox
+			display('hide','submitforumbox');
+			//Refresh
 			locationrefresh();
 			return true;
 		}
@@ -979,22 +1280,22 @@ function submitforum() {
 		       http_request.statusText);
 	}
 	//Enable input boxes
-	obj_subject.disabled=false;
-	obj_body.disabled=false;
-	obj_submit.disabled=false;
+	form_subject.disabled=false;
+	form_body.disabled=false;
+	form_submit.disabled=false;
 }
 
 function submitthread() {
 	//Grab objects
-	var obj_subject=document.getElementById('submitthread_subject');
-	var obj_body=document.getElementById('submitthread_body');
-	var obj_submit=document.getElementById('submitthread_submit');
+	var form_subject=document.getElementById('submitthread_subject');
+	var form_body=document.getElementById('submitthread_body');
+	var form_submit=document.getElementById('submitthread_submit');
 	
 	//Disable input boxes
-	obj_subject.disabled=true;
-	obj_body.disabled=true;
-	obj_submit.disabled=true;
-
+	form_subject.disabled=true;
+	form_body.disabled=true;
+	form_submit.disabled=true;
+	
 	var http_request=false;
 	http_request=new XMLHttpRequest();
 	if (!http_request) {
@@ -1008,8 +1309,8 @@ function submitthread() {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'subject='+encodeURI(obj_subject.value)+
-		'&body='+encodeURI(obj_body.value));
+		'subject='+encodeURI(form_subject.value)+
+		'&body='+encodeURI(form_body.value));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1017,8 +1318,18 @@ function submitthread() {
 		var xml_action=xml.getElementsByTagName('action')[0];
 		var xml_result=xml_action.getAttribute('result');
 		if (xml_result == 'success') {
+			//Reset input boxes default
+			form_subject.value='';
+			form_body.value='';
+			//Change disabled state
+			form_subject.disabled=false;
+			form_body.disabled=false;
+			form_submit.disabled=true;
+			//Hide submitthreadbox
+			display('hide','submitthreadbox');
+			//Go to newly created thread
 			var xml_thread_id=xml_action.getAttribute('thread_id');
-			thread(xml_thread_id); //Go to newly created thread
+			thread(xml_thread_id);
 			return true;
 		}
 		else {
@@ -1029,21 +1340,21 @@ function submitthread() {
 		       http_request.statusText);
 	}
 	//Enable input boxes
-	obj_subject.disabled=false;
-	obj_body.disabled=false;
-	obj_submit.disabled=false;
+	form_subject.disabled=false;
+	form_body.disabled=false;
+	form_submit.disabled=false;
 }
 
 function submitreply() {
 	//Grab objects
-	var obj_subject=document.getElementById('submitreply_subject');
-	var obj_body=document.getElementById('submitreply_body');
-	var obj_submit=document.getElementById('submitreply_submit');
+	var form_subject=document.getElementById('submitreply_subject');
+	var form_body=document.getElementById('submitreply_body');
+	var form_submit=document.getElementById('submitreply_submit');
 	
 	//Disable input boxes
-	obj_subject.disabled=true;
-	obj_body.disabled=true;
-	obj_submit.disabled=true;
+	form_subject.disabled=true;
+	form_body.disabled=true;
+	form_submit.disabled=true;
 
 	var http_request=false;
 	http_request=new XMLHttpRequest();
@@ -1058,8 +1369,8 @@ function submitreply() {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'subject='+encodeURI(obj_subject.value)+
-		'&body='+encodeURI(obj_body.value));
+		'subject='+encodeURI(form_subject.value)+
+		'&body='+encodeURI(form_body.value));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1067,6 +1378,16 @@ function submitreply() {
 		var xml_action=xml.getElementsByTagName('action')[0];
 		var xml_result=xml_action.getAttribute('result');
 		if (xml_result == 'success') {
+			//Reset input boxes
+			//form_subject.value='';
+			form_body.value='';
+			//Change disabled state
+			form_subject.disabled=false;
+			form_body.disabled=false;
+			form_submit.disabled=true;
+			//Hide submitreplybox
+			display('hide','submitreplybox');
+			//Refresh
 			locationrefresh();
 			return true;
 		}
@@ -1078,25 +1399,25 @@ function submitreply() {
 		       http_request.statusText);
 	}
 	//Enable input boxes
-	obj_subject.disabled=false;
-	obj_body.disabled=false;
-	obj_submit.disabled=false;
+	form_subject.disabled=false;
+	form_body.disabled=false;
+	form_submit.disabled=false;
 }
 
 function login(username, password, rememberme) {
 	var obj_loginbox=document.getElementById('loginbox');
 	if (obj_loginbox.hasChildNodes()) {
 		//Grab objects
-		var obj_username=document.getElementById('login_username');
-		var obj_password=document.getElementById('login_password');
-		var obj_rememberme=document.getElementById('login_rememberme');
-		var obj_submit=document.getElementById('login_submit');
+		var form_username=document.getElementById('login_username');
+		var form_password=document.getElementById('login_password');
+		var form_rememberme=document.getElementById('login_rememberme');
+		var form_submit=document.getElementById('login_submit');
 		var obj_error=document.getElementById('login_error');
 		//Disable input boxes
-		obj_username.disabled=true;
-		obj_password.disabled=true;
-		obj_rememberme.disabled=true;
-		obj_submit.disabled=true;
+		form_username.disabled=true;
+		form_password.disabled=true;
+		form_rememberme.disabled=true;
+		form_submit.disabled=true;
 	}
 	
 	var http_request=false;
@@ -1127,15 +1448,15 @@ function login(username, password, rememberme) {
 			snaf.user.username=xml_action.getAttribute('username');
 			refresh();
 			if (obj_loginbox.hasChildNodes()) {
-				//Set boxes to default
-				obj_username.value='';
-				obj_password.value='';
-				obj_rememberme.checked=true;
+				//Reset input boxes
+				form_username.value='';
+				form_password.value='';
+				form_rememberme.checked=true;
 				//Change disabled state
-				obj_username.disabled=false;
-				obj_password.disabled=false;
-				obj_rememberme.disabled=false;
-				obj_submit.disabled=true;
+				form_username.disabled=false;
+				form_password.disabled=false;
+				form_rememberme.disabled=false;
+				form_submit.disabled=true;
 				//Clear eventual error
 				while (obj_error.hasChildNodes()) {
 					obj_error.removeChild(obj_error.firstChild); }
@@ -1170,14 +1491,14 @@ function login(username, password, rememberme) {
 	}
 	if (obj_loginbox.hasChildNodes()) {
 		//Enable input boxes
-		obj_username.disabled=false;
-		obj_password.disabled=false;
-		obj_rememberme.disabled=false;
-		if (obj_username.value
-		 && obj_password.value) {
-			obj_submit.disabled=false;
+		form_username.disabled=false;
+		form_password.disabled=false;
+		form_rememberme.disabled=false;
+		if (form_username.value
+		 && form_password.value) {
+			form_submit.disabled=false;
 		} else {
-			obj_submit.disabled=true;
+			formsubmit.disabled=true;
 		}
 	}
 }
@@ -1186,16 +1507,16 @@ function httpauth() {
 	var obj_loginbox=document.getElementById('loginbox');
 	if (obj_loginbox.hasChildNodes()) {
 		//Grab objects
-		var obj_username=document.getElementById('login_username');
-		var obj_password=document.getElementById('login_password');
-		var obj_rememberme=document.getElementById('login_rememberme');
-		var obj_submit=document.getElementById('login_submit');
+		var form_username=document.getElementById('login_username');
+		var form_password=document.getElementById('login_password');
+		var form_rememberme=document.getElementById('login_rememberme');
+		var form_submit=document.getElementById('login_submit');
 		var obj_error=document.getElementById('login_error');
 		//Disable input boxes
-		obj_username.disabled=true;
-		obj_password.disabled=true;
-		obj_rememberme.disabled=true;
-		obj_submit.disabled=true;
+		form_username.disabled=true;
+		form_password.disabled=true;
+		form_rememberme.disabled=true;
+		form_submit.disabled=true;
 	}
 	
 	var http_request=false;
@@ -1222,15 +1543,15 @@ function httpauth() {
 			refresh();
 			
 			if (obj_loginbox.hasChildNodes()) {
-				//Set boxes to default
-				obj_username.value='';
-				obj_password.value='';
-				obj_rememberme.checked=true;
+				//Reset input boxes
+				form_username.value='';
+				form_password.value='';
+				form_rememberme.checked=true;
 				//Change disabled state
-				obj_username.disabled=false;
-				obj_password.disabled=false;
-				obj_rememberme.disabled=false;
-				obj_submit.disabled=true;
+				form_username.disabled=false;
+				form_password.disabled=false;
+				form_rememberme.disabled=false;
+				form_submit.disabled=true;
 				//Clear eventual error
 				while (obj_error.hasChildNodes()) {
 					obj_error.removeChild(obj_error.firstChild); }
@@ -1254,14 +1575,14 @@ function httpauth() {
 	}
 	if (obj_loginbox.hasChildNodes()) {
 		//Enable input boxes
-		obj_username.disabled=false;
-		obj_password.disabled=false;
-		obj_rememberme.disabled=false;
-		if (obj_username.value
-		 && obj_password.value) {
-			obj_submit.disabled=false;
+		form_username.disabled=false;
+		form_password.disabled=false;
+		form_rememberme.disabled=false;
+		if (form_username.value
+		 && form_password.value) {
+			form_submit.disabled=false;
 		} else {
-			obj_submit.disabled=true;
+			form_submit.disabled=true;
 		}
 	}
 }
@@ -1284,6 +1605,8 @@ function logout() {
 		var xml_result=xml_action.getAttribute('result');
 		if (xml_result == 'success') {
 			snaf.user.login=false;
+			snaf.user.user_id=undefined;
+			snaf.user.username=undefined;
 			refresh();
 		}
 		else {

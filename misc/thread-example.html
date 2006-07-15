@@ -10,23 +10,32 @@
 </head>
 <body>
 	<div id="fat">
-		<a>« back</a> | <a>Refresh</a>
+		<div id="top">
+			<div id="back"><a>back</a></div>
+			<div id="refresh"><a>refresh</a></div>
+		</div>
 		<div class="post" id="thread1post1">
+			<div class="topinfo">
+				<div class="date">Reply #1 on 2006-06-19 18:59:27</div>
+				<div class="subject">Introducing SNAF</div>
+			</div>
 			<div class="author"><a>recover</a></div>
 			<div class="body">
-				<div class="topinfo">
-					<div class="reply">Reply #1 on 2006-06-19 18:59:27</div>
-					<div class="subject">Introducing SNAF</div>
-				</div>
 				SNAF is a community-forum focusing on utilizing the most cutting-edge specifications of the web available.
 			</div>
 		</div>
+		
+		<div id="addreply"><a id="addreply_link" onclick="document.getElementById('addreply').style.display='none';document.getElementById('submitreply_form').style.display='block';">add reply</a></div>
 		<form accept-charset="utf-8" id="submitreply_form">
-			Subject:<br>
-			<input disabled="disabled" id="submitreply_subject" type="text"><br>
-			Body:<br>
-			<textarea disabled="disabled" id="submitreply_body"></textarea><br>
-			<input disabled="disabled" value="Reply" id="submitreply_submit" type="submit">
+			<div class="topinfo">
+				<div class="date">Add reply #2</div>
+				<div class="subject"><input id="submitreply_subject" type="text" value="Re: Introducing SNAF"></div>
+			</div>
+			<div class="author"><a>recover</a></div>
+			<div class="body">
+				<textarea id="submitreply_body"></textarea><br />
+				<input value="Add reply" id="submitreply_submit" type="submit">
+			</div>
 		</form>
 	</div>
 </body>
