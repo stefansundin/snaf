@@ -8,6 +8,12 @@ a {
 	color:rgb(0,0,255);
 	cursor:pointer;
 }
+#fat,
+#submitforumbox,
+#submitthreadbox,
+#submitreplybox {
+	margin:0 2%;
+}
 
 /*userbar*/
 #userbar {
@@ -25,30 +31,19 @@ a {
 }
 
 /*boxes*/
-#login_error,
-#submitaccount_error {
-	color:rgb(204,0,0);
-	padding-top:6px;
-}
-/*loginbox*/
-#loginbox {
-	position:absolute;
-	top:20px;
-	right:0;
-	background:rgb(232,238,250);
-	border:1px solid rgb(195,217,255);
-	font-size:small;
-	text-align:right;
+#loginbox,
+#submitaccountbox,
+#submitforumbox,
+#submitthreadbox,
+#submitreplybox {
 	display:none;
 }
-#login_rememberme_label {
-	float:left;
+#submitforumbox,
+#submitthread_form,
+#submitreply_form {
+	margin-top:25px;
 }
-#login_submit {
-	clear:both;
-	float:left;
-}
-/*submitaccountbox*/
+#loginbox,
 #submitaccountbox {
 	position:absolute;
 	top:20px;
@@ -57,18 +52,68 @@ a {
 	border:1px solid rgb(195,217,255);
 	font-size:small;
 	text-align:right;
-	display:none;
 }
+#login_error,
+#submitaccount_error {
+	color:rgb(204,0,0);
+	padding-top:6px;
+}
+#login_username,#login_password,
+#submitaccount_username,#submitaccount_password,
+#submitaccount_confirmpassword,#submitaccount_email,
+#submitforum_subject,#submitforum_body,
+#submitthread_body,#submitreply_body {
+	border:1px solid rgb(165,172,178);
+}
+#submitforum_subject,
+#submitforum_body,
+#submitthread_subject,
+#submitthread_body,
+#submitreply_body {
+	color:rgb(140,140,140);
+}
+/*submitaccountbox*/
 #submitaccount_submit {
 	float:left;
 }
+/*loginbox*/
+#login_rememberme_label {
+	float:left;
+}
+#login_submit {
+	clear:both;
+	float:left;
+}
+/*submitforumbox*/
+#submitforum_form {
+	border:1px solid rgb(56,54,49);
+	margin-bottom:10px;
+	font-size:small;
+	background:rgb(243,245,248);
+}
+/*submitthreadbox/submitreplybox*/
+#submitthread_form .topinfo,
+#submitreply_form .topinfo {
+	padding:3px;
+}
+#submitthread_subject,
+#submitreply_subject {
+	width:200px;
+	font-size:small;
+	border:0;
+}
+#submitthread_body,
+#submitreply_body {
+	width:99%;
+	height:100px;
+	border:1px solid rgb(165,172,178);
+}
+#submitthread_submit,
+#submitreply_submit {
+	margin-top:3px;
+}
 
 /*fat*/
-#fat,
-#submitthreadbox,
-#submitreplybox {
-	margin:0 2%;
-}
 #fat #top {
 	font-size:small;
 	color:rgb(56,54,49);
@@ -112,17 +157,6 @@ a {
 	float:right;
 	font-size:small;
 }
-
-#fat #submitforum_form {
-	width:50%;
-	float:left;
-	text-align:center;
-}
-#fat #submitthread_form {
-	width:50%;
-	float:right;
-	text-align:center;
-}
 /* submit*/
 #fat #addforum {
 	margin-top:4px;
@@ -145,15 +179,15 @@ a {
 
 /*thread()*/
 #fat .post,
-#submitreplybox #submitreply_form,
-#submitthreadbox #submitthread_form {
+#submitthread_form,
+#submitreply_form {
 	border:1px solid rgb(56,54,49);
 	margin-bottom:10px;
 	font-size:small;
 }
 #fat .post .topinfo,
-#submitreplybox #submitreply_form .topinfo,
-#submitthreadbox #submitthread_form .topinfo {
+#submitthread_form .topinfo,
+#submitreply_form .topinfo {
 	background:rgb(100,140,191);
 	color:rgb(255,255,255);
 	font-weight:bold;
@@ -162,13 +196,13 @@ a {
 	border-bottom:1px solid rgb(100,100,100);
 }
 #fat .post .topinfo .date,
-#submitreplybox #submitreply_form .topinfo .date,
-#submitthreadbox #submitthread_form .topinfo .date {
+#submitthread_form .topinfo .date,
+#submitreply_form .topinfo .date {
 	float:right;
 }
 #fat .post .author,
-#submitreplybox #submitreply_form .author,
-#submitthreadbox #submitthread_form .author {
+#submitthread_form .author,
+#submitreply_form .author {
 	float:left;
 	width:12%;
 	font-size:small;
@@ -176,8 +210,8 @@ a {
 	background:rgb(243,245,248);
 }
 #fat .post .body,
-#submitreplybox #submitreply_form .body,
-#submitthreadbox #submitthread_form .body {
+#submitthread_form .body,
+#submitreply_form .body {
 	margin-left:12.5%;
 	padding:5px;
 	border-left:1px solid rgb(255,255,255);
@@ -191,29 +225,4 @@ a {
 #fat #addreply a {
 	padding-left:20px;
 	background:url(img/comment.png) top left no-repeat;
-}
-
-#submitreplybox #submitreply_form,
-#submitthreadbox #submitthread_form {
-	margin-top:25px;
-}
-#submitreplybox #submitreply_form .topinfo,
-#submitthreadbox #submitthread_form .topinfo {
-	padding:3px;
-}
-#submitreplybox #submitreply_form .topinfo .subject input,
-#submitthreadbox #submitthread_form .topinfo .subject input {
-	width:200px;
-	font-size:small;
-	border:0;
-}
-#submitreplybox #submitreply_form .body textarea,
-#submitthreadbox #submitthread_form .body textarea {
-	width:99%;
-	height:100px;
-	border:1px solid rgb(165,172,178);
-}
-#submitreplybox #submitreply_form .body input,
-#submitthreadbox #submitthread_form .body input {
-	margin-top:3px;
 }

@@ -59,9 +59,8 @@ if (isset($user['login'])) {
 	echo <<<END
 	  'login':true,
 	  'user_id':{$_SESSION['user_id']},
-	  'username':'{$_SESSION['username']}'
+	  'username':'{$_SESSION['username']}' },\n
 END;
-	echo " },\n";
 } else {
 	echo "\t  'login':false },\n";
 }
@@ -76,15 +75,16 @@ END;
 	 'display':{},
 	 'support':{
 <?php
-	echo "\t  'httpauth':".('SNAF_HTTPAUTH'?'true':'false')." } };\n";
+	echo "\t  'httpauth':".(SNAF_HTTPAUTH?'true':'false')." } };\n";
 ?>
 	load();
 }
 	</script>
 </head>
 <body>
-	<p>Your browser does not support JavaScript.</p>
+	<h1><?php echo SNAF_SITENAME; ?></h1>
+	<p>Your browser does not support JavaScript (Or your internet connection is very slow, still downloading JavaScript).</p>
 	<hr />
-	SNAF version <?php echo SNAF_VERSION; ?>
+	<p><i>SNAF version <?php echo SNAF_VERSION; ?></i></p>
 </body>
 </html>
