@@ -33,40 +33,47 @@ if (defined('SNAF')) {
 }
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
-#Initialize
+#Include
 require_once('../config.php');
 require_once('../includes/functions.php');
 require_once('../includes/variables.php');
 require_once('../includes/session.php');
-#Done
 
 #Make sure we got all the needed input
 if (!isset($_GET['forum_id'])) {
-	echo 'not enough input';
-	exit();
+	$xml_result='not enough input';
 }
 #Make sure there is something in my input
-if (!is_numeric($_GET['forum_id'])) {
-	echo 'forum_id not valid';
-	exit();
+else if (!is_numeric($_GET['forum_id'])) {
+	$xml_result='forum_id not valid';
+}
+else {
+	#Query for forum
+	$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
+	 'FROM '.SNAF_TABLEPREFIX.'fat '.
+	 'WHERE forum_id="'.mysql_real_escape_string($_GET['forum_id']).'" '.
+	 'AND (post_id=0 OR post_id=1)')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+	if (mysql_numrows($result) == 0) {
+		$xml_result='empty forum';
+	}
+	else {
+		$xml_result='success';
+	}
 }
 
-#Query for forum
-$result=mysql_query('SELECT forum_id,thread_id,post_id,subject,author,body '.
- 'FROM '.SNAF_TABLEPREFIX.'fat '.
- 'WHERE forum_id="'.mysql_real_escape_string($_GET['forum_id']).'" '.
- 'AND (post_id=0 OR post_id=1)')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
-header('Content-Type: text/xml');
+header('Content-Type: text/xml; charset=utf-8');
 
 echo '<?xml version="1.0"?'.'>
 <!DOCTYPE spec PUBLIC
 	"-//W3C//DTD Specification V2.10//EN"
 	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>'."\n";
-
-if (mysql_numrows($result) !== 0) {
+<everything>
+	<action result="'.$xml_result.'" />'."\n";
+if ($xml_result=='success') {	
+	$search=array('<','>','"');
+	$replace=array('&lt;','&gt;','&quot;');
 	for ($i=0; $i < mysql_numrows($result); $i++) {
 		if (mysql_result($result,$i,'post_id') == 0) {
 			#Query for num_threads and num_posts
@@ -80,13 +87,13 @@ if (mysql_numrows($result) !== 0) {
 			echo "\t<forum forum_id=\"".mysql_result($result,$i,'thread_id')."\"".
 			 " num_threads=\"".mysql_result($result_num,0,'COUNT(DISTINCT thread_id)')."\"".
 			 " num_posts=\"".mysql_result($result_num,0,'COUNT(*)')."\">\n";
-			echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
-			echo "\t\t<body>".mysql_result($result,$i,'body')."</body>\n";
+			echo "\t\t<subject>".str_replace($search,$replace,mysql_result($result,$i,'subject'))."</subject>\n";
+			echo "\t\t<body>".str_replace($search,$replace,mysql_result($result,$i,'body'))."</body>\n";
 			echo "\t</forum>\n";
 		} else {
 			echo "\t<thread thread_id=\"".mysql_result($result,$i,'thread_id')."\">\n";
-			echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
-			echo "\t\t<author>".mysql_result($result,$i,'author')."</author>\n";
+			echo "\t\t<subject>".str_replace($search,$replace,mysql_result($result,$i,'subject'))."</subject>\n";
+			echo "\t\t<author>".str_replace($search,$replace,mysql_result($result,$i,'author'))."</author>\n";
 			echo "\t</thread>\n";
 		}
 	}

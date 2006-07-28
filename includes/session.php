@@ -95,9 +95,10 @@ if (extension_loaded('session')) {
 	}
 }
 
-#User is not loggedin, set $user to guest permissions
+#User is not logged in, set $user to guest settings
 if (!isset($user)) {
 	$user['permission']=array('kaknoob');
+	$user['login']=false;
 }
 	
 ?>

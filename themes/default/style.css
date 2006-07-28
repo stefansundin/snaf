@@ -30,6 +30,19 @@ a {
 	background:url(img/user.png) top left no-repeat;
 }
 
+/*formatbar*/
+#submitforum_formatbar,
+#submitthread_formatbar,
+#submitreply_formatbar {
+	margin-left:235px;
+	line-height:0;
+}
+#submitforum_formatbar img,
+#submitthread_formatbar img,
+#submitreply_formatbar img {
+	margin-left:3px;
+}
+
 /*boxes*/
 #loginbox,
 #submitaccountbox,
@@ -90,24 +103,39 @@ a {
 	margin-bottom:10px;
 	font-size:small;
 	background:rgb(243,245,248);
+	padding:4px;
+}
+#submitforum_subject {
+	width:200px;
+	float:left;
+}
+#submitforum_body {
+	width:99%;
+	height:100px;
 }
 /*submitthreadbox/submitreplybox*/
 #submitthread_form .topinfo,
 #submitreply_form .topinfo {
-	padding:3px;
+	height:25px;
 }
 #submitthread_subject,
 #submitreply_subject {
 	width:200px;
 	font-size:small;
+	float:left;
+	margin:3px;
 	border:0;
+}
+#submitthread_form .topinfo .date,
+#submitreply_form .topinfo .date {
+	padding:3px;
 }
 #submitthread_body,
 #submitreply_body {
 	width:99%;
 	height:100px;
-	border:1px solid rgb(165,172,178);
 }
+#submitforum_submit,
 #submitthread_submit,
 #submitreply_submit {
 	margin-top:3px;
@@ -191,9 +219,11 @@ a {
 	background:rgb(100,140,191);
 	color:rgb(255,255,255);
 	font-weight:bold;
-	padding:3px;
 	margin:1px;
 	border-bottom:1px solid rgb(100,100,100);
+}
+#fat .post .topinfo {
+	padding:3px;
 }
 #fat .post .topinfo .date,
 #submitthread_form .topinfo .date,

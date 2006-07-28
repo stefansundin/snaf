@@ -1,6 +1,6 @@
 <?php
 /*
-SNAF — Hooks — Logout
+SNAF — MozSearch plugin
 Copyright (C) 2006  Stefan Sundin (recover89@gmail.com)
 
 This program is free software; you can redistribute it and/or modify
@@ -18,7 +18,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file log out the user.
+This file supplies MozSearch compatible User-Agents with search information.
 */
 
 #Be sure this file is the one who start execution
@@ -29,38 +29,16 @@ if (defined('SNAF')) {
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
 #Include
-require_once('../config.php');
-require_once('../includes/functions.php');
-require_once('../includes/variables.php');
-require_once('../includes/session.php');
+require_once('config.php');
 
-#Are our user logged in?
-if (!$user['login']) { #No
-	$xml_result='not logged in';
-} else { #Yes
-	#Delete cookie
-	$cookie=session_get_cookie_params();
-	if (!isset($cookie['domain'])
-	 && !isset($cookie['secure'])) {
-		setcookie(session_name(),'',time()-3600,$cookie['path']); }
-	else if (empty($cookie['secure'])) {
-		setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
-	else {
-		setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
-	session_destroy(); #Destroy session
-	
-	$xml_result='success';
-}
-
-
+#Content-Type
 header('Content-Type: text/xml; charset=utf-8');
-
-echo '<?xml version="1.0"?'.'>
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>
-	<action result="'.$xml_result.'" />
-</everything>';
-
 ?>
+<SearchPlugin xmlns="http://www.mozilla.org/2006/browser/search/">
+	<ShortName><?php echo str_replace(array('<','>'),array('&lt;','&gt;'),SNAF_SITENAME); ?></ShortName>
+	<Description><?php echo str_replace(array('<','>'),array('&lt;','&gt;'),SNAF_SITENAME); ?> Search</Description>
+	<InputEncoding>utf-8</InputEncoding>
+	<Image width="16" height="16">data:image/png;base64,<?php echo base64_encode(file_get_contents('themes/'.SNAF_THEME.'/img/icon.png')); ?></Image>
+	<Url type="text/html" method="GET" template="<?php echo SNAF_SERVER.SNAF_REMOTEPATH; ?>/search:{searchTerms}" />
+	<SearchForm><?php echo SNAF_SERVER.SNAF_REMOTEPATH; ?>/search</SearchForm>
+</SearchPlugin>

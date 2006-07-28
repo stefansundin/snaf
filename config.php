@@ -109,15 +109,11 @@ else if (isset($_SERVER['REMOTE_ADDR'])) {
 	define('SNAF_IP',$_SERVER['REMOTE_ADDR']); }
 else { define('SNAF_IP',NULL); } #This really shouldn't happen
 
-#Enable Microsoft Internet Explorer compatibility?
-if (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')
- || strpos($_SERVER['HTTP_USER_AGENT'],'Internet Explorer')) {
-	define('SNAF_IECOMPAT',true);
-}
-
 #Theme
 if (isset($_SESSION['theme'])) {
-	if (in_array(basename($_SESSION['theme']),ls('../themes'))) {
+	if (basename($_SESSION['theme']) != ''
+	 && basename($_SESSION['theme']) != '.'
+	 && basename($_SESSION['theme']) != '..') {
 		define('SNAF_THEME',basename($_SESSION['theme']));
 	}
 }
@@ -125,7 +121,10 @@ if (!defined('SNAF_THEME')) {
 	define('SNAF_THEME','default');
 }
 
-#Headers
-header('Content-Type: text/html; charset=utf-8');
+#Enable Microsoft Internet Explorer compatibility?
+if (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')
+ || strpos($_SERVER['HTTP_USER_AGENT'],'Internet Explorer')) {
+	define('SNAF_IECOMPAT',true);
+}
 
 ?>

@@ -1,11 +1,14 @@
-Filename:         <-         Source:         -> Source filename:
+Filename:            <-         Source:         -> Source filename:
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-icon.png          <-  Tango Desktop Project  -> internet-group-chat.svg
-user.png          <-     famfamfam-silk      -> user.png
-back.png          <-     famfamfam-silk      -> arrow_left.png
-refresh.png       <-     famfamfam-silk      -> arrow_refresh.png
-comments.png      <-     famfamfam-silk      -> comments.png
-comment.png       <-     famfamfam-silk      -> comment.png
+icon.png             <-  Tango Desktop Project  -> internet-group-chat.svg
+user.png             <-     famfamfam-silk      -> user.png
+back.png             <-     famfamfam-silk      -> arrow_left.png
+refresh.png          <-     famfamfam-silk      -> arrow_refresh.png
+comments.png         <-     famfamfam-silk      -> comments.png
+comment.png          <-     famfamfam-silk      -> comment.png
+formatbar_link.png   <-         Nuvola          -> browser.png
+formatbar_bold.png   <-         Nuovo           -> gtk-bold.svg
+formatbar_italic.png <-         Nuovo           -> gtk-italic.svg
 
 
 
@@ -16,3 +19,9 @@ Creative Commons Attribution Share-Alike license
 
 famfamfam-silk [ http://www.famfamfam.com/lab/icons/silk/ ]:
 Creative Commons 2.5 [ http://creativecommons.org/licenses/by/2.5/ ].
+
+Nuvola [ http://www.icon-king.com/?p=15 ]:
+GNU Lesser General Public License [ http://www.gnu.org/copyleft/lesser.html ].
+
+Nuovo [ http://art.gnome.org/themes/icon/1112 ]:
+GNU General Public License [ http://www.gnu.org/licenses/gpl.html ].

@@ -28,49 +28,54 @@ if (defined('SNAF')) {
 }
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
-#Initialize
+#Include
 require_once('../config.php');
 require_once('../includes/functions.php');
 require_once('../includes/variables.php');
 require_once('../includes/session.php');
-#Done
 
 #Make sure we got all the needed input
 if (!isset($_GET['thread_id'])) {
-	echo 'not enough input';
-	exit();
+	$xml_result='not enough input';
 }
 #Make sure there is something in my input
-if (!is_numeric($_GET['thread_id'])) {
-	echo 'thread_id not valid';
-	exit();
+else if (!is_numeric($_GET['thread_id'])) {
+	$xml_result='thread_id not valid';
 }
-
-$result=mysql_query('SELECT forum_id,post_id,author,date,subject,body '.
- 'FROM '.SNAF_TABLEPREFIX.'fat '.
- 'WHERE thread_id="'.mysql_real_escape_string($_GET['thread_id']).'" and post_id>0')
- or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
-header('Content-Type: text/xml');
-echo '<?xml version="1.0"?'.">\n";
-echo <<<END
-<!DOCTYPE spec PUBLIC
-	"-//W3C//DTD Specification V2.10//EN"
-	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
-<everything>\n
-END;
-
-if (mysql_numrows($result) !== 0) {
-	for ($i=0; $i < mysql_numrows($result); $i++) {
-		echo "\t<post post_id=\"".mysql_result($result,$i,'post_id')."\">\n";
-		echo "\t\t<author>".mysql_result($result,$i,'author')."</author>\n";
-		echo "\t\t<date>".date('Y-m-d H:i:s',mysql_result($result,$i,'date'))."</date>\n";
-		echo "\t\t<subject>".mysql_result($result,$i,'subject')."</subject>\n";
-		echo "\t\t<body>".mysql_result($result,$i,'body')."</body>\n";
-		echo "\t</post>\n";
+else {
+	$result=mysql_query('SELECT forum_id,post_id,author,date,subject,body '.
+	 'FROM '.SNAF_TABLEPREFIX.'fat '.
+	 'WHERE thread_id="'.mysql_real_escape_string($_GET['thread_id']).'" and post_id>0')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+	if (mysql_numrows($result) == 0) {
+		$xml_result='thread not found';
+	}
+	else {
+		$xml_result='success';
 	}
 }
 
+
+header('Content-Type: text/xml; charset=utf-8');
+
+echo '<?xml version="1.0"?'.'>
+<!DOCTYPE spec PUBLIC
+	"-//W3C//DTD Specification V2.10//EN"
+	"http://www.w3.org/2002/xmlspec/dtd/2.10/xmlspec.dtd">
+<everything>
+	<action result="'.$xml_result.'" />'."\n";
+if ($xml_result=='success') {
+	$search=array('<','>','"');
+	$replace=array('&lt;','&gt;','&quot;');
+	for ($i=0; $i < mysql_numrows($result); $i++) {
+		echo "\t<post post_id=\"".mysql_result($result,$i,'post_id')."\">\n";
+		echo "\t\t<author>".str_replace($search,$replace,mysql_result($result,$i,'author'))."</author>\n";
+		echo "\t\t<date>".date('Y-m-d H:i:s',mysql_result($result,$i,'date'))."</date>\n";
+		echo "\t\t<subject>".str_replace($search,$replace,mysql_result($result,$i,'subject'))."</subject>\n";
+		echo "\t\t<body>".str_replace($search,$replace,mysql_result($result,$i,'body'))."</body>\n";
+		echo "\t</post>\n";
+	}
+}
 echo '</everything>';
 
 ?>

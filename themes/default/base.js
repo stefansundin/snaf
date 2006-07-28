@@ -25,6 +25,10 @@ while (element.hasChildNodes()) {
 */
 
 function load() {
+	//Parse variables
+	snaf.sitename=snaf.sitename.replace('&lt;','<');
+	snaf.sitename=snaf.sitename.replace('&gt;','>');
+	
 	//Create a new body (effectively removes all childrens in the existing body)
 	document.body=document.createElement('body');
 	//Grab body
@@ -113,13 +117,120 @@ function keyShortcut(letter,key,inform,ctrl,alt,shift,target) {
 	}
 }
 
+function formattext(kindergarten,haystack,ignore) {
+	var plaintext='';
+	while (haystack) {
+		if (haystack.indexOf("\n") == 0) {
+			kindergarten.appendChild(document.createTextNode(plaintext));
+			plaintext='';
+			var newchild=document.createElement('br');
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr(1);
+		}
+		else if ((!ignore.bold || !ignore.italic)
+		 && haystack.indexOf("'''''") == 0
+		 && haystack.substring("'''''".length,haystack.length).indexOf("'''''") != -1
+		 && haystack.substring("'''''".length,haystack.length).indexOf("'''''") != 0) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr("'''''".length,haystack.substring("'''''".length,haystack.length).indexOf("'''''"));
+			var newchild=document.createElement('b');
+			var newchild_i=document.createElement('i');
+			formattext(newchild,needle,ignore);
+			newchild_i.appendChild(newchild);
+			kindergarten.appendChild(newchild_i);
+			haystack=haystack.substr("'''''".length+needle.length+"'''''".length);
+		}
+		else if (!ignore.bold
+		 && haystack.indexOf("'''") == 0
+		 && haystack.substring("'''".length,haystack.length).indexOf("'''") != -1
+		 && haystack.substring("'''".length,haystack.length).indexOf("'''") != 0) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr("'''".length,haystack.substring("'''".length,haystack.length).indexOf("'''"));
+			var newchild=document.createElement('b');
+			formattext(newchild,needle,ignore);
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr("'''".length+needle.length+"'''".length);
+		}
+		else if (!ignore.italic
+		 && haystack.indexOf("''") == 0
+		 && haystack.substring("''".length,haystack.length).indexOf("''") != -1
+		 && haystack.substring("''".length,haystack.length).indexOf("''") != 0) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr("''".length,haystack.substring("''".length,haystack.length).indexOf("''"));
+			var newchild=document.createElement('i');
+			formattext(newchild,needle,ignore);
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr("''".length+needle.length+"''".length);
+		}
+		else if (!ignore.link
+		 && haystack.indexOf('[') == 0
+		 && haystack.substring('['.length,haystack.length).indexOf(']') != -1
+		 && haystack.substring('['.length,haystack.length).indexOf(']') != 0
+		 && haystack.substring('['.length,haystack.length).indexOf(' ') != 0) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr('['.length,haystack.substring('['.length,haystack.length).indexOf(']'));
+			var newchild=document.createElement('a');
+			if (needle.indexOf(' ') != -1) {
+				var pieces=needle.split(' ');
+				newchild.href=pieces[0];
+				newchild.title=pieces[0];
+				pieces.shift();
+				formattext(newchild,pieces.join(' '),ignore);
+			} else {
+				newchild.href=needle;
+				newchild.title=needle;
+				newchild.appendChild(document.createTextNode(needle));
+			}
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr('['.length+needle.length+']'.length);
+		}
+		else {
+			plaintext+=haystack.charAt(0);
+			haystack=haystack.substr(1);
+		}
+	}
+	if (plaintext) {
+		kindergarten.appendChild(document.createTextNode(plaintext));
+	}
+}
+
+function insertTag(openTag,closeTag,sampleText) {
+	var box=snaf.focus;
+	var selected=box.value.substring(box.selectionStart,box.selectionEnd);
+	var before=box.value.substring(0,box.selectionStart);
+	var after=box.value.substring(box.selectionEnd,box.textLength);
+	box.focus();
+	if (selected == '') {
+		box.value=before+openTag+sampleText+closeTag+after;
+		box.selectionStart=before.length+openTag.length;
+		box.selectionEnd=before.length+openTag.length+sampleText.length;
+	}
+	else {
+		box.value=before+openTag+selected+closeTag+after;
+		box.selectionStart=before.length+openTag.length+selected.length+closeTag.length;
+		box.selectionEnd=before.length+openTag.length+selected.length+closeTag.length;
+	}
+}
+
 function back() {
 	//Hide interfering boxes
 	display('hide','submitforumbox');
 	display('hide','submitthreadbox');
 	display('hide','submitreplybox');
 	if (snaf.back.length > 0) {
-		snaf.dontindex=true; //Disable indexing
+		snaf.backindex=false; //Disable indexing
 		var nextback=snaf.back.pop();
 		nextback.location(nextback.locationid);
 	} else {
@@ -128,7 +239,7 @@ function back() {
 }
 
 function locationrefresh() {
-	snaf.dontindex=true; //Disable indexing
+	snaf.backindex=false; //Disable indexing
 	snaf.current.location(snaf.current.locationid); //Refresh
 }
 
@@ -167,6 +278,7 @@ function refresh() {
 		//Update other things
 		if (!snaf.loading) {
 			display('hide','loginbox');
+			display('hide','submitaccountbox');
 			if (snaf.current.location == forum) {
 				//Change the add forum link text
 				var obj_addforum_link=document.getElementById('addforum_link');
@@ -402,8 +514,8 @@ function display(state,box) {
 				var form_username=document.createElement('input');
 				form_username.type='text';
 				form_username.id='login_username';
-				form_username.onkeypress=function(e){ formsanitycheck(e,'login'); }
-				form_username.onkeyup=function(e){ formsanitycheck(e,'login'); }
+				form_username.onkeypress=function(e){ formsanitycheck(e.target,'login'); }
+				form_username.onkeyup=function(e){ formsanitycheck(e.target,'login'); }
 				form.appendChild(form_username);
 				form.appendChild(document.createElement('br'));
 				
@@ -412,8 +524,8 @@ function display(state,box) {
 				var form_password=document.createElement('input');
 				form_password.type='password';
 				form_password.id='login_password';
-				form_password.onkeypress=function(e){ formsanitycheck(e,'login'); }
-				form_password.onkeyup=function(e){ formsanitycheck(e,'login'); }
+				form_password.onkeypress=function(e){ formsanitycheck(e.target,'login'); }
+				form_password.onkeyup=function(e){ formsanitycheck(e.target,'login'); }
 				form.appendChild(form_password);
 				form.appendChild(document.createElement('br'));
 				
@@ -492,8 +604,8 @@ function display(state,box) {
 				var form_username=document.createElement('input');
 				form_username.type='text';
 				form_username.id='submitaccount_username';
-				form_username.onkeypress=function(e){ formsanitycheck(e,'submitaccount'); }
-				form_username.onkeyup=function(e){ formsanitycheck(e,'submitaccount'); }
+				form_username.onkeypress=function(e){ formsanitycheck(e.target,'submitaccount'); }
+				form_username.onkeyup=function(e){ formsanitycheck(e.target,'submitaccount'); }
 				form.appendChild(form_username);
 				form.appendChild(document.createElement('br'));
 				
@@ -502,8 +614,8 @@ function display(state,box) {
 				var form_password=document.createElement('input');
 				form_password.type='password';
 				form_password.id='submitaccount_password';
-				form_password.onkeypress=function(e){ formsanitycheck(e,'submitaccount'); }
-				form_password.onkeyup=function(e){ formsanitycheck(e,'submitaccount'); }
+				form_password.onkeypress=function(e){ formsanitycheck(e.target,'submitaccount'); }
+				form_password.onkeyup=function(e){ formsanitycheck(e.target,'submitaccount'); }
 				form.appendChild(form_password);
 				form.appendChild(document.createElement('br'));
 				
@@ -512,8 +624,8 @@ function display(state,box) {
 				var form_confirmpassword=document.createElement('input');
 				form_confirmpassword.type='password';
 				form_confirmpassword.id='submitaccount_confirmpassword';
-				form_confirmpassword.onkeypress=function(e){ formsanitycheck(e,'submitaccount'); }
-				form_confirmpassword.onkeyup=function(e){ formsanitycheck(e,'submitaccount'); }
+				form_confirmpassword.onkeypress=function(e){ formsanitycheck(e.target,'submitaccount'); }
+				form_confirmpassword.onkeyup=function(e){ formsanitycheck(e.target,'submitaccount'); }
 				form.appendChild(form_confirmpassword);
 				form.appendChild(document.createElement('br'));
 				
@@ -522,8 +634,8 @@ function display(state,box) {
 				var form_email=document.createElement('input');
 				form_email.type='text';
 				form_email.id='submitaccount_email';
-				form_email.onkeypress=function(e){ formsanitycheck(e,'submitaccount'); }
-				form_email.onkeyup=function(e){ formsanitycheck(e,'submitaccount'); }
+				form_email.onkeypress=function(e){ formsanitycheck(e.target,'submitaccount'); }
+				form_email.onkeyup=function(e){ formsanitycheck(e.target,'submitaccount'); }
 				form.appendChild(form_email);
 				form.appendChild(document.createElement('br'));
 				
@@ -594,16 +706,58 @@ function display(state,box) {
 				form.appendChild(form_subject);
 				if (snaf.user.login) {
 					form_subject.focus();
+					snaf.focus=form_subject;
 					form_subject.selectionStart=0;
 					form_subject.selectionEnd=0;
 				}
-				form_subject.onfocus=function(e) { formsanitycheck(e,'submitforum'); }
-				form_subject.onkeydown=function(e) { formsanitycheck(e,'submitforum'); }
-				form_subject.onkeypress=function(e) { formsanitycheck(e,'submitforum'); }
-				form_subject.onkeyup=function(e) { formsanitycheck(e,'submitforum'); }
-				form_subject.onmousedown=function(e) { formsanitycheck(e,'submitforum'); }
-				form_subject.onclick=function(e) { formsanitycheck(e,'submitforum'); }
-				form.appendChild(document.createElement('br'));
+				form_subject.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitforum'); }
+				form_subject.onkeydown=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_subject.onkeypress=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_subject.onkeyup=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_subject.onmousedown=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_subject.onclick=function(e) { formsanitycheck(e.target,'submitforum'); }
+				//Formatbar
+				var formatbar=document.createElement('div');
+				formatbar.id='submitforum_formatbar';
+				form.appendChild(formatbar);
+				// Bold
+				var format_button=document.createElement('a');
+				format_button.title='Make text bold';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag("'''","'''",'bold text');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				if (!snaf.user.login) {
+					format_button.disabled=true; }
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_bold.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Italic
+				var format_button=document.createElement('a');
+				format_button.title='Make text italic';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag("''","''",'italic text');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_italic.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Link
+				var format_button=document.createElement('a');
+				format_button.title='Make a link';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag('[',']','http://www.example.com link title');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_link.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
 				// Body
 				var form_body=document.createElement('textarea');
 				form_body.id='submitforum_body';
@@ -611,12 +765,12 @@ function display(state,box) {
 				if (!snaf.user.login) {
 					form_body.disabled=true; }
 				form.appendChild(form_body);
-				form_body.onfocus=function(e) { formsanitycheck(e,'submitforum'); }
-				form_body.onkeydown=function(e) { formsanitycheck(e,'submitforum'); }
-				form_body.onkeypress=function(e) { formsanitycheck(e,'submitforum'); }
-				form_body.onkeyup=function(e) { formsanitycheck(e,'submitforum'); }
-				form_body.onmousedown=function(e) { formsanitycheck(e,'submitforum'); }
-				form_body.onclick=function(e) { formsanitycheck(e,'submitforum'); }
+				form_body.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitforum'); }
+				form_body.onkeydown=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_body.onkeypress=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_body.onkeyup=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_body.onmousedown=function(e) { formsanitycheck(e.target,'submitforum'); }
+				form_body.onclick=function(e) { formsanitycheck(e.target,'submitforum'); }
 				form.appendChild(document.createElement('br'));
 				// Submit
 				var form_submit=document.createElement('input');
@@ -629,15 +783,18 @@ function display(state,box) {
 				form.appendChild(form_submit);
 			}
 			else {
-				var form_subject=document.getElementById('submitforum_subject');
-				if (getComputedStyle(form_subject,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
-					form_subject.onfocus=undefined;
-					form_subject.focus();
-					form_subject.selectionStart=0;
-					form_subject.selectionEnd=0;
-					form_subject.onfocus=function(e) { formsanitycheck(e,'submitforum'); }
-				} else {
-					form_subject.focus();
+				if (snaf.user.login) {
+					var form_subject=document.getElementById('submitforum_subject');
+					if (getComputedStyle(form_subject,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
+						form_subject.onfocus=undefined;
+						form_subject.focus();
+						form_subject.selectionStart=0;
+						form_subject.selectionEnd=0;
+						form_subject.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitforum'); }
+					} else {
+						form_subject.focus();
+					}
+					snaf.focus=form_subject;
 				}
 			}
 		}
@@ -702,15 +859,58 @@ function display(state,box) {
 				obj_topinfo_subject.appendChild(form_subject);
 				if (snaf.user.login) {
 					form_subject.focus();
+					snaf.focus=form_subject;
 					form_subject.selectionStart=0;
 					form_subject.selectionEnd=0;
 				}
-				form_subject.onfocus=function(e) { formsanitycheck(e,'submitthread'); }
-				form_subject.onkeydown=function(e) { formsanitycheck(e,'submitthread'); }
-				form_subject.onkeypress=function(e) { formsanitycheck(e,'submitthread'); }
-				form_subject.onkeyup=function(e) { formsanitycheck(e,'submitthread'); }
-				form_subject.onmousedown=function(e) { formsanitycheck(e,'submitthread'); }
-				form_subject.onclick=function(e) { formsanitycheck(e,'submitthread'); }
+				form_subject.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitthread'); }
+				form_subject.onkeydown=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_subject.onkeypress=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_subject.onkeyup=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_subject.onmousedown=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_subject.onclick=function(e) { formsanitycheck(e.target,'submitthread'); }
+				//Formatbar
+				var formatbar=document.createElement('div');
+				formatbar.id='submitthread_formatbar';
+				obj_topinfo_subject.appendChild(formatbar);
+				// Bold
+				var format_button=document.createElement('a');
+				format_button.title='Make text bold';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag("'''","'''",'bold text');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				if (!snaf.user.login) {
+					format_button.disabled=true; }
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_bold.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Italic
+				var format_button=document.createElement('a');
+				format_button.title='Make text italic';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag("''","''",'italic text');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_italic.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Link
+				var format_button=document.createElement('a');
+				format_button.title='Make a link';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag('[',']','http://www.example.com link title');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_link.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
 				//Author
 				var obj_author=document.createElement('div');
 				obj_author.className='author';
@@ -734,12 +934,12 @@ function display(state,box) {
 				if (!snaf.user.login) {
 					form_body.disabled=true; }
 				obj_body.appendChild(form_body);
-				form_body.onfocus=function(e) { formsanitycheck(e,'submitthread'); }
-				form_body.onkeydown=function(e) { formsanitycheck(e,'submitthread'); }
-				form_body.onkeypress=function(e) { formsanitycheck(e,'submitthread'); }
-				form_body.onkeyup=function(e) { formsanitycheck(e,'submitthread'); }
-				form_body.onmousedown=function(e) { formsanitycheck(e,'submitthread'); }
-				form_body.onclick=function(e) { formsanitycheck(e,'submitthread'); }
+				form_body.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitthread'); }
+				form_body.onkeydown=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_body.onkeypress=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_body.onkeyup=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_body.onmousedown=function(e) { formsanitycheck(e.target,'submitthread'); }
+				form_body.onclick=function(e) { formsanitycheck(e.target,'submitthread'); }
 				obj_body.appendChild(document.createElement('br'));
 				//Submit
 				var form_submit=document.createElement('input');
@@ -752,15 +952,18 @@ function display(state,box) {
 				obj_body.appendChild(form_submit);
 			}
 			else {
-				var form_subject=document.getElementById('submitthread_subject');
-				if (getComputedStyle(form_subject,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
-					form_subject.onfocus=undefined;
-					form_subject.focus();
-					form_subject.selectionStart=0;
-					form_subject.selectionEnd=0;
-					form_subject.onfocus=function(e) { formsanitycheck(e,'submitthread'); }
-				} else {
-					form_subject.focus();
+				if (snaf.user.login) {
+					var form_subject=document.getElementById('submitthread_subject');
+					if (getComputedStyle(form_subject,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
+						form_subject.onfocus=undefined;
+						form_subject.focus();
+						form_subject.selectionStart=0;
+						form_subject.selectionEnd=0;
+						form_subject.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitthread'); }
+					} else {
+						form_subject.focus();
+					}
+					snaf.focus=form_subject;
 				}
 			}
 		}
@@ -823,12 +1026,55 @@ function display(state,box) {
 				if (!snaf.user.login) {
 					form_subject.disabled=true; }
 				obj_topinfo_subject.appendChild(form_subject);
-				form_subject.onfocus=function(e) { formsanitycheck(e,'submitreply'); }
-				form_subject.onkeydown=function(e) { formsanitycheck(e,'submitreply'); }
-				form_subject.onkeypress=function(e) { formsanitycheck(e,'submitreply'); }
-				form_subject.onkeyup=function(e) { formsanitycheck(e,'submitreply'); }
-				form_subject.onmousedown=function(e) { formsanitycheck(e,'submitreply'); }
-				form_subject.onclick=function(e) { formsanitycheck(e,'submitreply'); }
+				form_subject.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitreply'); }
+				form_subject.onkeydown=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_subject.onkeypress=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_subject.onkeyup=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_subject.onmousedown=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_subject.onclick=function(e) { formsanitycheck(e.target,'submitreply'); }
+				
+				//Formatbar
+				var formatbar=document.createElement('div');
+				formatbar.id='submitreply_formatbar';
+				obj_topinfo_subject.appendChild(formatbar);
+				// Bold
+				var format_button=document.createElement('a');
+				format_button.title='Make text bold';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag("'''","'''",'bold text');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				if (!snaf.user.login) {
+					format_button.disabled=true; }
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_bold.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Italic
+				var format_button=document.createElement('a');
+				format_button.title='Make text italic';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag("''","''",'italic text');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_italic.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Link
+				var format_button=document.createElement('a');
+				format_button.title='Make a link';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag('[',']','http://www.example.com link title');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_link.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
 				
 				//Author
 				var obj_author=document.createElement('div');
@@ -856,15 +1102,16 @@ function display(state,box) {
 				obj_body.appendChild(form_body);
 				if (snaf.user.login) {
 					form_body.focus();
+					snaf.focus=form_body;
 					form_body.selectionStart=0;
 					form_body.selectionEnd=0;
 				}
-				form_body.onfocus=function(e) { formsanitycheck(e,'submitreply'); }
-				form_body.onkeydown=function(e) { formsanitycheck(e,'submitreply'); }
-				form_body.onkeypress=function(e) { formsanitycheck(e,'submitreply'); }
-				form_body.onkeyup=function(e) { formsanitycheck(e,'submitreply'); }
-				form_body.onmousedown=function(e) { formsanitycheck(e,'submitreply'); }
-				form_body.onclick=function(e) { formsanitycheck(e,'submitreply'); }
+				form_body.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitreply'); }
+				form_body.onkeydown=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_body.onkeypress=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_body.onkeyup=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_body.onmousedown=function(e) { formsanitycheck(e.target,'submitreply'); }
+				form_body.onclick=function(e) { formsanitycheck(e.target,'submitreply'); }
 				obj_body.appendChild(document.createElement('br'));
 				//Submit
 				var form_submit=document.createElement('input');
@@ -877,15 +1124,18 @@ function display(state,box) {
 				obj_body.appendChild(form_submit);
 			}
 			else {
-				var form_body=document.getElementById('submitreply_body');
-				if (getComputedStyle(form_body,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
-					form_body.onfocus=undefined;
-					form_body.focus();
-					form_body.selectionStart=0;
-					form_body.selectionEnd=0;
-					form_body.onfocus=function(e) { formsanitycheck(e,'submitreply'); }
-				} else {
-					form_body.focus();
+				if (snaf.user.login) {
+					var form_body=document.getElementById('submitreply_body');
+					if (getComputedStyle(form_body,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
+						form_body.onfocus=undefined;
+						form_body.focus();
+						form_body.selectionStart=0;
+						form_body.selectionEnd=0;
+						form_body.onfocus=function(e) { snaf.focus=this; formsanitycheck(e.target,'submitreply'); }
+					} else {
+						form_body.focus();
+					}
+					snaf.focus=form_body;
 				}
 			}
 		}
@@ -914,153 +1164,159 @@ function forum(forum_id) {
 	http_request.send(null);
 	
 	if (http_request.status == 200) {
-		//Update global variables
-		//Do not add to back history if dontindex is set
-		if (!snaf.dontindex) { snaf.back.push(snaf.current); }
-		snaf.dontindex=false;
-		snaf.current={
-		 'location':forum,
-		 'locationid':forum_id };
-		//Hide interfering boxes
-		display('hide','submitforumbox');
-		display('hide','submitthreadbox');
-		display('hide','submitreplybox');
-		
-		//Grab fat
-		var obj_fat=document.getElementById('fat');
-		//Clear fat
-		while (obj_fat.hasChildNodes()) {
-			obj_fat.removeChild(obj_fat.firstChild); }
-		
-		//Top
-		var obj_top=document.createElement('div');
-		obj_top.id='top';
-		obj_fat.appendChild(obj_top);
-		// Back
-		if (forum_id != 0) {
-			var obj_back=document.createElement('div');
-			obj_back.id='back';
-			var obj_back_link=document.createElement('a');
-			obj_back_link.onclick=function() { back(); }
-			obj_back_link.title='Go back [ctrl+alt+b]';
-			obj_back_link.appendChild(document.createTextNode('back'));
-			obj_back.appendChild(obj_back_link);
-			obj_top.appendChild(obj_back);
-		}
-		// Refresh
-		var obj_refresh=document.createElement('div');
-		obj_refresh.id='refresh';
-		var obj_refresh_link=document.createElement('a');
-		obj_refresh_link.onclick=locationrefresh;
-		obj_refresh_link.title='Refresh forum [ctrl+alt+r]';
-		obj_refresh_link.appendChild(document.createTextNode('refresh'));
-		obj_refresh.appendChild(obj_refresh_link);
-		obj_top.appendChild(obj_refresh);
-		
 		var xml=http_request.responseXML;
-		//List forums
-		var xml_forums=xml.getElementsByTagName('forum');
-		for (var i=0; i < xml_forums.length; i++) {
-			//Assign variables
-			var xml_forum_id=xml_forums[i].getAttribute('forum_id');
-			var xml_num_threads=xml_forums[i].getAttribute('num_threads');
-			var xml_num_posts=xml_forums[i].getAttribute('num_posts');
-			var xml_subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
-			var xml_body=xml_forums[i].getElementsByTagName('body')[0].textContent;
+		var xml_result=xml.getElementsByTagName('action')[0].getAttribute('result');
+		if (xml_result == 'success'
+		 || xml_result == 'empty forum') {
+			//Update global variables
+			//Add to back history if backindex is set
+			if (snaf.backindex) { snaf.back.push(snaf.current); }
+			snaf.backindex=true; //Index future calls
+			snaf.current={
+			 'location':forum,
+			 'locationid':forum_id };
+			//Hide interfering boxes
+			display('hide','submitforumbox');
+			display('hide','submitthreadbox');
+			display('hide','submitreplybox');
 			
-			//Create forum
-			var obj_forum=document.createElement('div');
-			obj_forum.id='forum'+xml_forum_id;
-			obj_forum.className='forum';
-			obj_fat.appendChild(obj_forum);
+			//Grab fat
+			var obj_fat=document.getElementById('fat');
+			//Clear fat
+			while (obj_fat.hasChildNodes()) {
+				obj_fat.removeChild(obj_fat.firstChild); }
 			
-			//Num
-			var obj_num=document.createElement('div');
-			obj_num.className='num';
-			obj_forum.appendChild(obj_num);
-			// Num_threads
-			var obj_num_threads=document.createElement('div');
-			obj_num_threads.className='num_threads';
-			obj_num_threads.appendChild(document.createTextNode(xml_num_threads+' thread'+(xml_num_threads!=1?'s':'')));
-			obj_num.appendChild(obj_num_threads);
-			// Num_posts
-			var obj_num_posts=document.createElement('div');
-			obj_num_posts.className='num_posts';
-			obj_num_posts.appendChild(document.createTextNode(xml_num_posts+' post'+(xml_num_posts!=1?'s':'')));
-			obj_num.appendChild(obj_num_posts);
+			//Top
+			var obj_top=document.createElement('div');
+			obj_top.id='top';
+			obj_fat.appendChild(obj_top);
+			// Back
+			if (forum_id != 0) {
+				var obj_back=document.createElement('div');
+				obj_back.id='back';
+				var obj_back_link=document.createElement('a');
+				obj_back_link.onclick=function() { back(); }
+				obj_back_link.title='Go back [ctrl+alt+b]';
+				obj_back_link.appendChild(document.createTextNode('back'));
+				obj_back.appendChild(obj_back_link);
+				obj_top.appendChild(obj_back);
+			}
+			// Refresh
+			var obj_refresh=document.createElement('div');
+			obj_refresh.id='refresh';
+			var obj_refresh_link=document.createElement('a');
+			obj_refresh_link.onclick=locationrefresh;
+			obj_refresh_link.title='Refresh forum [ctrl+alt+r]';
+			obj_refresh_link.appendChild(document.createTextNode('refresh'));
+			obj_refresh.appendChild(obj_refresh_link);
+			obj_top.appendChild(obj_refresh);
 			
-			//Body
-			var obj_body=document.createElement('div');
-			obj_body.className='body';
-			// Subject
-			var obj_subject=document.createElement('div');
-			obj_subject.className='subject';
-			var obj_subject_link=document.createElement('a');
-			obj_subject_link.onclick=closurecallback(forum,xml_forum_id);
-			obj_subject_link.appendChild(document.createTextNode(xml_subject));
-			obj_subject.appendChild(obj_subject_link);
-			obj_body.appendChild(obj_subject);
-			obj_body.appendChild(document.createTextNode(xml_body));
-			obj_forum.appendChild(obj_body);
+			//List forums
+			var xml_forums=xml.getElementsByTagName('forum');
+			for (var i=0; i < xml_forums.length; i++) {
+				//Assign variables
+				var xml_forum_id=xml_forums[i].getAttribute('forum_id');
+				var xml_num_threads=xml_forums[i].getAttribute('num_threads');
+				var xml_num_posts=xml_forums[i].getAttribute('num_posts');
+				var xml_subject=xml_forums[i].getElementsByTagName('subject')[0].textContent;
+				var xml_body=xml_forums[i].getElementsByTagName('body')[0].textContent;
+				
+				//Create forum
+				var obj_forum=document.createElement('div');
+				obj_forum.id='forum'+xml_forum_id;
+				obj_forum.className='forum';
+				obj_fat.appendChild(obj_forum);
+				
+				//Num
+				var obj_num=document.createElement('div');
+				obj_num.className='num';
+				obj_forum.appendChild(obj_num);
+				// Num_threads
+				var obj_num_threads=document.createElement('div');
+				obj_num_threads.className='num_threads';
+				obj_num_threads.appendChild(document.createTextNode(xml_num_threads+' thread'+(xml_num_threads!=1?'s':'')));
+				obj_num.appendChild(obj_num_threads);
+				// Num_posts
+				var obj_num_posts=document.createElement('div');
+				obj_num_posts.className='num_posts';
+				obj_num_posts.appendChild(document.createTextNode(xml_num_posts+' post'+(xml_num_posts!=1?'s':'')));
+				obj_num.appendChild(obj_num_posts);
+				
+				//Body
+				var obj_body=document.createElement('div');
+				obj_body.className='body';
+				// Subject
+				var obj_subject=document.createElement('div');
+				obj_subject.className='subject';
+				var obj_subject_link=document.createElement('a');
+				obj_subject_link.onclick=closurecallback(forum,xml_forum_id);
+				formattext(obj_subject_link,xml_subject,{link:true});
+				obj_subject.appendChild(obj_subject_link);
+				obj_body.appendChild(obj_subject);
+				formattext(obj_body,xml_body,{});
+				obj_forum.appendChild(obj_body);
+			}
+			
+			//List threads
+			var xml_threads=xml.getElementsByTagName('thread');
+			for (var i=0; i < xml_threads.length; i++) {
+				//Assign variables
+				var xml_thread_id=xml_threads[i].getAttribute('thread_id');
+				var xml_subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
+				var xml_author=xml_threads[i].getElementsByTagName('author')[0].textContent;
+				
+				//Create thread
+				var obj_thread=document.createElement('div');
+				obj_thread.id='thread'+xml_thread_id;
+				obj_thread.className='thread';
+				obj_fat.appendChild(obj_thread);
+				
+				//Author
+				var obj_author=document.createElement('a');
+				obj_author.className='author';
+				obj_author.appendChild(document.createTextNode(xml_author));
+				obj_thread.appendChild(obj_author);
+				
+				//Subject
+				var obj_subject=document.createElement('a');
+				obj_subject.className='subject';
+				obj_subject.onclick=closurecallback(thread,xml_thread_id);
+				formattext(obj_subject,xml_subject,{link:true});
+				obj_thread.appendChild(obj_subject);
+			}
+			
+			//If no forums or threads was reported, print message
+			if (xml_result == 'empty forum') {
+				obj_fat.appendChild(document.createTextNode('No forums or threads found.'));
+			}
+			
+			//Create addthread link
+			var obj_addthread=document.createElement('div');
+			obj_addthread.id='addthread';
+			obj_fat.appendChild(obj_addthread);
+			var obj_addthread_link=document.createElement('a');
+			obj_addthread_link.id='addthread_link';
+			obj_addthread_link.appendChild(document.createTextNode('add thread'));
+			if (!snaf.user.login) {
+				obj_addthread_link.appendChild(document.createTextNode(' (requires login)'));
+			}
+			obj_addthread_link.onclick=function() { display('toggle','submitthreadbox'); }
+			obj_addthread.appendChild(obj_addthread_link);
+			//Create addforum link
+			var obj_addforum=document.createElement('div');
+			obj_addforum.id='addforum';
+			obj_fat.appendChild(obj_addforum);
+			var obj_addforum_link=document.createElement('a');
+			obj_addforum_link.id='addforum_link';
+			obj_addforum_link.appendChild(document.createTextNode('add forum'));
+			if (!snaf.user.login) {
+				obj_addforum_link.appendChild(document.createTextNode(' (requires login)'));
+			}
+			obj_addforum_link.onclick=function() { display('toggle','submitforumbox'); }
+			obj_addforum.appendChild(obj_addforum_link);
+		} else {
+			alert('Error: '+xml_result);
 		}
-		
-		//List threads
-		var xml_threads=xml.getElementsByTagName('thread');
-		for (var i=0; i < xml_threads.length; i++) {
-			//Assign variables
-			var xml_thread_id=xml_threads[i].getAttribute('thread_id');
-			var xml_subject=xml_threads[i].getElementsByTagName('subject')[0].textContent;
-			var xml_author=xml_threads[i].getElementsByTagName('author')[0].textContent;
-			
-			//Create thread
-			var obj_thread=document.createElement('div');
-			obj_thread.id='thread'+xml_thread_id;
-			obj_thread.className='thread';
-			obj_fat.appendChild(obj_thread);
-			
-			//Author
-			var obj_author=document.createElement('a');
-			obj_author.className='author';
-			obj_author.appendChild(document.createTextNode(xml_author));
-			obj_thread.appendChild(obj_author);
-			
-			//Subject
-			var obj_subject=document.createElement('a');
-			obj_subject.className='subject';
-			obj_subject.onclick=closurecallback(thread,xml_thread_id);
-			obj_subject.appendChild(document.createTextNode(xml_subject));
-			obj_thread.appendChild(obj_subject);
-		}
-		
-		//If no forums or threads was reported, print message
-		if (xml_forums.length == 0 && xml_threads.length == 0) {
-			obj_fat.appendChild(document.createTextNode('No forums or threads found.'));
-		}
-		
-		//Create addthread link
-		var obj_addthread=document.createElement('div');
-		obj_addthread.id='addthread';
-		obj_fat.appendChild(obj_addthread);
-		var obj_addthread_link=document.createElement('a');
-		obj_addthread_link.id='addthread_link';
-		obj_addthread_link.appendChild(document.createTextNode('add thread'));
-		if (!snaf.user.login) {
-			obj_addthread_link.appendChild(document.createTextNode(' (requires login)'));
-		}
-		obj_addthread_link.onclick=function() { display('toggle','submitthreadbox'); }
-		obj_addthread.appendChild(obj_addthread_link);
-		//Create addforum link
-		var obj_addforum=document.createElement('div');
-		obj_addforum.id='addforum';
-		obj_fat.appendChild(obj_addforum);
-		var obj_addforum_link=document.createElement('a');
-		obj_addforum_link.id='addforum_link';
-		obj_addforum_link.appendChild(document.createTextNode('add forum'));
-		if (!snaf.user.login) {
-			obj_addforum_link.appendChild(document.createTextNode(' (requires login)'));
-		}
-		obj_addforum_link.onclick=function() { display('toggle','submitforumbox'); }
-		obj_addforum.appendChild(obj_addforum_link);
 	} else {
 		alert('There was a problem with the request:\n'+
 		       http_request.statusText);
@@ -1080,48 +1336,50 @@ function thread(thread_id) {
 	http_request.send(null);
 	
 	if (http_request.status == 200) {
-		//Update global variables
-		//Do not add to back history if dontindex is set
-		if (!snaf.dontindex) { snaf.back.push(snaf.current); }
-		snaf.dontindex=false;
-		snaf.current={
-		 'location':thread,
-		 'locationid':thread_id };
-		//Hide interfering boxes
-		display('hide','submitforumbox');
-		display('hide','submitthreadbox');
-		
-		//Grab fat
-		var obj_fat=document.getElementById('fat');
-		//Clear fat
-		while (obj_fat.hasChildNodes()) { obj_fat.removeChild(obj_fat.firstChild); }
-		
-		//Top
-		var obj_top=document.createElement('div');
-		obj_top.id='top';
-		obj_fat.appendChild(obj_top);
-		// Back
-		var obj_back=document.createElement('div');
-		obj_back.id='back';
-		var obj_back_link=document.createElement('a');
-		obj_back_link.onclick=function() { back(); }
-		obj_back_link.title='Go back [ctrl+alt+b]';
-		obj_back_link.appendChild(document.createTextNode('back'));
-		obj_back.appendChild(obj_back_link);
-		obj_top.appendChild(obj_back);
-		// Refresh
-		var obj_refresh=document.createElement('div');
-		obj_refresh.id='refresh';
-		var obj_refresh_link=document.createElement('a');
-		obj_refresh_link.onclick=locationrefresh;
-		obj_refresh_link.title='Refresh thread [ctrl+alt+r]';
-		obj_refresh_link.appendChild(document.createTextNode('refresh'));
-		obj_refresh.appendChild(obj_refresh_link);
-		obj_top.appendChild(obj_refresh);
-		
 		var xml=http_request.responseXML;
-		var xml_posts=xml.getElementsByTagName('post');
-		if (xml_posts.length != 0) {
+		var xml_result=xml.getElementsByTagName('action')[0].getAttribute('result');
+		if (xml_result == 'success') {
+			//Update global variables
+			//Add to back history if backindex is set
+			if (snaf.backindex) { snaf.back.push(snaf.current); }
+			snaf.backindex=true; //Index future calls
+			snaf.current={
+			 'location':thread,
+			 'locationid':thread_id };
+			//Hide interfering boxes
+			display('hide','submitforumbox');
+			display('hide','submitthreadbox');
+			
+			//Grab fat
+			var obj_fat=document.getElementById('fat');
+			//Clear fat
+			while (obj_fat.hasChildNodes()) {
+				obj_fat.removeChild(obj_fat.firstChild); }
+			
+			//Top
+			var obj_top=document.createElement('div');
+			obj_top.id='top';
+			obj_fat.appendChild(obj_top);
+			// Back
+			var obj_back=document.createElement('div');
+			obj_back.id='back';
+			var obj_back_link=document.createElement('a');
+			obj_back_link.onclick=function() { back(); }
+			obj_back_link.title='Go back [ctrl+alt+b]';
+			obj_back_link.appendChild(document.createTextNode('back'));
+			obj_back.appendChild(obj_back_link);
+			obj_top.appendChild(obj_back);
+			// Refresh
+			var obj_refresh=document.createElement('div');
+			obj_refresh.id='refresh';
+			var obj_refresh_link=document.createElement('a');
+			obj_refresh_link.onclick=locationrefresh;
+			obj_refresh_link.title='Refresh thread [ctrl+alt+r]';
+			obj_refresh_link.appendChild(document.createTextNode('refresh'));
+			obj_refresh.appendChild(obj_refresh_link);
+			obj_top.appendChild(obj_refresh);
+			
+			var xml_posts=xml.getElementsByTagName('post');
 			for (var i=0; i < xml_posts.length; i++) {
 				//Assign variables
 				var xml_post_id=xml_posts[i].getAttribute('post_id');
@@ -1148,7 +1406,7 @@ function thread(thread_id) {
 				// Subject
 				var obj_topinfo_subject=document.createElement('div');
 				obj_topinfo_subject.className='subject';
-				obj_topinfo_subject.appendChild(document.createTextNode(xml_subject));
+				formattext(obj_topinfo_subject,xml_subject,{});
 				obj_topinfo.appendChild(obj_topinfo_subject);
 				
 				//Author
@@ -1163,7 +1421,7 @@ function thread(thread_id) {
 				//Body
 				var obj_body=document.createElement('div');
 				obj_body.className='body';
-				obj_body.appendChild(document.createTextNode(xml_body));
+				formattext(obj_body,xml_body,{});
 				obj_post.appendChild(obj_body);
 			}
 			//Create reply link
@@ -1182,8 +1440,13 @@ function thread(thread_id) {
 				 xml_post_id,
 				 xml_posts[0].getElementsByTagName('subject')[0].textContent); }
 			obj_addreply.appendChild(obj_addreply_link);
-		} else {
-			obj_fat.appendChild(document.createTextNode('Thread not found'));
+		}
+		else if (xml_result == 'thread not found') {
+			alert('Thread does not exist');
+			back();
+		}
+		else {
+			alert('Error: '+xml_result);
 		}
 	} else {
 		alert('There was a problem with the request:\n'+
@@ -1191,11 +1454,11 @@ function thread(thread_id) {
 	}
 }
 
-function formsanitycheck(e,form) {
+function formsanitycheck(element,form) {
 	//If box is 'greyed out' there is some sample text
-	if (getComputedStyle(e.target,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
-		e.target.value='';
-		e.target.style.color='rgb(0,0,0)';
+	if (getComputedStyle(element,null).getPropertyValue('color') == 'rgb(140, 140, 140)') {
+		element.value='';
+		element.style.color='rgb(0,0,0)';
 	}
 	if (form == 'login') {
 		//Grab objects
@@ -1275,7 +1538,9 @@ function formsanitycheck(e,form) {
 		var form_body=document.getElementById('submitreply_body');
 		var form_submit=document.getElementById('submitreply_submit');
 		if (form_subject.value
-		 && form_body.value) {
+		 && getComputedStyle(form_subject,null).getPropertyValue('color') != 'rgb(140, 140, 140)'
+		 && form_body.value
+		 && getComputedStyle(form_body,null).getPropertyValue('color') != 'rgb(140, 140, 140)') {
 			form_submit.disabled=false;
 		} else {
 			form_submit.disabled=true;

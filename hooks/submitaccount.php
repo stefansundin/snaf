@@ -28,12 +28,11 @@ if (defined('SNAF')) {
 }
 define('SNAF',true);
 define('SNAF_ENTRYPOINT',__FILE__);
-#Initialize
+#Include
 require_once('../config.php');
 require_once('../includes/functions.php');
 require_once('../includes/variables.php');
 require_once('../includes/session.php');
-#Done
 
 #Make sure we got all the needed input
 if (!isset($_POST['username'])
@@ -73,7 +72,8 @@ else {
 	}
 }
 
-header('Content-Type: text/xml');
+
+header('Content-Type: text/xml; charset=utf-8');
 
 echo '<?xml version="1.0"?'.'>
 <!DOCTYPE spec PUBLIC
