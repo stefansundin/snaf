@@ -35,70 +35,68 @@ if (!defined('SNAF')) {
 	exit();
 }
 
-if (extension_loaded('session')) {
-	#Restrict session to cookies to help prevent session fixation by url
-	ini_set('session.use_only_cookies',true);
-	#Set session_name
-	session_name(SNAF_SESSIONPREFIX.'PHPSESSID');
+#Restrict session to cookies to prevent session fixation by url
+ini_set('session.use_only_cookies',true);
+#Set session_name
+session_name(SNAF_SESSIONPREFIX.'PHPSESSID');
+
+#Has our user logged in?
+if (isset($_COOKIE[session_name()])) { #He might have
+	session_start(); #Start session
+	#We proceed if the session has
+	# a user_id
+	# an IP associated
 	
-	#Has our user logged in?
-	if (isset($_COOKIE[session_name()])) { #He might have
-		session_start(); #Start session
-		#If the session
-		# have an user_id
-		# have an IP associated with the session
-		#then we proceed
+	if (isset($_SESSION['user_id']) && isset($_SESSION['ip'])) {
+		#We assume a session fixation is taking place if the IP
+		#associated with the session doesn't match our user's IP
 		
-		if (isset($_SESSION['user_id']) && isset($_SESSION['ip'])) {
-			#We assume a session fixation if the IP associated with the session doesn't match our user's IP
-			
-			if ($_SESSION['ip'] == SNAF_IP) { #IP's match
-				#Check if account still exists and update variables
-				$result=mysql_query('SELECT permission '.
-				 'FROM '.SNAF_TABLEPREFIX.'accounts '.
-				 'WHERE user_id="'.mysql_real_escape_string($_SESSION['user_id']).'" '.
-				 'LIMIT 1')
-				  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-				#Do the account still exists?
-				if (mysql_numrows($result) !== 0) { #Yes
-					if (unserialize(mysql_result($result,0,'permission')) == array('root')) {
-						#root permissions
-						$user['permission']=unserialize(mysql_result($result,0,'permission'));
-					}
-					else {
-						$user['permission']=unserialize(mysql_result($result,0,'permission'));
-					}
-					if (!is_array($user['permission'])) { #This really shouldn't happen
-						echo "Permission isn't an array, exiting";
-						exit();
-					}
-					$user['login']=true;
+		if ($_SESSION['ip'] == SNAF_IP) {
+			#Query MySQL for account info
+			$result=mysql_query('SELECT permission '.
+			 'FROM '.SNAF_TABLEPREFIX.'accounts '.
+			 'WHERE user_id="'.mysql_real_escape_string($_SESSION['user_id']).'" '.
+			 'LIMIT 1')
+			  or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+			if (mysql_numrows($result) !== 0) {
+				#The account still exists
+				$user['login']=true;
+				if (unserialize(mysql_result($result,0,'permission')) == array('root')) {
+					#root permissions
+					$user['permission']=unserialize(mysql_result($result,0,'permission'));
 				}
-				mysql_free_result($result);
+				else {
+					$user['permission']=unserialize(mysql_result($result,0,'permission'));
+				}
+				if (!is_array($user['permission'])) { #This really shouldn't happen
+					echo "Permission isn't an array, exiting";
+					exit();
+				}
 			}
+			mysql_free_result($result);
 		}
-		
-		#Delete the cookie if
-		# the session it referred to didn't exist
-		# not enough variables present in session
-		# our users IP differ to our session's IP
-		# the account no longer exists
-		if (!isset($user)) {
-			#Delete the cookie
-			$cookie=session_get_cookie_params();
-			if (!isset($cookie['domain']) && !isset($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path']); }
-			else if (empty($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
-			else { setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
-			unset($cookie);
-			session_destroy(); #Destroy the session
-		}
+	}
+	
+	#Delete the cookie if
+	# the session it referred to didn't exist
+	# not enough variables present in session
+	# our user's IP differ to our session's IP
+	# the account no longer exists
+	if (!isset($user)) {
+		#Delete the cookie
+		$cookie=session_get_cookie_params();
+		if (!isset($cookie['domain']) && !isset($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path']); }
+		else if (empty($cookie['secure'])) { setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain']); }
+		else { setcookie(session_name(),'',time()-3600,$cookie['path'],$cookie['domain'],$cookie['secure']); }
+		unset($cookie);
+		session_destroy(); #Destroy the session
 	}
 }
 
 #User is not logged in, set $user to guest settings
 if (!isset($user)) {
-	$user['permission']=array('kaknoob');
 	$user['login']=false;
+	$user['permission']=array('kaknoob');
 }
 	
 ?>

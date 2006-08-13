@@ -54,6 +54,12 @@ else if ($_POST['subject'] == '') {
 else if ($_POST['body'] == '') {
 	$xml_result='empty body';
 }
+else if (mb_strlen($_POST['subject']) > 50) {
+	$xml_result='too long subject';
+}
+else if (strlen($_POST['body']) > 65535) {
+	$xml_result='too long body';
+}
 #Input seems good so far
 else {
 	#Query for forum_id

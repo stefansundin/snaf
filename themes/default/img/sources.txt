@@ -7,8 +7,12 @@ refresh.png          <-     famfamfam-silk      -> arrow_refresh.png
 comments.png         <-     famfamfam-silk      -> comments.png
 comment.png          <-     famfamfam-silk      -> comment.png
 formatbar_link.png   <-         Nuvola          -> browser.png
+formatbar_color.png  <-         Nuvola          -> kcoloredit.png
+formatbar_code.png   <-         Nuvola          -> source.png
 formatbar_bold.png   <-         Nuovo           -> gtk-bold.svg
+formatbar_size.png   <-         Nuovo           -> gtk-bold.svg
 formatbar_italic.png <-         Nuovo           -> gtk-italic.svg
+formatbar_image.png  <-         Nuovo           -> gnome-mime-image.svg
 
 
 

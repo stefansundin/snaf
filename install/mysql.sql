@@ -1,13 +1,17 @@
 #SNAF tables
 
 #drop and recreate db
-DROP DATABASE snaf;CREATE DATABASE snaf;USE snaf;
+DROP DATABASE snaf;CREATE DATABASE snaf CHARACTER SET utf8;USE snaf;
+
+#Set character set encoding to utf-8
+SET NAMES utf8;
+SET character_set_server=utf8;
 
 #accounts
 CREATE TABLE snaf_accounts (
 	user_id int UNSIGNED NOT NULL AUTO_INCREMENT,
 	username varchar(30) NOT NULL,
-	password char(16) BINARY NOT NULL,
+	password binary(16) NOT NULL,
 	permission text NOT NULL,
 	details mediumtext,
 	PRIMARY KEY (user_id),

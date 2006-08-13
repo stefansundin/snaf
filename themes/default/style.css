@@ -247,6 +247,20 @@ a {
 	border-left:1px solid rgb(255,255,255);
 	background:rgb(238,241,245);
 }
+#fat .post .body .post-code {
+	background-color:rgb(240,240,240);
+	padding:8px 6px;
+	border-top:1px dotted rgb(0,0,0);
+	border-left:1px dotted rgb(0,0,0);
+	border-bottom:2px solid rgb(0,0,0);
+	border-right:2px solid rgb(0,0,0);
+}
+#fat .post .body .post-image {
+	font-size:x-small;
+}
+#fat .post .body .post-image img {
+	display:block;
+}
 /* submit*/
 #fat #addreply {
 	text-align:center;

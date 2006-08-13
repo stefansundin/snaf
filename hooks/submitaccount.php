@@ -47,12 +47,15 @@ else if ($_POST['username'] == '') {
 else if ($_POST['password'] == '') {
 	$xml_result='empty password';
 }
+else if (mb_strlen($_POST['username']) > 30) {
+	$xml_result='too long username';
+}
 #Input seems good so far
 else {
 	#Query to check if username already exists
 	$result=mysql_query('SELECT COUNT(*) '.
-	 'FROM '.mysql_real_escape_string(SNAF_TABLEPREFIX).'accounts '.
-	 'WHERE username="'.$_POST['username'].'" LIMIT 1')
+	 'FROM '.SNAF_TABLEPREFIX.'accounts '.
+	 'WHERE username="'.mysql_real_escape_string($_POST['username']).'" LIMIT 1')
 	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 	
 	if (mysql_result($result,0,'COUNT(*)') !== '0') {

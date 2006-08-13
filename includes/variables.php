@@ -19,6 +19,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
 This file do some stuff to some variables.
+Iñtërnâtiônàlizætiøn
 */
 
 #Be sure this file is not the one who started execution
@@ -42,5 +43,17 @@ else if (get_magic_quotes_runtime() == 1 && get_magic_quotes_gpc() == 0) {
 	$_COOKIE=array_map_recursive('addslashes',$_COOKIE);
 	$_REQUEST=array_map_recursive('addslashes',$_REQUEST);
 }
+
+#Convert input to utf-8
+$_GET=array_map_recursive('to_utf8',$_GET);
+$_POST=array_map_recursive('to_utf8',$_POST);
+$_COOKIE=array_map_recursive('to_utf8',$_COOKIE);
+$_REQUEST=array_map_recursive('to_utf8',$_REQUEST);
+
+#Convert unicode escaped input to utf-8
+$_GET=array_map_recursive('urldecode_unicode',$_GET);
+$_POST=array_map_recursive('urldecode_unicode',$_POST);
+$_COOKIE=array_map_recursive('urldecode_unicode',$_COOKIE);
+$_REQUEST=array_map_recursive('urldecode_unicode',$_REQUEST);
 
 ?>

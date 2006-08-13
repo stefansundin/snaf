@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 Description:
-This file contain the JavaScript which the entire site depends on.
+This file contains the JavaScript which the entire site depends on.
 
 Clear all childs inside an element:
 while (element.hasChildNodes()) {
@@ -120,7 +120,8 @@ function keyShortcut(letter,key,inform,ctrl,alt,shift,target) {
 function formattext(kindergarten,haystack,ignore) {
 	var plaintext='';
 	while (haystack) {
-		if (haystack.indexOf("\n") == 0) {
+		if (!ignore.newlines
+		 && haystack.indexOf("\n") == 0) {
 			kindergarten.appendChild(document.createTextNode(plaintext));
 			plaintext='';
 			var newchild=document.createElement('br');
@@ -171,7 +172,91 @@ function formattext(kindergarten,haystack,ignore) {
 			kindergarten.appendChild(newchild);
 			haystack=haystack.substr("''".length+needle.length+"''".length);
 		}
-		else if (!ignore.link
+		else if (!ignore.code
+		 && haystack.indexOf('[code]') == 0
+		 && haystack.substring('[code]'.length,haystack.length).indexOf('[/code]') != -1
+		 && haystack.substring('[code]'.length,haystack.length).indexOf('[/code]') != 0
+		 && haystack.substr('[code]'.length,haystack.substring('[code]'.length,haystack.length).indexOf('[/code]')).indexOf(' ') != -1) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr('[code]'.length,haystack.substring('[size:'.length,haystack.length).indexOf('[/code]'));
+			var newchild=document.createElement('div');
+			newchild.className='post-code';
+			formattext(newchild,needle,{bold:true,italic:true,code:true,size:true,images:true,colors:true,links:true});
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr('[code]'.length+needle.length+'[/code]'.length);
+		}
+		else if (!ignore.size
+		 && haystack.indexOf('[size:') == 0
+		 && haystack.substring('[size:'.length,haystack.length).indexOf(']') != -1
+		 && haystack.substring('[size:'.length,haystack.length).indexOf(']') != 0
+		 && haystack.substring('[size:'.length,haystack.length).indexOf(' ') != 0
+		 && haystack.substr('[size:'.length,haystack.substring('[size:'.length,haystack.length).indexOf(']')).indexOf(' ') != -1) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr('[size:'.length,haystack.substring('[size:'.length,haystack.length).indexOf(']'));
+			var newchild=document.createElement('span');
+			newchild.className='post-size';
+			var pieces=needle.split(' ');
+			newchild.style.fontSize=pieces[0];
+			pieces.shift();
+			formattext(newchild,pieces.join(' '),ignore);
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr('[size:'.length+needle.length+']'.length);
+		}
+		else if (!ignore.images
+		 && haystack.indexOf('[image:') == 0
+		 && haystack.substring('[image:'.length,haystack.length).indexOf(']') != -1
+		 && haystack.substring('[image:'.length,haystack.length).indexOf(']') != 0
+		 && haystack.substring('[image:'.length,haystack.length).indexOf(' ') != 0) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr('[image:'.length,haystack.substring('[image:'.length,haystack.length).indexOf(']'));
+			var newchild=document.createElement('span');
+			newchild.className='post-image';
+			var newimage=document.createElement('img');
+			if (needle.indexOf(' ') != -1) {
+				var pieces=needle.split(' ');
+				newimage.src=pieces[0];
+				newimage.title=pieces[0];
+				newchild.appendChild(newimage);
+				pieces.shift();
+				formattext(newchild,pieces.join(' '),ignore);
+			} else {
+				newimage.src=needle;
+				newimage.title=needle;
+				newchild.appendChild(newimage);
+			}
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr('[image:'.length+needle.length+']'.length);
+		}
+		else if (!ignore.colors
+		 && haystack.indexOf('[color:') == 0
+		 && haystack.substring('[color:'.length,haystack.length).indexOf(']') != -1
+		 && haystack.substring('[color:'.length,haystack.length).indexOf(']') != 0
+		 && haystack.substring('[color:'.length,haystack.length).indexOf(' ') != 0
+		 && haystack.substr('[color:'.length,haystack.substring('[color:'.length,haystack.length).indexOf(']')).indexOf(' ') != -1) {
+			if (plaintext) {
+				kindergarten.appendChild(document.createTextNode(plaintext));
+				plaintext='';
+			}
+			var needle=haystack.substr('[color:'.length,haystack.substring('[color:'.length,haystack.length).indexOf(']'));
+			var newchild=document.createElement('span');
+			newchild.className='post-color';
+			var pieces=needle.split(' ');
+			newchild.style.color=pieces[0];
+			pieces.shift();
+			formattext(newchild,pieces.join(' '),ignore);
+			kindergarten.appendChild(newchild);
+			haystack=haystack.substr('[color:'.length+needle.length+']'.length);
+		}
+		else if (!ignore.links
 		 && haystack.indexOf('[') == 0
 		 && haystack.substring('['.length,haystack.length).indexOf(']') != -1
 		 && haystack.substring('['.length,haystack.length).indexOf(']') != 0
@@ -182,6 +267,7 @@ function formattext(kindergarten,haystack,ignore) {
 			}
 			var needle=haystack.substr('['.length,haystack.substring('['.length,haystack.length).indexOf(']'));
 			var newchild=document.createElement('a');
+			newchild.className='post-link';
 			if (needle.indexOf(' ') != -1) {
 				var pieces=needle.split(' ');
 				newchild.href=pieces[0];
@@ -506,7 +592,6 @@ function display(state,box) {
 					 form_rememberme.checked);
 					return false;
 				}
-				form.acceptCharset='utf-8';
 				obj_loginbox.appendChild(form);
 				
 				// Username
@@ -596,7 +681,6 @@ function display(state,box) {
 					 form_email.value);
 					return false;
 				}
-				form.acceptCharset='utf-8';
 				obj_box.appendChild(form);
 				
 				// Username
@@ -694,9 +778,8 @@ function display(state,box) {
 					return false;
 				}
 				form.id='submitforum_form';
-				form.acceptCharset='utf-8';
 				obj_box.appendChild(form);
-				// Subject
+				//Subject
 				var form_subject=document.createElement('input');
 				form_subject.type='text';
 				form_subject.id='submitforum_subject';
@@ -746,6 +829,18 @@ function display(state,box) {
 				format_button_img.src='themes/default/img/formatbar_italic.png';
 				format_button.appendChild(format_button_img);
 				formatbar.appendChild(format_button);
+				// Size
+				var format_button=document.createElement('a');
+				format_button.title='Change font size';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag('[size:large ',']','large text');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_size.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
 				// Link
 				var format_button=document.createElement('a');
 				format_button.title='Make a link';
@@ -758,7 +853,43 @@ function display(state,box) {
 				format_button_img.src='themes/default/img/formatbar_link.png';
 				format_button.appendChild(format_button_img);
 				formatbar.appendChild(format_button);
-				// Body
+				// Color
+				var format_button=document.createElement('a');
+				format_button.title='Put a color on some text';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag('[color:red ',']','colored text');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_color.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Image
+				var format_button=document.createElement('a');
+				format_button.title='Insert an image';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag('[image:',']','http://www.example.com/image.jpg image text');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_image.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Code
+				var format_button=document.createElement('a');
+				format_button.title='Insert code';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitforum');
+					insertTag('[code]','[/code]','#include <iostream.h>');
+					formsanitycheck(snaf.focus,'submitforum');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_code.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				//Body
 				var form_body=document.createElement('textarea');
 				form_body.id='submitforum_body';
 				form_body.value='Description';
@@ -772,7 +903,7 @@ function display(state,box) {
 				form_body.onmousedown=function(e) { formsanitycheck(e.target,'submitforum'); }
 				form_body.onclick=function(e) { formsanitycheck(e.target,'submitforum'); }
 				form.appendChild(document.createElement('br'));
-				// Submit
+				//Submit
 				var form_submit=document.createElement('input');
 				form_submit.type='submit';
 				form_submit.id='submitforum_submit';
@@ -834,7 +965,6 @@ function display(state,box) {
 					return false;
 				}
 				form.id='submitthread_form';
-				form.acceptCharset='utf-8';
 				obj_box.appendChild(form);
 				
 				//Topinfo
@@ -899,6 +1029,18 @@ function display(state,box) {
 				format_button_img.src='themes/default/img/formatbar_italic.png';
 				format_button.appendChild(format_button_img);
 				formatbar.appendChild(format_button);
+				// Size
+				var format_button=document.createElement('a');
+				format_button.title='Change font size';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag('[size:large ',']','large text');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_size.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
 				// Link
 				var format_button=document.createElement('a');
 				format_button.title='Make a link';
@@ -909,6 +1051,42 @@ function display(state,box) {
 				}
 				var format_button_img=document.createElement('img');
 				format_button_img.src='themes/default/img/formatbar_link.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Color
+				var format_button=document.createElement('a');
+				format_button.title='Put a color on some text';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag('[color:red ',']','colored text');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_color.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Image
+				var format_button=document.createElement('a');
+				format_button.title='Insert an image';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag('[image:',']','http://www.example.com/image.jpg image text');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_image.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Code
+				var format_button=document.createElement('a');
+				format_button.title='Insert code';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitthread');
+					insertTag('[code]','[/code]','#include <iostream.h>');
+					formsanitycheck(snaf.focus,'submitthread');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_code.png';
 				format_button.appendChild(format_button_img);
 				formatbar.appendChild(format_button);
 				//Author
@@ -1003,7 +1181,6 @@ function display(state,box) {
 					return false;
 				}
 				form.id='submitreply_form';
-				form.acceptCharset='utf-8';
 				obj_box.appendChild(form);
 				
 				//Topinfo
@@ -1035,7 +1212,7 @@ function display(state,box) {
 				
 				//Formatbar
 				var formatbar=document.createElement('div');
-				formatbar.id='submitreply_formatbar';
+				formatbar.id='submitthread_formatbar';
 				obj_topinfo_subject.appendChild(formatbar);
 				// Bold
 				var format_button=document.createElement('a');
@@ -1063,6 +1240,18 @@ function display(state,box) {
 				format_button_img.src='themes/default/img/formatbar_italic.png';
 				format_button.appendChild(format_button_img);
 				formatbar.appendChild(format_button);
+				// Size
+				var format_button=document.createElement('a');
+				format_button.title='Change font size';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag('[size:large ',']','large text');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_size.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
 				// Link
 				var format_button=document.createElement('a');
 				format_button.title='Make a link';
@@ -1073,6 +1262,42 @@ function display(state,box) {
 				}
 				var format_button_img=document.createElement('img');
 				format_button_img.src='themes/default/img/formatbar_link.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Color
+				var format_button=document.createElement('a');
+				format_button.title='Put a color on some text';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag('[color:red ',']','colored text');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_color.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Image
+				var format_button=document.createElement('a');
+				format_button.title='Insert an image';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag('[image:',']','http://www.example.com/image.jpg image text');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_image.png';
+				format_button.appendChild(format_button_img);
+				formatbar.appendChild(format_button);
+				// Code
+				var format_button=document.createElement('a');
+				format_button.title='Insert code';
+				format_button.onclick=function() {
+					formsanitycheck(snaf.focus,'submitreply');
+					insertTag('[code]','[/code]','#include <iostream.h>');
+					formsanitycheck(snaf.focus,'submitreply');
+				}
+				var format_button_img=document.createElement('img');
+				format_button_img.src='themes/default/img/formatbar_code.png';
 				format_button.appendChild(format_button_img);
 				formatbar.appendChild(format_button);
 				
@@ -1250,7 +1475,7 @@ function forum(forum_id) {
 				obj_subject.className='subject';
 				var obj_subject_link=document.createElement('a');
 				obj_subject_link.onclick=closurecallback(forum,xml_forum_id);
-				formattext(obj_subject_link,xml_subject,{link:true});
+				formattext(obj_subject_link,xml_subject,{links:true,colors:true,images:true,code:true});
 				obj_subject.appendChild(obj_subject_link);
 				obj_body.appendChild(obj_subject);
 				formattext(obj_body,xml_body,{});
@@ -1281,7 +1506,7 @@ function forum(forum_id) {
 				var obj_subject=document.createElement('a');
 				obj_subject.className='subject';
 				obj_subject.onclick=closurecallback(thread,xml_thread_id);
-				formattext(obj_subject,xml_subject,{link:true});
+				formattext(obj_subject,xml_subject,{links:true,colors:true,images:true,code:true});
 				obj_thread.appendChild(obj_subject);
 			}
 			
@@ -1406,7 +1631,7 @@ function thread(thread_id) {
 				// Subject
 				var obj_topinfo_subject=document.createElement('div');
 				obj_topinfo_subject.className='subject';
-				formattext(obj_topinfo_subject,xml_subject,{});
+				formattext(obj_topinfo_subject,xml_subject,{images:true});
 				obj_topinfo.appendChild(obj_topinfo_subject);
 				
 				//Author
@@ -1580,9 +1805,9 @@ function submitaccount(username,password,email) {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'username='+encodeURI(username)+
-		'&password='+encodeURI(password)+
-		'&email='+encodeURI(email));
+		'username='+escape(username)+
+		'&password='+escape(password)+
+		'&email='+escape(email));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1617,7 +1842,6 @@ function submitaccount(username,password,email) {
 			while (obj_error.hasChildNodes()) {
 				obj_error.removeChild(obj_error.firstChild); }
 			obj_error.appendChild(document.createTextNode('Username already exists'));
-			
 		}
 		else {
 			alert('Error: '+xml_result);
@@ -1663,8 +1887,8 @@ function submitforum(forum_id,subject,body) {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'subject='+encodeURI(subject)+
-		'&body='+encodeURI(body));
+		'subject='+escape(subject)+
+		'&body='+escape(body));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1731,8 +1955,8 @@ function submitthread(forum_id,subject,body) {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'subject='+encodeURI(subject)+
-		'&body='+encodeURI(body));
+		'subject='+escape(subject)+
+		'&body='+escape(body));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1784,7 +2008,7 @@ function submitreply(thread_id,subject,body) {
 		form_body.disabled=true;
 		form_submit.disabled=true;
 	}
-
+	
 	var http_request=false;
 	http_request=new XMLHttpRequest();
 	if (!http_request) {
@@ -1798,8 +2022,8 @@ function submitreply(thread_id,subject,body) {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'subject='+encodeURI(subject)+
-		'&body='+encodeURI(body));
+		'subject='+escape(subject)+
+		'&body='+escape(body));
 	
 	//What happened?
 	if (http_request.status == 200) {
@@ -1866,8 +2090,8 @@ function login(username,password,rememberme) {
 	http_request.setRequestHeader('Content-Type'
 	           ,'application/x-www-form-urlencoded; charset=utf-8');
 	http_request.send(
-		'username='+encodeURI(username)+
-		'&password='+encodeURI(password)+
+		'username='+escape(username)+
+		'&password='+escape(password)+
 		(rememberme?'&rememberme=1':''));
 	
 	//What happened?
@@ -1931,7 +2155,7 @@ function login(username,password,rememberme) {
 		 && form_password.value) {
 			form_submit.disabled=false;
 		} else {
-			formsubmit.disabled=true;
+			form_submit.disabled=true;
 		}
 	}
 }

@@ -52,8 +52,7 @@ else if ($_POST['username'] == '') {
 else if ($_POST['password'] == '') {
 	$xml_result='empty password';
 }
-#Input seems good so far
-else {
+else { #Input seems good so far
 	#Login with user_id if username is composed of numbers, else with username
 	$result=mysql_query('SELECT user_id,username,permission '.
 	 'FROM '.SNAF_TABLEPREFIX.'accounts '.

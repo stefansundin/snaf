@@ -72,7 +72,8 @@ END;
 	  location:<?php echo isset($_GET['location'])?$_GET['location']:'forum'; ?>,
 	  locationid:<?php echo isset($_GET['locationid'])?$_GET['locationid']:'0'; ?> },
 	 support:{
-	  httpauth:<?php echo SNAF_HTTPAUTH?'true':'false'; ?> },
+	  httpauth:<?php echo SNAF_SUPPORT_HTTPAUTH?'true':'false'; ?>,
+	  ssl:<?php echo SNAF_SUPPORT_SSL?'true':'false'; ?> },
 	 back:[],
 	 backindex:false,
 	 display:{},

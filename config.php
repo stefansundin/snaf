@@ -47,9 +47,12 @@ define('SNAF_TABLEPREFIX','snaf_');
 # If you are not alone on a domain, it would be a good idea to set this to
 # something unique to prevent unwanted session exchanges:
 define('SNAF_SESSIONPREFIX','snaf_');
+define('SNAF_SERVER_FORCESSL',false);
+
 #You shouldn't need to edit the constants below
-define('SNAF_VERSION','0.0000000008');
-define('SNAF_HTTPAUTH',((bool)ini_get('safe_mode'))?false:true);
+define('SNAF_VERSION','0.0000000038');
+define('SNAF_SUPPORT_HTTPAUTH',((bool)ini_get('safe_mode'))?false:true);
+define('SNAF_SUPPORT_SSL',true);
 
 #Error handling
 # SNAF should be able to handle E_ALL
@@ -61,19 +64,13 @@ error_reporting(E_ALL);
 # more information
 ini_set('display_errors','on');
 
-#Connect to SQL database
-#Use mysql_connect() for a non-persistent connection
-mysql_pconnect(SNAF_DBSERVER,SNAF_DBUSER) or exit('Failed to connect to SQL server');
-mysql_select_db(SNAF_DBNAME) or exit('Failed to select SQL database');
-#0 should not AUTO_INCREMENT, now only NULL does the trick
-mysql_query('SET sql_mode="NO_AUTO_VALUE_ON_ZERO"')
-	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
-
 #Magic quotes
 set_magic_quotes_runtime(0);
 
-#Get URL to the server
-# SERVER_NAME
+#SNAF_SERVER
+# _PROTOCOL
+define('SNAF_SERVER_PROTOCOL',isset($_SERVER['HTTPS'])?'https':'http');
+# _NAME
 if (isset($_SERVER['SERVER_NAME'])) {
 	define('SNAF_SERVER_NAME',$_SERVER['SERVER_NAME']); }
 else if (isset($_SERVER['HOSTNAME'])) {
@@ -83,22 +80,26 @@ else if (isset($_SERVER['HTTP_HOST'])) {
 else if (isset($_SERVER['SERVER_ADDR'])) {
 	define('SNAF_SERVER_NAME',$_SERVER['SERVER_ADDR']); }
 else { define('SNAF_SERVER_NAME','localhost'); }
-# SERVER_PROTOCOL
-define('SNAF_SERVER_PROTOCOL',
- (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on')?'https':'http');
-# SERVER
-if (isset($_SERVER['SERVER_PORT']) && (
- (SNAF_SERVER_PROTOCOL == 'http' && $_SERVER['SERVER_PORT'] != 80 ) ||
- (SNAF_SERVER_PROTOCOL == 'https' && $_SERVER['SERVER_PORT'] != 443))) {
-	#If the port isn't standard, add to SERVER
-	define('SNAF_SERVER',SNAF_SERVER_PROTOCOL.'://'.SNAF_SERVER_NAME.':'.
-		$_SERVER['SERVER_PORT']);
-} else { #Else without port
-	define('SNAF_SERVER',SNAF_SERVER_PROTOCOL.'://'.SNAF_SERVER_NAME);
+# _PORT
+define('SNAF_SERVER_PORT',$_SERVER['SERVER_PORT']);
+# _REMOTEPATH
+#  Should be generated using dirname($_SERVER['SCRIPT_NAME']); in install.php
+define('SNAF_SERVER_REMOTEPATH','/snaf');
+# _URL
+if ((SNAF_SERVER_PROTOCOL == 'http' && SNAF_SERVER_PORT != 80 )
+ || (SNAF_SERVER_PROTOCOL == 'https' && SNAF_SERVER_PORT != 443)) {
+	#Add port if not standard
+	define('SNAF_SERVER_URL',SNAF_SERVER_PROTOCOL.'://'.SNAF_SERVER_NAME.':'.SNAF_SERVER_PORT);
+} else {
+	#Using standard port
+	define('SNAF_SERVER_URL',SNAF_SERVER_PROTOCOL.'://'.SNAF_SERVER_NAME);
 }
-# SERVER_URL
-define('SNAF_REMOTEPATH','/snaf');
-#Should be generated using dirname($_SERVER['SCRIPT_NAME']); in install.php
+
+#Force SSL?
+if (SNAF_SERVER_FORCESSL && SNAF_SERVER_PROTOCOL == 'http') {
+	header('Location: https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI']);
+	exit();
+}
 
 #Get users "real" ip — works if the user is browsing through a proxy
 if (isset($_SERVER['HTTP_CLIENT_IP'])) {
@@ -121,10 +122,20 @@ if (!defined('SNAF_THEME')) {
 	define('SNAF_THEME','default');
 }
 
-#Enable Microsoft Internet Explorer compatibility?
-if (strpos($_SERVER['HTTP_USER_AGENT'],'MSIE')
- || strpos($_SERVER['HTTP_USER_AGENT'],'Internet Explorer')) {
-	define('SNAF_IECOMPAT',true);
-}
+#Set mbstring settings
+mb_internal_encoding('utf-8');
+mb_detect_order('iso-8859-1');
+
+#Connect to SQL database
+#Use mysql_connect() for a non-persistent connection
+mysql_pconnect(SNAF_DBSERVER,SNAF_DBUSER) or exit('Failed to connect to SQL server');
+mysql_select_db(SNAF_DBNAME) or exit('Failed to select SQL database');
+#0 should not AUTO_INCREMENT, now only NULL does the trick
+mysql_query('SET sql_mode="NO_AUTO_VALUE_ON_ZERO"')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+mysql_query('SET NAMES utf8')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+mysql_query('SET character_set_server=utf8')
+	 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
 
 ?>
