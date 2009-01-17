@@ -74,11 +74,24 @@ else {
 		$xml_result='forum_id not found';
 	}
 	else {
+		#Query for post_id
+		$result2=mysql_query('SELECT MAX(post_id) '.
+		 'FROM '.SNAF_TABLEPREFIX.'fat '.
+		 'WHERE thread_id='.mysql_real_escape_string($_GET['thread_id']).' LIMIT 1')
+		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+		
+		#MAX(post_id) will return NULL if there are no existing threads
+		if (mysql_result($result2,0,'MAX(post_id)') == 'NULL') {
+			$post_id=1;
+		} else {
+			$post_id=mysql_result($result2,0,'MAX(post_id)')+1;
+		}
+		
 		#Submit
 		mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
 		 mysql_result($result,0,'forum_id').','.
 		 '"'.mysql_real_escape_string($_GET['thread_id']).'",'.
-		 'NULL,'.
+		 $post_id.','.
 		 '"'.mysql_real_escape_string($_SESSION['username']).'",'.
 		 time().','.
 		 '"'.mysql_real_escape_string($_POST['subject']).'",'.

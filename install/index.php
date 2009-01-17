@@ -53,7 +53,7 @@ $keys=array_keys($sql);
 for ($i=0; $i < count($sql); $i++) {
 	if (!empty($sql[$i])) {
 		mysql_query($sql[$i])
-		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error());
+		 or exit('SQL error, file '.__FILE__.' line '.__LINE__.': '.mysql_error()."\nStatement:\n".$sql[$i]);
 	}
 }
 

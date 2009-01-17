@@ -79,7 +79,7 @@ else {
 	mysql_query('INSERT INTO '.SNAF_TABLEPREFIX.'fat VALUES ('.
 	 mysql_real_escape_string($_GET['forum_id']).','.
 	 $thread_id.','.
-	 'NULL,'.
+	 '1,'.
 	 '"'.mysql_real_escape_string($_SESSION['username']).'",'.
 	 time().','.
 	 '"'.mysql_real_escape_string($_POST['subject']).'",'.

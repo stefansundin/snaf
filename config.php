@@ -39,7 +39,7 @@ define('SNAF_SITENAME','The SNAF forum, no really, *the* SNAF forum');
 # Database settings
 define('SNAF_DBSERVER','localhost');
 define('SNAF_DBNAME','snaf');
-define('SNAF_DBUSER','snaf');
+define('SNAF_DBUSER','root');
 # If you have more than one installation of SNAF, or if SNAF is conflicting with
 # any of your existing tables, this constant is available so you can make your
 # tables unique:
@@ -128,7 +128,7 @@ mb_detect_order('iso-8859-1');
 
 #Connect to SQL database
 #Use mysql_connect() for a non-persistent connection
-mysql_pconnect(SNAF_DBSERVER,SNAF_DBUSER) or exit('Failed to connect to SQL server');
+mysql_pconnect(SNAF_DBSERVER,SNAF_DBUSER,'snaf') or exit('Failed to connect to SQL server');
 mysql_select_db(SNAF_DBNAME) or exit('Failed to select SQL database');
 #0 should not AUTO_INCREMENT, now only NULL does the trick
 mysql_query('SET sql_mode="NO_AUTO_VALUE_ON_ZERO"')

@@ -1,14 +1,10 @@
-Installation instructions for SNAF.
+Installation instructions for SNAF (SNAF's a Neat Ajax Forum).
 
 Required software:
 * Web server with PHP 4 or newer.
 * A MySQL server.
 
-SNAF is mainly developed on Linux, but should work on other platforms as well.
-You can install SNAF in some different ways, to state some:
-* Installing a stable release
-* Installing a nightly build
-* Checking out a recent revision using Subversion
+Enable PHP modules mbstring and mysql.
 
 To use nice URLs in SNAF you must use Apache with the module mod_rewrite and
 apply a <Directory> statement.
@@ -29,5 +25,3 @@ Below is an example of such a statement, change paths to your need.
 You will also need to create a MySQL database like this:
 CREATE DATABASE snaf;
 GRANT ALL PRIVILEGES ON snaf.* TO snaf@localhost;
-
-Remember, freedom is nice...
